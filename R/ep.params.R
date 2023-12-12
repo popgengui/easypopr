@@ -1938,6 +1938,7 @@ get.bin.subdir = function ( )
 	s.bin.subdir = get.bin.subdir()	
 	s.path.to.exec = paste(  s.pack.loc, "bin", s.bin.subdir, sep="/" )
 	s.exec.name = list.files(  s.path.to.exec  )
+	s.full.path.with.exec = paste( s.path.to.exec, s.exec.name, sep= "/" )
 
 	if( s.exec.name == "" )
 	{
@@ -1949,6 +1950,6 @@ get.bin.subdir = function ( )
 			    		basename( s.exec.name ) ) )
 	}#end if no exec found, else notify of name
 
-	assign( 'EASYPOP.EXECUTABLE', s.exec.name, envir = topenv() )
+	assign( 'EASYPOP.EXECUTABLE', s.full.path.with.exec, envir = topenv() )
 
 }#end .onLoad
