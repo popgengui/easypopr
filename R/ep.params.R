@@ -376,30 +376,28 @@ get.selfing.parameters=function( )
 	#reused to get results from prompt
 	v.user.values=NULL
 
-	if ( s.random.mating == "n" )
+
+	v.user.values = prompt.for.values.and.return.user.entries(
+		 "Proportion of clonal reproduction (between 0 and 1)",
+		 1, "numeric", c( 0, 1)  );
+	clonality = v.user.values[1]
+
+	lv.selfing[["proportion_clonal_mating"]] = clonality
+
+	if( clonality != 1.0 )
 	{
-		v.user.values = prompt.for.values.and.return.user.entries(
-			 "Proportion of clonal reproduction (between 0 and 1)",
-			 1, "numeric", c( 0, 1)  );
-		clonality = v.user.values[1]
+		v.user.values = prompt.for.values.and.return.user.entries(   
+			"Proportion of selfing (between 0 and 1)\nof the individuals not born as clones",
+			1, "numeric", c( 0,1 ) );
 
-		lv.selfing[["proportion_clonal_mating"]] = clonality
+		gpropauto = v.user.values[1]
+	}
+	else
+	{
+		gpropauto = 0.0 #random mating
+	}#end if non clonality not 1.0, else 
 
-		if( clonality != 1.0 )
-		{
-			v.user.values = prompt.for.values.and.return.user.entries(   
-				"Proportion of selfing (between 0 and 1)\nof the individuals not born as clones",
-				1, "numeric", c( 0,1 ) );
-
-			gpropauto = v.user.values[1]
-		}
-		else
-		{
-			gpropauto = 0.0 #random mating
-		}#end if non clonality not 1.0, else 
-
-		lv.selfing[["proportion_selfing_of_nonclones" ]] = gpropauto
-	}#end if random mating
+	lv.selfing[["proportion_selfing_of_nonclones" ]] = gpropauto
 	
 	return ( lv.selfing )
 
