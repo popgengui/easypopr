@@ -1,10 +1,10 @@
 Package: easypopr
 Type: Package
-Title: What the package does (short line)
+Title: easypopr runs the population genetic simulation program, EASYPOP
 Version: 1.0
 Date: 2023-12-10
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
+Author: Ted Cosart
+Maintainer: <agestrucne@google.com>
+Description: easypopr provides a set of prompts at the R console that lets the user parameterize the EASYPOP simulation program.  It writes the parameter values to a configuration file.  It also lets the user execute the EASYPOP simulator using the configuration file.
 License: What license is it under?
 RoxygenNote: 7.2.3
