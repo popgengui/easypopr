@@ -5,8 +5,11 @@ You can install the package in your R installation using the devtools package, w
 
      devtools::install_github( "popgengui/easpopr" )
 
+After loading easypopr with,
 
-You can use easypopr to setup (parameterize) an EASYPOP simulation with the R console command,
+     library( "easypopr" )
+
+you can use easypopr to setup (parameterize) an EASYPOP simulation with the R console command,
      
      setup.easypop( <file_name> )
 
