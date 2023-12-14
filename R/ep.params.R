@@ -243,7 +243,6 @@ format.vals.as.nonscientific.strings=function( v.numeric )
 #' @param   i.num.values, number of entries to get from the user.
 #' @param   s.type.of.values, string, one of "integer", "numeric", or "character"
 #' @param   v.valid.range  min, max values (inclusive) of valid values. If type "character", then NULL or list of valid strings)
-#' @export
 
 prompt.for.values.and.return.user.entries=function( s.prompt, i.num.values, s.type.of.values, v.valid.range  )
  {
@@ -358,7 +357,6 @@ prompt.for.values.and.return.user.entries=function( s.prompt, i.num.values, s.ty
 #' get.selfing.parameters
 #' 
 #' prompt user for selfing parameters, return a list with user-entered values.
-#' @export
 
 get.selfing.parameters=function( )
 {
@@ -411,7 +409,6 @@ get.selfing.parameters=function( )
 #'
 #' @param   gploidy, integer giving ploidy
 #' @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
-#' @export
 
 get.mating.parameters=function ( gploidy, g2sex )
 {
@@ -470,7 +467,6 @@ get.mating.parameters=function ( gploidy, g2sex )
 #' 
 #' prompts user for reproduction parameters and returns user-entered values as a list.
 #'
-#' @export
 
 get.reproduction.parameters=function()
 {
@@ -522,7 +518,7 @@ get.reproduction.parameters=function()
 	else if ( gploidy == 2 )
 	{
 		gploidyfem=2;
-		gploidymal=2; #/*!!si hermaphrodite, cette valeur ne sera pas utilise*/
+		gploidymal=2; #/*si hermaphrodite, cette valeur ne sera pas utilised*/
 		#assume 2 sexes, prompt in case user wants hermaphrodite case
 		g2sex=1;
 
@@ -573,7 +569,6 @@ get.reproduction.parameters=function()
 #'
 #' @param   gploidy, integer giving ploidy
 #' @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
-#' @export
 
 get.population.parameters = function( gploidy, g2sex )
 {
@@ -1172,7 +1167,6 @@ get.migr.spatial = function( g2sex, gnbpop, b.second.scheme )
 #' the fx, get.migration.parameters. 
 #' @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
 #' @param   gnbpop, integer, number of populations.
-#' @export
 
 get.migration.scheme.details = function( g2sex, gnbpop, b.second.scheme )
 {
@@ -1230,7 +1224,6 @@ get.migration.scheme.details = function( g2sex, gnbpop, b.second.scheme )
 #'
 #' @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
 #' @param   gnbpop, integer, number of populations.
-#' @export
 
 get.migration.parameters = function( g2sex, gnbpop )
 {
@@ -1556,8 +1549,6 @@ get.generation.parameters=function( i.unif.migr.scheme )
 #' 
 #' prompts user for genetic parameters and returns user-entered values as a list.
 #'
-#' @export
-#
 get.genetic.parameters = function( )
 {
 	lv.genetics = list()
@@ -1853,11 +1844,22 @@ print.param.list = function( lv.param.list, s.filename )
 	s.combined.lines = paste( vs.lines, collapse="\n" )	
 
 	o.file.conn = file( s.filename )
+
 	writeLines( s.combined.lines, o.file.conn )
+
 	close(o.file.conn)
 
-	return()
 }#end print.param.list
+
+
+#' setup.easypop
+#' 
+#' Prompts the user for parameter values used to run an EASYPOP simulation. 
+#' and writes the values to a file named by the argument.
+#'
+#' @param s.file.name, string giving the name of a new file to which the program can
+#' write the parameter values entered at the prompts. 
+#' @export
 
 setup.easypop = function( s.file.name )
 {
@@ -1883,6 +1885,14 @@ setup.easypop = function( s.file.name )
 	print.param.list( lv.as.list, s.file.name )
 
 }#end setup.easypop
+
+#' run.easypop
+#' 
+#' Runs an EASYPOP simulation using the parameters given in the file
+#' named by the argument.
+#'
+#' @param s.file.name, string giving the name of an existing file holding EASYPOP simulation parameters 
+#' @export
 
 run.easypop = function ( s.file.name )
 {
@@ -1932,13 +1942,18 @@ get.bin.subdir = function ( )
 	#has per-os subdirectories, each of which contain exactly one
 	#file, the easypop executable.
 
+	#if the call to list files to get exec
+	#name fails we'll get a character(0)
+	#return, so we can check for it with:
+	MIN.EXEC.NAME.LEN=1
+
 	s.pack.loc=find.package( "easypopr" )
 	s.bin.subdir = get.bin.subdir()	
 	s.path.to.exec = paste(  s.pack.loc, "bin", s.bin.subdir, sep="/" )
 	s.exec.name = list.files(  s.path.to.exec  )
 	s.full.path.with.exec = paste( s.path.to.exec, s.exec.name, sep= "/" )
 
-	if( s.exec.name == "" )
+	if( length( s.exec.name ) < MIN.EXEC.NAME.LEN )
 	{
 		print( "package easypopr can't find the easypop executable" );
 	}
@@ -1951,3 +1966,4 @@ get.bin.subdir = function ( )
 	assign( 'EASYPOP.EXECUTABLE', s.full.path.with.exec, envir = topenv() )
 
 }#end .onLoad
+
