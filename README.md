@@ -10,7 +10,7 @@ You can use easypopr to setup (parameterize) an EASYPOP simulation with the R co
      
      setup.easypop( <file_name> )
 
-and following the prompts.  <filename> should name a file to which the program can write the values you enter at the prompt.   You can then run EASYPOP using your entered values with, 
+and following the prompts.  <file_name> should name a file to which the program can write the values you enter at the prompt.   You can then run EASYPOP using your entered values with, 
 
      run.easypop( <file_name> )
 
