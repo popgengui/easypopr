@@ -1852,16 +1852,16 @@ print.param.list = function( lv.param.list, s.filename )
 }#end print.param.list
 
 
-#' setup.easypop
+#' setup_easypop
 #' 
 #' Prompts the user for parameter values used to run an EASYPOP simulation. 
 #' and writes the values to a file named by the argument.
 #'
-#' @param s.file.name, string giving the name of a new file to which the program can
+#' @param s.file.name string giving the name of a new file to which the program can
 #' write the parameter values entered at the prompts. 
 #' @export
 
-setup.easypop = function( s.file.name )
+setup_easypop = function( s.file.name )
 {
 
 	#before prompting for params,
@@ -1884,17 +1884,19 @@ setup.easypop = function( s.file.name )
 
 	print.param.list( lv.as.list, s.file.name )
 
-}#end setup.easypop
+	print( "finished writing parameter values" )
 
-#' run.easypop
+}#end setup_easypop
+
+#' run_easypop
 #' 
 #' Runs an EASYPOP simulation using the parameters given in the file
 #' named by the argument.
 #'
-#' @param s.file.name, string giving the name of an existing file holding EASYPOP simulation parameters 
+#' @param s.file.name string giving the name of an existing file holding EASYPOP simulation parameters 
 #' @export
 
-run.easypop = function ( s.file.name )
+run_easypop = function ( s.file.name )
 {
 	if( EASYPOP.EXECUTABLE != "" )
 	{
@@ -1902,10 +1904,10 @@ run.easypop = function ( s.file.name )
 	}
 	else
 	{
-		print( "in fx run.easypop, program does not have an executable name." )
+		print( "in fx run_easypop, program does not have an executable name." )
 	}#end if executable exists else
 
-}#end run.easypop
+}#end run_easypop
 
 get.bin.subdir = function ( )
 {
