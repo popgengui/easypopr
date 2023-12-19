@@ -10,7 +10,8 @@ plot_ep_replicate_equ_means(vs.config.files, s.colname)
 \item{vs.config.files}{vector of names of ep config files}
 
 \item{s.colname}{names one of the columns of an equ file,
-as given in the first line of an equ file.}
+as given in the first line of an equ file, one of,
+Ho, Hs, Ht, Fis, Fst, or Fit.}
 }
 \description{
 for each easypop config file given in the vector arg,
