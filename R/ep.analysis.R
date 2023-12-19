@@ -6,14 +6,15 @@
 #used to compare output of the revised easypop
 #program versus the original.
 
-get.list.equ.files=function( s.file.pattern )
+get.list.equ.files=function( s.file.pattern, s.path )
 {
-	v.files = list.files( pattern = s.file.pattern );
+
+	v.files = list.files( path=s.path, pattern = s.file.pattern );
 
 	return( v.files )
 }#end get.list.equ.files
 
-get.mean.equ.file = function( v.files )
+get.mean.equ.file = function( v.files, s.path )
 {
 	#v.files should be a list of existing
 	#*equ files from ep output.  We assume
@@ -27,13 +28,15 @@ get.mean.equ.file = function( v.files )
 	{
 		i.file.count = i.file.count + 1;
 
+		s.file.and.path=paste( s.path, s.file, sep="/" )
+
 		if( i.file.count == 1 )
 		{
-			df.means=read.table( s.file, header=T, sep="\t" )
+			df.means=read.table( s.file.and.path, header=T, sep="\t" )
 		}
 		else
 		{
-			df.temp=read.table( s.file, header=T, sep="\t" )
+			df.temp=read.table( s.file.and.path, header=T, sep="\t" )
 	
 			for( s.name in names( df.temp ) )
 			{
@@ -178,9 +181,28 @@ plot_ep_replicate_equ_means = function( vs.config.files, s.colname ) {
 	for( s.file in vs.config.files )
 	{
 		s.outfile.base = get.results.file.base.name.from.config.file( s.file )
-		s.equ.file.pattern=paste( s.outfile.base, ".*equ", sep="" )
-		v.equ.files = get.list.equ.files( s.equ.file.pattern )
-		df.means = get.mean.equ.file( v.equ.files ) 
+		#for the list.files fx divide into the actual file base and the path
+	       	#that leads to it. fx dirname will output a dot if there is no preceeding
+		#path, which is the correct value for cwd (default) when using  list.files
+		s.file.only = basename( s.outfile.base )
+		s.path.only = dirname( s.outfile.base )
+
+		s.equ.file.pattern=paste( s.file.only, ".*equ", sep="" )
+		##### temp 
+		print( "base:")
+		print( s.equ.file.pattern )
+		#####
+		v.equ.files = get.list.equ.files( s.equ.file.pattern, s.path.only )
+		##### temp
+		print( "files: " )
+		print( v.equ.files )
+		#####
+
+		df.means = get.mean.equ.file( v.equ.files, s.path.only ) 
+		##### tempt
+		print( "means" )
+		print( ldf.means )
+		#####
 		ldf.means[[s.outfile.base]] = df.means 
 		
 	}#end for each config file
