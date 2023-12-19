@@ -122,7 +122,8 @@ plot.equ.values = function( s.colname, ldf.data.frames )
 
 	legend( x="bottomright", 
 	       legend=names( ldf.data.frames ),
-	       col = 1:i.num.frames, lty=1, lwd=3 )
+	       col = 1:i.num.frames, lty=1, 
+	       lwd=3, bty="n", bg="transparent" )
 
 }#end fx plot.equ.values
 
@@ -171,7 +172,9 @@ get.results.file.base.name.from.config.file = function( s.config.file )
 #' locate the *equ files
 #' @param vs.config.files vector of names of ep config files
 #' @param s.colname names one of the columns of an equ file,
-#' as given in the first line of an equ file.
+#' as given in the first line of an equ file, one of,
+#' Ho, Hs, Ht, Fis, Fst, or Fit.
+#
 #'@export
  
 plot_ep_replicate_equ_means = function( vs.config.files, s.colname ) {
@@ -188,21 +191,9 @@ plot_ep_replicate_equ_means = function( vs.config.files, s.colname ) {
 		s.path.only = dirname( s.outfile.base )
 
 		s.equ.file.pattern=paste( s.file.only, ".*equ", sep="" )
-		##### temp 
-		print( "base:")
-		print( s.equ.file.pattern )
-		#####
 		v.equ.files = get.list.equ.files( s.equ.file.pattern, s.path.only )
-		##### temp
-		print( "files: " )
-		print( v.equ.files )
-		#####
 
 		df.means = get.mean.equ.file( v.equ.files, s.path.only ) 
-		##### tempt
-		print( "means" )
-		print( ldf.means )
-		#####
 		ldf.means[[s.outfile.base]] = df.means 
 		
 	}#end for each config file
