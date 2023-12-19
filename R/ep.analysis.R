@@ -163,7 +163,7 @@ get.results.file.base.name.from.config.file = function( s.config.file )
 	
 }#end get.results.file.base.name.from.config.file
 
-#' plot_ep_replicate_equ_means
+#' plot_easypop_replicate_equ_means
 #'
 #' for each easypop config file given in the vector arg,
 #' plot the per-generation, replicate mean values for the 
@@ -177,7 +177,7 @@ get.results.file.base.name.from.config.file = function( s.config.file )
 #
 #'@export
  
-plot_ep_replicate_equ_means = function( vs.config.files, s.colname ) {
+plot_easypop_replicate_equ_means = function( vs.config.files, s.colname ) {
 
 	ldf.means = list()
 
@@ -200,4 +200,4 @@ plot_ep_replicate_equ_means = function( vs.config.files, s.colname ) {
 
 	plot.equ.values( s.colname, ldf.means )
 
-}#end plot.ep.replicate.means
+}#end plot.easypop.replicate.means
