@@ -166,9 +166,9 @@ get.results.file.base.name.from.config.file = function( s.config.file )
 #' plot_easypop_replicate_equ_means
 #'
 #' for each easypop config file given in the vector arg,
-#' plot the per-generation, replicate mean values for the 
-#' equ output files, the column given by the s.colname arg 
-#' the name_of_file entry  in each config file is used to
+#' Plot the per-generation, replicate mean values for the 
+#' equ output files, the column given by the s.colname arg.
+#' The name_of_file entry  in each config file is used to
 #' locate the *equ files
 #' @param vs.config.files vector of names of ep config files
 #' @param s.colname names one of the columns of an equ file,
