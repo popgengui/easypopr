@@ -8,3 +8,4 @@ Maintainer: <agestrucne@google.com>
 Description: easypopr provides a set of prompts at the R console that lets the user parameterize the EASYPOP simulation program.  It writes the parameter values to a configuration file.  It also lets the user execute the EASYPOP simulator using the configuration file.
 License: What license is it under?
 RoxygenNote: 7.2.3
+Encoding: UTF-8

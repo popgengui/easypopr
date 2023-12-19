@@ -1853,15 +1853,16 @@ print.param.list = function( lv.param.list, s.filename )
 
 
 #' setup_easypop
-#' 
-#' Prompts the user for parameter values used to run an EASYPOP simulation. 
-#' and writes the values to a file named by the argument.
 #'
-#' @param s.file.name string giving the name of a new file to which the program can
-#' write the parameter values entered at the prompts. 
+#' Prompts the user for parameter values used to run an EASYPOP simulation. and
+#' writes the values to a file named by the argument.
+#'
+#' @param s.file.name string giving the name of a new file to which the program
+#'   can write the parameter values entered at the prompts.
+#' @param run logical, default FALSE. If TRUE, easypop will automatically be run
+#'   on the after parameter file creation is complete.
 #' @export
-
-setup_easypop = function( s.file.name )
+setup_easypop = function( s.file.name, run = FALSE)
 {
 
 	#before prompting for params,
@@ -1885,6 +1886,10 @@ setup_easypop = function( s.file.name )
 	print.param.list( lv.as.list, s.file.name )
 
 	print( "finished writing parameter values" )
+	
+	if(run){
+	  run_easypop(s.file.name)
+	}
 
 }#end setup_easypop
 
@@ -1898,13 +1903,14 @@ setup_easypop = function( s.file.name )
 
 run_easypop = function ( s.file.name )
 {
-	if( EASYPOP.EXECUTABLE != "" )
+  s.file.name <- normalizePath(s.file.name)
+	if( file.exists(Sys.getenv("EASYPOP.EXECUTABLE")) )
 	{
-		system ( paste( EASYPOP.EXECUTABLE, "read", s.file.name ) )
+		system ( paste( Sys.getenv("EASYPOP.EXECUTABLE"), "read", s.file.name ) )
 	}
 	else
 	{
-		print( "in fx run_easypop, program does not have an executable name." )
+		print( "in fx run_easypop, program does not have an executable name. try manually locating the easypop executable with locate_easypop()" )
 	}#end if executable exists else
 
 }#end run_easypop
@@ -1938,34 +1944,33 @@ get.bin.subdir = function ( )
 
 }#end get.bin.subdir
 
-.onLoad = function (libname, pkgname) 
-{
-	#Note that this function assumes that the package "bin" dir
-	#has per-os subdirectories, each of which contain exactly one
-	#file, the easypop executable.
+#' Manually locate an EASYPOP executable
+#' 
+#' @param path character, a path to the EASYPOP executable.
+#' 
+#' @export
+locate_easypop <- function(path){
+  path <- normalizePath(path)
+  
+  # see if there is anything at this location
+  if(!file.exists(path)){
+    stop("File: ", path, " does not exist.\n")
+  }
 
-	#if the call to list files to get exec
-	#name fails we'll get a character(0)
-	#return, so we can check for it with:
-	MIN.EXEC.NAME.LEN=1
-
-	s.pack.loc=find.package( "easypopr" )
-	s.bin.subdir = get.bin.subdir()	
-	s.path.to.exec = paste(  s.pack.loc, "bin", s.bin.subdir, sep="/" )
-	s.exec.name = list.files(  s.path.to.exec  )
-	s.full.path.with.exec = paste( s.path.to.exec, s.exec.name, sep= "/" )
-
-	if( length( s.exec.name ) < MIN.EXEC.NAME.LEN )
-	{
-		print( "package easypopr can't find the easypop executable" );
-	}
-	else
-	{
-		print( paste( "setting the package easypop executable to,",
-			    		basename( s.exec.name ) ) )
-	}#end if no exec found, else notify of name
-
-	assign( 'EASYPOP.EXECUTABLE', s.full.path.with.exec, envir = topenv() )
-
-}#end .onLoad
-
+  # see if this looks like easypop
+  suppressWarnings(test <- try(system(path, intern = TRUE), silent = TRUE))
+  if(is("try-error", test[1])){
+    stop(test)
+  }
+  else{
+    if(grepl("EASY", test[1])){
+      Sys.setenv(EASYPOP.EXECUTABLE = path)
+      return(TRUE)
+    }
+    else{
+      stop(paste0("This doesn't look like an EASYPOP executable--here is the result of system(normalizePath(path)):",
+                  "\n",
+                  paste0(test, collapse = "\n")))
+    }
+  }
+}

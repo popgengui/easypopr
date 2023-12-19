@@ -4,13 +4,16 @@
 \alias{setup_easypop}
 \title{setup_easypop}
 \usage{
-setup_easypop(s.file.name)
+setup_easypop(s.file.name, run = FALSE)
 }
 \arguments{
-\item{s.file.name}{string giving the name of a new file to which the program can
-write the parameter values entered at the prompts.}
+\item{s.file.name}{string giving the name of a new file to which the program
+can write the parameter values entered at the prompts.}
+
+\item{run}{logical, default FALSE. If TRUE, easypop will automatically be run
+on the after parameter file creation is complete.}
 }
 \description{
-Prompts the user for parameter values used to run an EASYPOP simulation. 
-and writes the values to a file named by the argument.
+Prompts the user for parameter values used to run an EASYPOP simulation. and
+writes the values to a file named by the argument.
 }
