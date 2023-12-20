@@ -23,7 +23,8 @@ To view plotted replicate mean, per-generation values of quanities in EASYPOP's 
 
     plot_easypop_replicate_equ_means( <vector of config file names>, <quantity> )
 
-where the vector argument is one or more config files used by EASYPOP to run a simulation, and the quantity argument gives one of the column names (e.g. Fst, Fis) in the first line of an equ file, to see the per-generation replicate mean value of the quantity.
+where the vector argument is one or more config files used by EASYPOP to run a simulation, and the quantity argument gives one of the column names  in the first line of an equ file (one of: Ho, Hs, Ht, Fis, Fst, or Fit), to see the per-generation replicate mean value of the quantity.
+
 
 
 
