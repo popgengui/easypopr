@@ -1173,14 +1173,34 @@ get.migration.scheme.details = function( g2sex, gnbpop, b.second.scheme )
 
 	lv.scheme = list()
 	lv.migr.params = NULL
+	gtypemigr = NULL
 
-	lv.user.values = prompt.for.values.and.return.user.entries( 
-				MIGRATION_SCHEME_PROMPT,
-				1, "integer", c( 1, MAX_NUMBER_POPULATIONS ) ) 
+	#Although not cased out, note that the case of 1 pop (gnbpop==1), should 
+	#not reach this function (see get.mating.parameters())
+	if( gnbpop > 2 )
+	{
+		lv.user.values = prompt.for.values.and.return.user.entries( 
+					MIGRATION_SCHEME_PROMPT,
+					1, "integer", c( 1, MAX_NUMBER_POPULATIONS ) ) 
 
-	gtypemigr = lv.user.values[1] 
+		gtypemigr = lv.user.values[1] 
+	}
+	else #2 pops
+	{
+		#island migration the only option for 2 pops:
+		gtypemigr = 3
+	}#end if more than 2 else migration is island type
 
-	lv.scheme[["migration_model"]] = gtypemigr
+	if( b.second.scheme )
+	{
+		lv.scheme[["migration_model_second_scheme"]] = gtypemigr
+	}
+	else
+	{
+
+		lv.scheme[["migration_model"]] = gtypemigr
+	}#end if second scheme, else not
+
 
 	if( gtypemigr == 1 )
 	{
@@ -1232,27 +1252,26 @@ get.migration.parameters = function( g2sex, gnbpop )
 	lv.scheme = list()
 	gtypemigr = NULL
 
-	if ( gnbpop <= 2 )
+	#special case, 1 pop, no migration:	
+	if( gnbpop == 1 )
 	{
-		#default for 1 or 2 pops is  island
+		#default for 1 pop is  island
 		lv.migr[["migration_model"]] = 3
-		gtypemigr = 3
 
-		if( gnbpop == 1 )
+		#ep uses vars labeled "female" when under haploidy and needs
+		#a value:	
+		lv.migr[["proportion_female_migration"]] = 0.0
+		if( g2sex == TRUE.AS.INT )
 		{
-			#ep uses vars labeled "female" when under haploidy and needs
-			#a value:	
-			lv.migr[["proportion_female_migration"]] = 0.0
-			if( g2sex == TRUE.AS.INT )
-			{
-				#2-sexes, we also need to set maile migr
-				#to zero for 1-pop scenario:
-				lv.migr[["proportion_male_migration"]] = 0
-			}#end if 2 sexes
-			return( lv.migr )
-		}#end if one pop only return after trivial migration assignments
+			#2-sexes, we also need to set male migr
+			#to zero for 1-pop scenario:
+			lv.migr[["proportion_male_migration"]] = 0.0
+		}#end if 2 sexes
 
-	}#end if only one or two pops, set as island model
+		lv.migr[["same_migration_scheme_all_simulation"]] = TRUE.AS.INT
+
+		return( lv.migr )
+	}#end if one pop only return after trivial migration assignments
 
 	v.user.values = prompt.for.values.and.return.user.entries( 
 			"Same migration scheme over all simulation? (y/n)",
@@ -1274,6 +1293,7 @@ get.migration.parameters = function( g2sex, gnbpop )
 
 		print("migration model for the first part of the simulation?");
 		lv.scheme.one = get.migration.scheme.details( g2sex, gnbpop, FALSE )
+
 		print("migration model for the second part of the simulation?");
 		lv.scheme.two = get.migration.scheme.details( g2sex, gnbpop, TRUE )
 
