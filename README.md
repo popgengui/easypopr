@@ -11,9 +11,9 @@ After loading easypopr with,
 
 you can use easypopr to setup (parameterize) an EASYPOP simulation with the R console command,
      
-     setup_easypop( <file_name> )
+     setup_easypop( <file_name>, run=FALSE )
 
-and following the prompts.  <file_name> should name a file to which the program can write the values you enter at the prompts.   You can then run EASYPOP using your entered values from R with, 
+and following the prompts.  <file_name> should name a file to which the program can write the values you enter at the prompts.   To run EASYPOP automatically after the prompts, use TRUE as an optional second argument.  You can also run EASYPOP using your entered values from R with, 
 
      run_easypop( <file_name> )
 
