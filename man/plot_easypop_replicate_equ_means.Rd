@@ -15,7 +15,7 @@ Ho, Hs, Ht, Fis, Fst, or Fit.}
 }
 \description{
 for each easypop config file given in the vector arg,
-Plot the per-generation, replicate mean values for the 
+Plot the per-generation, replicate mean values for the
 equ output files, the column given by the s.colname arg.
 The name_of_file entry  in each config file is used to
 locate the *equ files

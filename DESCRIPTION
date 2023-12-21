@@ -9,3 +9,7 @@ Description: easypopr provides a set of prompts at the R console that lets the u
 License: What license is it under?
 RoxygenNote: 7.2.3
 Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Imports:
+    data.table,
+    ggplot2

@@ -55,77 +55,50 @@ get.mean.equ.file = function( v.files, s.path )
 
 }#end fx get.mean.equ.file
 
-#' plot.equ.values
-#' 
-#' for each data frame given in arg ldf.data.frames, list of items, each representing 
-#' an ep output *equ file,  a line is plotted showing the per-generation values for the
-#' quantity (e.g. Fst), associated with the column name given by arg s.colname
-#' and returns them in a vector length i.num.values, of user-entered values
+#' plot_easypop_replicate_equ_values
+#'
+#' for each data frame given in arg ldf.data.frames, list of items, each
+#' representing an ep output *equ file,  a line is plotted showing the
+#' per-generation values for the quantity (e.g. Fst), associated with the column
+#' name given by arg s.colname and returns them in a vector length i.num.values,
+#' of user-entered values
 #'
 #' @param   s.colname  a column name from the equ file's first line
-#' @param   ldf.data.frames a list of data frames, as created by calling read.table
-#' on an *.equ file.
-#
+#' @param   ldf.data.frames either a list of data frames, as created by calling
+#'   \code{\link[utils]{read.table}} on a set of *.equ file, or a vector of file
+#'   paths to each .equ file you wish to read. The latter can be generated with
+#'   the \code{\link[base]{file.path}} using the \code{full.names = TRUE}
+#'   argument.
+#' 
+#' @export
 
-plot.equ.values = function( s.colname, ldf.data.frames )
+plot_easypop_replicate_equ_values = function( s.colname, ldf.data.frames )
 {
 
-	i.num.frames=length( ldf.data.frames )
+  if(!is.data.frame(ldf.data.frames[[1]])){
+    check <- unlist(lapply(ldf.data.frames, file.exists))
+    if(any(!check)){
+      stop(paste0("Some files in lf.data.frames not found: \n",
+                  paste0(ldf.data.frames[-check], collapse = "\n")))
+    }
+    
+    names(ldf.data.frames) <- basename(ldf.data.frames)
+    ldf.data.frames <- lapply(ldf.data.frames, function(x) read.table(x, header = TRUE))
+  }
+  else{
+    names(ldf.data.frames) <- paste0("run", 1:length(ldf.data.frames))
+  }
+  
+  ldf.data.frames <- data.table::rbindlist(ldf.data.frames, idcol = "run")
+  ldf.data.frames <- ldf.data.frames[,c("run", "gen", s.colname)]
 
-	lv.values=NULL
-
-	#we plot 1:length of y-values,
-	#assuming per-generation starting with one,
-	#hence min always one
-	f.overall.xmax = -Inf
-
-	f.overall.ymin = Inf
-	f.overall.ymax = -Inf
-
-	for( s.name in names( ldf.data.frames ) )
-	{
-
-		v.values = ldf.data.frames[[s.name]][[s.colname]]
-		i.num.rows = length( v.values )
+	p <- ggplot2::ggplot(ldf.data.frames, ggplot2::aes_string(x = "gen", y = s.colname, color = "run")) +
+	  ggplot2::geom_line(show.legend = FALSE) +
+	  ggplot2::theme_bw()
 	
-		f.xmax.this=i.num.rows
-		f.ymin.this=min(v.values)
-		f.ymax.this=max(v.values)
-
-		f.overall.xmax = ifelse( f.xmax.this > f.overall.xmax, f.xmax.this, f.overall.xmax )
-		f.overall.ymin = ifelse( f.ymin.this < f.overall.ymin, f.ymin.this, f.overall.ymin )
-		f.overall.ymax = ifelse( f.ymax.this > f.overall.ymax, f.ymax.this, f.overall.ymax )
-
-		lv.values[[s.name]] = v.values
-
-	}#and for each frame, get values, compute overall mins/maxes
-
-	plot( 1:f.overall.xmax, 
-		1:f.overall.xmax,
-		main=s.colname,
-		xlab="generation",
-		ylab=s.colname, 
-		xlim=c( 1, f.overall.xmax), 
-		ylim=c( f.overall.ymin, f.overall.ymax ), 
-		type='n' );
-
-	i.this.line.color=0
-
-	for( s.name in names( lv.values ) )
-	{
-		v.yvals=lv.values[[s.name]] 
-		i.this.line.color = i.this.line.color + 1
-
-		lines( 1:length( v.yvals ), v.yvals, col=i.this.line.color ); 
-
-	}#for each name
-
-	legend( x="bottomright", 
-	       legend=names( ldf.data.frames ),
-	       col = 1:i.num.frames, lty=1, 
-	       lwd=3, bty="n", bg="transparent" )
-
-}#end fx plot.equ.values
+	return(p)
+	
+}#end fx plot_easypop_replicate_equ_values
 
 get.results.file.base.name.from.config.file = function( s.config.file )
 {
@@ -198,6 +171,7 @@ plot_easypop_replicate_equ_means = function( vs.config.files, s.colname ) {
 		
 	}#end for each config file
 
-	plot.equ.values( s.colname, ldf.means )
+
+	return(plot_easypop_replicate_equ_values( s.colname, ldf.means ))
 
 }#end plot.easypop.replicate.means

@@ -13,6 +13,6 @@ get.migration.scheme.details(g2sex, gnbpop, b.second.scheme)
 }
 \description{
 prompts user for details of migration scheme parameters and returns user-entered values as a list.
-this function is called only if the number of pops exceeds 2 (else they are trivially assigned island in 
+this function is called only if the number of pops exceeds 2 (else they are trivially assigned island in
 the fx, get.migration.parameters.
 }
