@@ -11,7 +11,15 @@ get.list.equ.files=function( s.file.pattern, s.path )
 
 	v.files = list.files( path=s.path, pattern = s.file.pattern );
 
+	if( length( v.files ) == 0 )
+	{
+		stop( paste( "error in get.list.equ.files:  no files found in path, ",
+			    	s.path, "and file pattern,", s.file.pattern ) )
+
+	}#end if length is zero
+
 	return( v.files )
+
 }#end get.list.equ.files
 
 get.mean.equ.file = function( v.files, s.path )
@@ -55,6 +63,36 @@ get.mean.equ.file = function( v.files, s.path )
 
 }#end fx get.mean.equ.file
 
+files.are.all.of.type.equ = function( v.file.names )
+{
+	#motivation:  we'd like to check the data.source input
+	#for the plot_easypop_replicate_equ_values 
+	#when the user sends in a single string,
+	#hence our init usage for s.file.name arg is expected to 
+	#be a single string (an R character obj with length=1), 
+	#but we check all char types if multiple char items are sent 
+
+	#We make only a prima facia, name-based test that 
+	#all files are easypop *.equ results file.  Maybe we'll 
+	#add some analysis of contents if this gives false 
+	#positives too frequently.
+	b.all.are.type.equ = FALSE
+
+	i.num.file.names = length( v.file.names )
+
+	v.match=grep( pattern = "\\.equ$", x = v.file.names ) 
+
+	#with a match we expect a single string (i.e. in R's
+	#lingo a length=1 character type:
+	if( length( v.match ) == i.num.file.names )
+	{
+		b.all.are.type.equ = TRUE
+	}#end if every char item matched the name test
+
+	return( b.all.are.type.equ )
+		
+}#end file.is.type.equ
+
 #' plot_easypop_replicate_equ_values
 #'
 #' for each data frame given in arg ldf.data.frames, list of items, each
@@ -64,16 +102,46 @@ get.mean.equ.file = function( v.files, s.path )
 #' of user-entered values
 #'
 #' @param   s.colname  a column name from the equ file's first line
-#' @param   ldf.data.frames either a list of data frames, as created by calling
-#'   \code{\link[utils]{read.table}} on a set of *.equ file, or a vector of file
-#'   paths to each .equ file you wish to read. The latter can be generated with
-#'   the \code{\link[base]{file.path}} using the \code{full.names = TRUE}
-#'   argument.
+#' @param   v.data.source one of:  (1) a list of data frames, as created by calling
+#'   \code{\link[utils]{read.table}} on a set of *.equ file, or (2) a vector of file
+#'   paths to each .equ file you wish to read, or (3) one string giving the name
+#'   of an easypop configuration file (as created, for exmple using setup_easypop). 
+#'   Note that for option (2) the vector of file paths can be generated with
+#'   the \code{\link[base]{file.path}} using the \code{full.names = TRUE} argument.
+#'   In case (3), the program looks for equ files matching the "name_of_file" value
+#'   listed in the configuration file
+#'  
 #' 
 #' @export
 
-plot_easypop_replicate_equ_values = function( s.colname, ldf.data.frames )
+plot_easypop_replicate_equ_values = function( s.colname, v.data.source  )
 {
+  
+  ldf.data.frames = NULL
+
+  #20231221.  We preserve the code that analyzes the orig fx arg, ldf.data.frames
+  #variable, which we first assign, either trivially to our replacement arg,
+  #v.data.source, or, in the special case we want to add (see below), we convert
+  #a config file name into a list of equ files, then assign it to
+  #ldf.data.frames for processing.
+
+  #if a single string (R's type==character, length  == 1 ) is sent 
+  #in, we check to see if its not an *equ file, in which case
+  #we assume it's an easypop config file, from which we want 
+  #to extract equ output file names:
+
+  if( is.character ( v.data.source ) 
+     && length( v.data.source )  == 1
+     && !files.are.all.of.type.equ( v.data.source ) )
+  {
+	  s.outfile.base=get.results.file.base.name.from.config.file( v.data.source )
+  	  l.files = get.list.equ.files.from.results.base.name( s.outfile.base )
+	  ldf.data.frames = paste( l.files$equpath, l.files$equnames, sep="/" )
+  }
+  else#in this case, we assume its already in a form that is ready to be processed below
+  {  
+	  ldf.data.frames = v.data.source
+  }#end if single string, non-equ file name, else either a data df or an equ file name
 
   if(!is.data.frame(ldf.data.frames[[1]])){
     check <- unlist(lapply(ldf.data.frames, file.exists))
@@ -88,15 +156,15 @@ plot_easypop_replicate_equ_values = function( s.colname, ldf.data.frames )
   else{
     names(ldf.data.frames) <- paste0("run", 1:length(ldf.data.frames))
   }
-  
+
   ldf.data.frames <- data.table::rbindlist(ldf.data.frames, idcol = "run")
   ldf.data.frames <- ldf.data.frames[,c("run", "gen", s.colname)]
 
-	p <- ggplot2::ggplot(ldf.data.frames, ggplot2::aes_string(x = "gen", y = s.colname, color = "run")) +
+   p <- ggplot2::ggplot(ldf.data.frames, ggplot2::aes_string(x = "gen", y = s.colname, color = "run")) +
 	  ggplot2::geom_line(show.legend = FALSE) +
 	  ggplot2::theme_bw()
 	
-	return(p)
+   return(p)
 	
 }#end fx plot_easypop_replicate_equ_values
 
@@ -136,6 +204,20 @@ get.results.file.base.name.from.config.file = function( s.config.file )
 	
 }#end get.results.file.base.name.from.config.file
 
+get.list.equ.files.from.results.base.name=function( s.outfile.base )
+{	
+	#for the list.files fx divide into the actual file base and the path
+       	#that leads to it. fx dirname will output a dot if there is no preceeding
+	#path, which is the correct value for cwd (default) when using  list.files
+	s.file.only = basename( s.outfile.base )
+	s.path.only = dirname( s.outfile.base )
+
+	s.equ.file.pattern=paste( s.file.only, ".*equ", sep="" )
+	v.equ.files = get.list.equ.files( s.equ.file.pattern, s.path.only )
+	
+	return( list( "equnames" = v.equ.files, "equpath" = s.path.only ) )
+}#end get.list.equ.files.from.results.base.name
+
 #' plot_easypop_replicate_equ_means
 #'
 #' for each easypop config file given in the vector arg,
@@ -157,21 +239,14 @@ plot_easypop_replicate_equ_means = function( vs.config.files, s.colname ) {
 	for( s.file in vs.config.files )
 	{
 		s.outfile.base = get.results.file.base.name.from.config.file( s.file )
-		#for the list.files fx divide into the actual file base and the path
-	       	#that leads to it. fx dirname will output a dot if there is no preceeding
-		#path, which is the correct value for cwd (default) when using  list.files
-		s.file.only = basename( s.outfile.base )
-		s.path.only = dirname( s.outfile.base )
-
-		s.equ.file.pattern=paste( s.file.only, ".*equ", sep="" )
-		v.equ.files = get.list.equ.files( s.equ.file.pattern, s.path.only )
-
-		df.means = get.mean.equ.file( v.equ.files, s.path.only ) 
+		l.equ.files = get.list.equ.files.from.results.base.name( s.outfile.base )		
+		df.means = get.mean.equ.file( l.equ.files$equnames, l.equ.files$equpath ) 
 		ldf.means[[s.outfile.base]] = df.means 
-		
 	}#end for each config file
 
 
-	return(plot_easypop_replicate_equ_values( s.colname, ldf.means ))
+	return( plot_easypop_replicate_equ_values( s.colname, ldf.means ) )
 
 }#end plot.easypop.replicate.means
+
+
