@@ -1,7 +1,7 @@
 .onLoad = function (libname, pkgname) 
 {
   #Note that this function assumes that the package "bin" dir
-  #has per-os subdirectories, each of which contain exactly one
+  #has per-os subdirectories, each of which contains exactly one
   #file, the easypop executable.
   
   #if the call to list files to get exec
@@ -22,7 +22,7 @@
   else
   {
     Sys.setenv(EASYPOP.EXECUTABLE = s.full.path.with.exec)
-    print( paste( "setting the package easypop executable to,",
+    print( paste( "setting the package easypop executable to",
                   basename( s.exec.name ) ) )
   }#end if no exec found, else notify of name
   
