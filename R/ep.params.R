@@ -547,7 +547,8 @@ get.reproduction.parameters=function()
 			
 			if( i.random.mating == FALSE.AS.INT )
 			{	
-				lv.selfing = get.selfing.parameters()
+				lv.selfing.details = get.selfing.parameters()
+				lv.selfing=append( lv.selfing, lv.selfing.details )
 				lv.repro=append( lv.repro, lv.selfing )
 			}#end  if no random mating, get selfing params
 
