@@ -1391,7 +1391,7 @@ get.mutation.scheme = function( i.num.loci, i.unif.mut.scheme )
 		{
 
 			s.prompt = paste( "Mutation model for locus ", i.locus, 
-					 "?", MUTATION_MODEL_LIST,  sep="" )
+					 "?\n", MUTATION_MODEL_LIST,  sep="" )
 
 			v.user.values = prompt.for.values.and.return.user.entries( 
 				s.prompt, 1, "integer", c( 1, MAX_NUMBER_MUTATION_MODEL ) )
