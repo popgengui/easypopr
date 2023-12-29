@@ -10,7 +10,7 @@ ALL.EP.PARAMS.WITH.TYPE=list(
 		"two_sexes"
 			 = list( "name" = "two_sexes:", "valtype" = "logical", "value" = NULL ),
 		"random_mating"
-			 = list( "name" = "random_mating:", "valtype" = "numeric", "value" = NULL ),
+			 = list( "name" = "random_mating:", "valtype" = "logical", "value" = NULL ),
 		"proportion_clonal_mating"
 			 = list( "name" = "proportion_clonal_mating:", "valtype" = "numeric", "value" = NULL ),
 		"proportion_selfing_of_nonclones"
