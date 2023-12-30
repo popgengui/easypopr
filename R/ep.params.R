@@ -1731,7 +1731,7 @@ get.ep.parameters=function()
 	lv.param.vals=append( lv.param.vals, lv.migr )
 
 
-	lv.genetics = get.genetic.parameters( lv.param.vals$gploidy )
+	lv.genetics = get.genetic.parameters( lv.param.vals$ploidy )
 	lv.param.vals=append( lv.param.vals, lv.genetics )
 
 	lv.generations = get.generation.parameters( lv.param.vals[["same_migration_scheme_all_simulation"]] )
