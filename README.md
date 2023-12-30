@@ -1,7 +1,11 @@
 # easypopr
-An R package to run the population simulation program, EASYPOP
+An R package to run the population simulation program, EASYPOP, authored by F. Balloux, ( c.f. Balloux, Francois. "EASYPOP (version 1.7): a computer program for population genetics simulations." Journal of heredity 92.3 (2001): 301-302 ).
 
-You can install the package in your R installation using the devtools package, with the R console command: 
+This version has revisions to the interface by T. Cosart.  You'll find the author's original user guide, as well as documentation detailing the revised input methods, and per-OS exacutables at
+
+     https://drive.google.com/drive/folders/1ZbbVeYR1ix8rI43d2myc1Fg9LTz3qfA_?usp=drive_link
+
+You don't need to download the executables to run our R package version.  You can install the package in your R installation using the devtools package, with the R console command: 
 
      devtools::install_github( "popgengui/easpopr" )
 
@@ -25,6 +29,11 @@ To view plotted replicate mean, per-generation values of quanities in EASYPOP's 
 
 where the vector argument is one or more config files used by EASYPOP to run a simulation, and the quantity argument gives one of the column names  in the first line of an equ file (one of: Ho, Hs, Ht, Fis, Fst, or Fit), to see the per-generation replicate mean value of the quantity.
 
+To view per-generation, individual replicate quantities you can callm,
+	
+    plot_easypop_replicate_equ_values( <quantity> <data source> )
+
+where data source is one of (1) a list of data frams as created by calling 'read.table' on a set of *.equ files, or (2) a vector ofr frile paths to each .equ file you with to read, or (3) one string giving the naeme of an easypop configuration file (as created, for example with a call to setup_easypop). 
 
 
 
