@@ -588,7 +588,7 @@ get.population.parameters = function( gploidy, g2sex )
 	{
 
 		v.user.values = prompt.for.values.and.return.user.entries( 
-			"Same number of individuals in each populations ?:y/n",
+			"Same number of individuals in each population ?:y/n",
 			1, "character", c( "y", "n" ) );
 
 		s.unif.pop.size =  v.user.values[1];
