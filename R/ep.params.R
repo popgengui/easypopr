@@ -1570,7 +1570,7 @@ get.generation.parameters=function( i.unif.migr.scheme )
 #' 
 #' prompts user for genetic parameters and returns user-entered values as a list.
 #'
-get.genetic.parameters = function( )
+get.genetic.parameters = function( i.ploidy )
 {
 	lv.genetics = list()
 	v.user.values = NULL
@@ -1582,25 +1582,29 @@ get.genetic.parameters = function( )
 	
 	lv.genetics[["number_of_loci"]] = i.num.loci	
 
-	v.user.values = prompt.for.values.and.return.user.entries( 
-		"Free recombination between loci?: y/n",
-		1, "character", c( "y", "n" ) )
-
-	s.free.recomb = v.user.values[1]
-	i.free.recomb = ifelse( s.free.recomb=="y", TRUE.AS.INT, FALSE.AS.INT )
-	lv.genetics[["free_recombination_between_loci"]] = i.free.recomb
-
-	if(  i.free.recomb == FALSE )
+	#non-haploid only.  easypop only looks for this bool if ploidy is 0 or 2:
+	if ( i.ploidy != 1 )
 	{
-		s.prompt = paste( "Recombination rate between adjacent loci (ie between locus n and n+1)",
-					"The recombination rate must be comprised between 0.0 and 0.5",
-					sep = "\n" );
 		v.user.values = prompt.for.values.and.return.user.entries( 
-			s.prompt, 1, "numeric", c( 0.0, 0.5 ) )
+			"Free recombination between loci?: y/n",
+			1, "character", c( "y", "n" ) )
 
-		f.recomb = v.user.values[1]
-		lv.genetics[["recombination_rate_between_adjacent_loci"]] = f.recomb
-	}#end if non-free recomb
+		s.free.recomb = v.user.values[1]
+		i.free.recomb = ifelse( s.free.recomb=="y", TRUE.AS.INT, FALSE.AS.INT )
+		lv.genetics[["free_recombination_between_loci"]] = i.free.recomb
+
+		if(  i.free.recomb == FALSE )
+		{
+			s.prompt = paste( "Recombination rate between adjacent loci (ie between locus n and n+1)",
+						"The recombination rate must be comprised between 0.0 and 0.5",
+						sep = "\n" );
+			v.user.values = prompt.for.values.and.return.user.entries( 
+				s.prompt, 1, "numeric", c( 0.0, 0.5 ) )
+
+			f.recomb = v.user.values[1]
+			lv.genetics[["recombination_rate_between_adjacent_loci"]] = f.recomb
+		}#end if non-free recomb
+	}#end if non haploid, check for recombination rates
 
 	v.user.values = prompt.for.values.and.return.user.entries( 
 				"Do all loci have the same mutation scheme?:y/n",
@@ -1727,7 +1731,7 @@ get.ep.parameters=function()
 	lv.param.vals=append( lv.param.vals, lv.migr )
 
 
-	lv.genetics = get.genetic.parameters( )
+	lv.genetics = get.genetic.parameters( lv.param.vals$gploidy )
 	lv.param.vals=append( lv.param.vals, lv.genetics )
 
 	lv.generations = get.generation.parameters( lv.param.vals[["same_migration_scheme_all_simulation"]] )
