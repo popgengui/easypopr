@@ -1,5 +1,5 @@
 # easypopr
-An R package to run the population simulation program, EASYPOP, authored by F. Balloux, ( c.f. Balloux, Francois. "EASYPOP (version 1.7): a computer program for population genetics simulations." Journal of heredity 92.3 (2001): 301-302 ).
+An R package to run the population simulation program, EASYPOP, authored by F. Balloux, (c.f. Balloux, Francois. "EASYPOP (version 1.7): a computer program for population genetics simulations." Journal of heredity 92.3 (2001): 301-302 ).
 
 This version has revisions to the interface by T. Cosart.  You'll find the author's original user guide, as well as documentation detailing the revised input methods, and per-OS exacutables at
 
@@ -23,17 +23,17 @@ and following the prompts.  <file_name> should name a file to which the program 
 
 EASYPOP runs a simulation according to the values in the file <file_name>.
 
-To view plotted replicate mean, per-generation values of quanities in EASYPOP's equ output files, you can call,
+To view plotted replicate mean, per-generation values of quantities in EASYPOP's equ output files, you can call,
 
     plot_easypop_replicate_equ_means( <vector of config file names>, <quantity> )
 
 where the vector argument is one or more config files used by EASYPOP to run a simulation, and the quantity argument gives one of the column names  in the first line of an equ file (one of: Ho, Hs, Ht, Fis, Fst, or Fit), to see the per-generation replicate mean value of the quantity.
 
-To view per-generation, individual replicate quantities you can callm,
+To view per-generation, individual replicate quantities you can call,
 	
     plot_easypop_replicate_equ_values( <quantity> <data source> )
 
-where data source is one of (1) a list of data frams as created by calling 'read.table' on a set of *.equ files, or (2) a vector ofr frile paths to each .equ file you with to read, or (3) one string giving the naeme of an easypop configuration file (as created, for example with a call to setup_easypop). 
+where data source is one of (1) a list of data frames as created by calling 'read.table' on a set of *.equ files, or (2) a vector of file paths to each .equ file you with to read, or (3) one string giving the name of an easypop configuration file (as created, for example with a call to setup_easypop). 
 
 
 
