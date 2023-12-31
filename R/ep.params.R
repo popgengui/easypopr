@@ -1070,9 +1070,17 @@ get.migr.spatial = function( g2sex, gnbpop, b.second.scheme )
 				1, "integer", c( 1, MAX_NUMBER_DIMENSIONS ) )
 
 	i.num.dimen = v.user.values[1]	
+
+	if( !b.second.scheme )
+	{
+		lv.params[["number_of_dimensions_defining_the_space"]] = i.num.dimen
+	}
+	else
+	{
+		lv.params[["number_of_dimensions_defining_the_space_second_scheme"]] = i.num.dimen
+	}#end if not 2nd scheme, else is
 	
 	#here we need a matrix, hence we prompt per-pop-per-dimension
-
 	for( i.pop in 1:gnbpop )
 	{
 		s.prompt = paste( "enter coordinate ", INDEX.HOLDER.STRING,
@@ -1569,6 +1577,10 @@ get.generation.parameters=function( i.unif.migr.scheme )
 #' get.genetic.parameters
 #' 
 #' prompts user for genetic parameters and returns user-entered values as a list.
+#' Single ploidy arg just lets the program know whether or not user specified haploidy. 
+#' If so we skip prompting for recombination rates under haploidy
+#'
+#' @param   i.ploidy, integer: 0, 1, or 2, indicating haplo-diplo, haplo, or diplody respectively
 #'
 get.genetic.parameters = function( i.ploidy )
 {
