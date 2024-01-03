@@ -33,7 +33,7 @@ To view per-generation, individual replicate quantities you can call,
 	
     plot_easypop_replicate_equ_values( <quantity> <data source> )
 
-where data source is one of (1) a list of data frames as created by calling 'read.table' on a set of *.equ files, or (2) a vector of file paths to each .equ file you with to read, or (3) one string giving the name of an easypop configuration file (as created, for example with a call to setup_easypop). 
+where data source is one of (1) a list of data frames as created by calling 'read.table' on a set of equ files, or (2) a vector of file paths to each .equ file you wish to read, or (3) one string giving the name of an easypop configuration file (as created, for example with a call to setup_easypop)  In case (3), the program assumes it will find equ results files as named in the configuration file.
 
 
 
