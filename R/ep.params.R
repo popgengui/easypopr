@@ -62,7 +62,7 @@ ALL.EP.PARAMS.WITH.TYPE=list(
 		"same_number_populations_each_archipelago"
 			 = list( "name" = "same_number_populations_each_archipelago:", "valtype" = "logical", "value" = NULL ),
 		"same_number_populations_each_archipelago_second_scheme"
-			 = list( "name" = "same_number_populations_each_archipelago_second_scheme:", "logical" = "numeric", "value" = NULL ),
+			 = list( "name" = "same_number_populations_each_archipelago_second_scheme:", "valtype" = "logical", "value" = NULL ),
 		"per_archipelago_number_of_populations"
 			 = list( "name" = "per_archipelago_number_of_populations:", "valtype" = "array.integer", "value" = NULL ),
 		"per_archipelago_number_of_populations_second_scheme"
