@@ -1119,7 +1119,7 @@ get.migr.spatial = function( g2sex, gnbpop, b.second.scheme )
 	if( g2sex == FALSE.AS.INT )
 	{
 
-		v.user.values = s.prompt.with.index.holder ( 
+		v.user.values = prompt.for.values.and.return.user.entries( 
 				"enter mean dispersal distance",
 				1, "numeric", c( 0, MAX_DISPERSAL_DISTANCE ) )
 
