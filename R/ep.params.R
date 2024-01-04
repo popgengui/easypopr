@@ -543,12 +543,11 @@ get.reproduction.parameters=function()
 			s.random.mating = v.user.values[1]	
 			i.random.mating = ifelse( s.random.mating == "y", TRUE.AS.INT, FALSE.AS.INT )
 
-			lv.selfing[["random_mating"]] =  i.random.mating
+			lv.repro[["random_mating"]] =  i.random.mating
 			
 			if( i.random.mating == FALSE.AS.INT )
 			{	
-				lv.selfing.details = get.selfing.parameters()
-				lv.selfing=append( lv.selfing, lv.selfing.details )
+				lv.selfing = get.selfing.parameters()
 				lv.repro=append( lv.repro, lv.selfing )
 			}#end  if no random mating, get selfing params
 
