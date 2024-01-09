@@ -1896,7 +1896,7 @@ print.param.list = function( lv.param.list, s.filename )
 #' @param s.file.name string giving the name of a new file to which the program
 #'   can write the parameter values entered at the prompts.
 #' @param run logical, default FALSE. If TRUE, easypop will automatically be run
-#'   on the after parameter file creation is complete.
+#'   after parameter file creation is complete.
 #' @export
 setup_easypop = function( s.file.name, run = FALSE)
 {
@@ -1942,6 +1942,10 @@ run_easypop = function ( s.file.name )
   s.file.name <- normalizePath(s.file.name)
 	if( file.exists(Sys.getenv("EASYPOP.EXECUTABLE")) )
 	{
+		#For gui-generated R consoles in widnows, which seem to buffer the
+		#ep stdout messages while it is running, to at least give the user some indication
+		#that easypop has been called:
+		print( "running easypop..." )
 		system ( paste( Sys.getenv("EASYPOP.EXECUTABLE"), "read", s.file.name ) )
 	}
 	else
