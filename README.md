@@ -21,7 +21,7 @@ and following the prompts.  <file_name> should name a file to which the program 
 
      run_easypop( <file_name> )
 
-EASYPOP runs a simulation according to the values in the file <file_name>.
+EASYPOP runs a simulation according to the values in the file <file_name>. Note that you can change the parameter values in a file created with the setup_easypop procedure, and (re)run it with the run_easypop call.  For details on manually revising a configuration file, see the notes in the text document "easypop.revised.usage.txt" available at the link given above.
 
 To view plotted replicate mean, per-generation values of quantities in EASYPOP's equ output files, you can call,
 
