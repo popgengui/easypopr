@@ -175,7 +175,7 @@ ALL.EP.PARAMS.WITH.TYPE=list(
 			 = list( "name" = "name_of_file:", "valtype" = "character", "value" = NULL ),
 		"number_of_replicates"= list( "name" = "number_of_replicates:", "valtype" = "integer", "value" = NULL ) )
 
-
+vs.param.numeric.types.stored.as.strings = c( "array.integer", "array.numeric", "list.numeric", "matrix.numeric" )
 
 FALSE.AS.INT = as.integer( 0 )
 TRUE.AS.INT = as.integer( 1 )
@@ -221,6 +221,51 @@ MUTATION_MODEL_LIST =
 		       	sep="\n" );
 
 lr.conversion.functions=list ( "integer" = as.integer, "numeric" = as.numeric, "character" = as.character );
+
+#' try.to.convert
+#' given a character-type, convert it to the type
+#' named by the given target type
+#'
+#' @param s.string.to.convert character string to be converted
+#' @param s.target.type string naming a type, one of "numeric", 
+#'        "integer", or (trivially) "character" 
+#' we make this fx more extensible by returning NULL
+#' if the converstion fails, letting the caller handle failures.
+#'
+
+try.to.convert = function(  s.string.to.convert, s.target.type )
+{
+	u.result.of.try = NULL
+
+	if( !s.target.type %in% names( lr.conversion.functions ) )
+	{
+		s.msg = paste ( "In fx try.to.convert,",
+				      "no conversion function found for type, ",
+				      s.target.type )
+		stop( s.msg )
+	}#end if unknown target type
+
+	#we use tryCatch to return NULL if the conversion fails.
+	#note that failed conversions of numbers can return NA
+	#and generate only a warning (??), so we make handlers for
+	#both both errors and warnings, in both cases returning NULL
+	u.result.of.try = tryCatch( 
+					{	#the value assigned to the tryCatch call if no error or warning: 
+						lr.conversion.functions[[s.target.type]]( s.string.to.convert );
+					},	  
+					error = function ( e )
+					{
+						return( NULL )
+					},
+					warning = function ( w )
+					{
+						return( NULL )
+					}
+	)#end call to try catch
+
+	return( u.result.of.try )
+
+}#end try.to.convert
 
 format.vals.as.nonscientific.strings=function( v.numeric )
 {
@@ -294,23 +339,7 @@ prompt.for.values.and.return.user.entries=function( s.prompt, i.num.values, s.ty
 			v.scan.buff = scan( nmax=1, what = s.type.of.values, 
 					     flush = TRUE,  multi.line = FALSE )
 			
-			#we use tryCatch to return NULL if the conversion fails.
-			#note that failed conversions of numbers can return NA
-			#and generate only a warning (??), so we make handlers for
-			#both both errors and warnings, in both cases returning NULL
-			i.result.of.try = tryCatch( 
-						{	#the value assigned to the tryCatch call if no error or warning: 
-							lr.conversion.functions[[s.type.of.values]]( v.scan.buff[1] );
-						},	  
-						error = function ( e )
-						{
-							return( NULL )
-						},
-						warning = function ( w )
-						{
-							return( NULL )
-						}
-			)#end call to try catch
+			i.result.of.try = try.to.convert(  v.scan.buff[1], s.type.of.values )
 
 			if ( is.null( i.result.of.try ) )
 			{
@@ -401,8 +430,6 @@ get.selfing.parameters=function( )
 
 }#end get.selfing.parameters
 
-
-
 #' get.mating.parameters
 #' 
 #' prompts user for mating parameters and returns user-entered values as a list.
@@ -461,7 +488,6 @@ get.mating.parameters=function ( gploidy, g2sex )
 	return( lv.mating )
 
 }#end get.mating.parameters
-
 
 #' get.reproduction.parameters
 #' 
@@ -1798,7 +1824,7 @@ get.parameter.list.for.ep.processing = function( lv.param.vals, lv.ep.list.with.
 			}
 			else
 			{
-				stop( "error:  found value of logical param",
+				stop( "error: found value of logical param ",
 					s.name, ", ", v.val, ", expecting ",
 					TRUE.AS.INT, " or ", FALSE.AS.INT, 
 					sep = "" )	
@@ -1861,6 +1887,13 @@ check.for.inclusion.in.config.file = function( s.param.name, lv.param.list )
 	
 }#end check.for.inclusion.in.config.file
 
+#' print.param.list
+#' prints the param name-value pairs to the file named in the args.
+#'
+#'
+#' @param lv.param.list list whose names are ep param names and values are the corresponding values
+#' @param s.filename name of the file to which to write the name-value pairs
+#'
 print.param.list = function( lv.param.list, s.filename )
 {
 	vs.lines=c()
@@ -1908,8 +1941,8 @@ setup_easypop = function( s.file.name, run = FALSE)
 	
 	if( b.exists )
 	{
-		stop( "error:  the file", s.file.name,
-		     	"already exists.  Please provide ",
+		stop( "error: the file ", s.file.name,
+		     	" already exists.  Please provide ",
 			"a file name not already in use." )
 
 	}#end if file exists
@@ -2014,3 +2047,204 @@ locate_easypop <- function(path){
     }
   }
 }
+
+#' convert.param.val.from.string
+#' given a parameter name, convert
+#' the given value to one of numeric, integer,
+#' or character, using the master parameter list
+#' @param s.param.name character easypop config file parameter name
+#' @param s.value character (string) value to be converted
+#' 
+#' Assumes the s.param.name
+
+
+convert.param.val.from.string = function( s.param.name, s.value )
+{
+	
+	u.value = NULL
+
+	s.type.of.value = ALL.EP.PARAMS.WITH.TYPE[[s.param.name]][["valtype"]]
+
+	#some singly numerics but listed in arrays, lists, matrix, should remain strings:
+	if( !s.type.of.value %in% names( lr.conversion.functions ) )
+	{
+		s.type.of.value = "character" 
+	}#end if a composit type
+
+	#will return NULL if converstion fails, 
+	#which we simply pass to caller
+	u.value = try.to.convert( s.value, s.type.of.value )
+
+	return( u.value )
+}#end convert.param.val.from.string
+
+#' make.list.from.cfg.lines
+#'
+#' from a vector of easypop config
+#' file lines, make a list whose
+#' names are param names, and whose
+#' values are the corresponding param vals
+#'
+#' @param v.lines vector of character strings, 
+#'         each a config file line
+#'
+make.list.from.cfg.lines=function( v.lines )
+{
+	s.cfg.separator = ":\t" 
+
+	ls.names.and.values = list()
+
+	for( s.line in v.lines )
+	{
+		v.matches = grep( s.cfg.separator, s.line )
+
+		if( length( v.matches ) != 1  )
+		{
+			s.msg = paste( "In fx, make.list.from.cfg.lines, ", 
+				      "Malformed entry in easypop configuration file: ",
+				      s.line,
+				      " Expected entries have two strings separated by ",
+				      "a colon<tab> pair.", sep = "" )
+			stop( s.msg )
+		}#end if no single separator match found
+
+
+		l.name.and.val = strsplit( s.line, s.cfg.separator )
+		s.param.name = l.name.and.val[[1]][1]
+		s.val.as.string = l.name.and.val[[1]][2]
+
+		if( !s.param.name %in%  names( ALL.EP.PARAMS.WITH.TYPE ) )
+		{
+			s.msg=paste( "Error in make.list.from.cfg.lines", 
+			      	"No match in the master param list",
+				"for the param name,",
+				s.param.name )
+			stop( s.msg )
+
+		}#end if no value
+
+		u.converted.value = convert.param.val.from.string( s.param.name, s.val.as.string )
+
+		if( is.null( u.converted.value ) )
+		{
+			s.expected.type=ALL.EP.PARAMS.WITH.TYPE[[s.param.name]][["valtype"]]
+			s.msg=paste( "Error in make.list.from.cfg.lines, ",
+			      "failed conversion for param, ",
+			      s.param.name,
+			      ", with value, \"",
+			      s.val.as.string,
+		       		"\".  Could not convert to expected type, ",
+			      s.expected.type, 
+			      "." , sep = "" )
+
+			stop( s.msg )
+		}#end if converstion returns null	
+
+
+		ls.names.and.values[[ s.param.name ]] = u.converted.value
+
+	}#end for each line
+
+	return( ls.names.and.values )
+
+}#end make.list.from.cfg.lines
+
+#' read.config.file
+#' Reads in an ep config file as a list
+#' @param s.file  names an ep config file
+
+read.config.file=function( s.file )
+{
+	ls.params.and.values = list()
+
+	if( !file.exists( s.file ) )
+	{
+		s.msg=paste("File:", s.file, "does not exist." )
+		stop( s.msg )
+	}#end if no such file
+	
+	v.lines = readLines( s.file )
+
+	ls.params.and.values = make.list.from.cfg.lines( v.lines )
+
+	return( ls.params.and.values )
+
+}##end read.config.file
+
+#' write.config.file
+#' Writes an ep config file whose
+#' parameter names are those of the arg list,
+#' and values are the list's values.  These are
+#' written to the file named by the 2nd arg.
+#'
+#' @param ls.params.and.values a list whose names are ep param names
+#' and whose values are their corrsponding values.
+#' @param s.file names the file to be written
+#' The file name should not refer to an existing file
+#' @return a list whose names are easypop parameter names and whose
+#' values are their associated values.
+write.config.file=function( ls.params.and.values, s.file )
+{
+
+	if( file.exists( s.file ) )
+	{
+		stop( "error: the file ", s.file,
+		     	" already exists.  Please provide ",
+			"a file name not already in use." )
+	}#end if file exists
+
+	print( "writing parameter names and values to file..." )
+
+	print.param.list( ls.params.and.values, s.file )
+
+	print( "done writing file." )
+
+}#end write.config.file
+
+#' read_parameters_from_file
+#' From an existing easypop config file,
+#'
+#' get a list whose names are the parameter names
+#' and whose values are the associated parameter values.
+#'
+#' @param s.file  names an existing easypop configuration file
+#' @return a list whose names are the parameter names, and values
+#' are the associated parameter values
+#' @export
+
+read_parameters_from_file=function( s.file )
+{
+	ls.params.and.values = read.config.file( s.file )
+
+	return ( ls.params.and.values )
+
+}#end read_parameters_from_file
+
+#' write_parameters_to_files
+#' write a new file with the parameter values given by the list argument,
+#' and, optionally, run a simulation based on the new setup.
+#'
+#' @param ls.new.values list whose names are param names in an existing config file
+#' and whose values will be written to a new confi file. (Names in the orig file but
+#' not in the list will be written with the old values.)
+#' @param s.file names a new file (not currently in use), to which the revised config 
+#' file will be written
+#' @param b.run optional boolean, devault value is FALSE, if TRUE, then easypop automatically
+#' runs a simulation based on the configuration file as parameterized by the list argument.
+#' Note that when you write a revised configuration file you should always reset the "name_of_file" 
+#' parameter to avoid the simulation failing bacause it will not overwrite existing output 
+#' files (i.e. that share the same basename as given by "name_of_file").
+#' @export
+write_parameters_to_file = function( ls.new.values, s.file, b.run=FALSE )
+{
+	
+	write.config.file( ls.new.values, s.file )
+
+	if( b.run )
+	{
+		run_easypop( s.file )
+	}#end if we should run the sim
+
+
+}#end write_parameters_to_file
+
