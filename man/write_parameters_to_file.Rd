@@ -6,21 +6,22 @@
 write a new file with the parameter values given by the list argument,
 and, optionally, run a simulation based on the new setup.}
 \usage{
-write_parameters_to_file(ls.new.values, s.file, b.run = FALSE)
+write_parameters_to_file(ls.parameters, s.file, b.run = FALSE)
 }
 \arguments{
-\item{ls.new.values}{list whose names are param names in an existing config file
-and whose values will be written to a new confi file. (Names in the orig file but
-not in the list will be written with the old values.)}
+\item{ls.parameters}{list whose names are easypop param names
+and whose values are corresponding easypop parameter values.  Note that
+it is assumed that the list comproses a complete and valid set of parameters,
+hence is almost always based on a set read in from an existing configuration file..
+Also note that when you write a revised configuration file you should always reset the "name_of_file"
+parameter to avoid the simulation failing bacause it will not overwrite existing output
+files (i.e. that share the same basename as given by "name_of_file").}
 
 \item{s.file}{names a new file (not currently in use), to which the revised config
 file will be written}
 
 \item{b.run}{optional boolean, devault value is FALSE, if TRUE, then easypop automatically
-runs a simulation based on the configuration file as parameterized by the list argument.
-Note that when you write a revised configuration file you should always reset the "name_of_file"
-parameter to avoid the simulation failing bacause it will not overwrite existing output
-files (i.e. that share the same basename as given by "name_of_file").}
+runs a simulation based on the configuration file as parameterized by the list argument.}
 }
 \description{
 write_parameters_to_files
