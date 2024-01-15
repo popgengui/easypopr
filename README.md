@@ -23,15 +23,15 @@ and following the prompts.  <file_name> should name a file to which the program 
 
 EASYPOP runs a simulation according to the values in the file <file_name>. 
 
-We also provide functions to read in abn existing configuration file, 
+We also provide functions to read in an existing configuration file, 
 
      read_parameters_from_file( <file_name> )
 
-which gives you a list of parameter names/values.  You can then change parameter values, and write a new configuration file (and optionall run it based odn the parameter list with, 
+which gives you a list of parameter names/values.  You can then change parameter values, and write a new configuration file (and optionally run it based on the parameter list with, 
 
-     write_parameters_to_file( <ls.parameters>,  s.file, b.run )
+     write_parameters_to_file( <ls.parameters>,  s.file, b.run=FALSE )
 
-These read and write calls are meant to allow you to write an R script, for example, that automatically writes configuration files runs corresponding simulation based on changing a particular parameter value a value to see the effect on Fst, Heterozygosity, etc.  Note also that you can simply open a configuration file in a text editor, change the parameter values , and (re)run it with the run_easypop call.  For details on manually revising a configuration file, see the notes in the text document "easypop.revised.usage.txt" available at the link given above.
+These read and write calls are meant to allow you to write an R script, for example, that automatically writes configuration files and runs corresponding simulations based on changing a particular parameter value a value to see the effect on Fst, Heterozygosity, etc.  Note also that you can simply open a configuration file in a text editor, change the parameter values , and (re)run it with the run_easypop call.  For details on manually revising a configuration file, see the notes in the text document "easypop.revised.usage.txt" available at the link given above.
 
 To view plotted replicate mean, per-generation values of quantities in EASYPOP's equ output files, you can call,
 
