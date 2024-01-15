@@ -21,7 +21,17 @@ and following the prompts.  <file_name> should name a file to which the program 
 
      run_easypop( <file_name> )
 
-EASYPOP runs a simulation according to the values in the file <file_name>. Note that you can change the parameter values in a file created with the setup_easypop procedure, and (re)run it with the run_easypop call.  For details on manually revising a configuration file, see the notes in the text document "easypop.revised.usage.txt" available at the link given above.
+EASYPOP runs a simulation according to the values in the file <file_name>. 
+
+We also provide functions to read in abn existing configuration file, 
+
+     read_parameters_from_file( <file_name> )
+
+which gives you a list of parameter names/values.  You can then change parameter values, and write a new configuration file (and optionall run it based odn the parameter list with, 
+
+     write_parameters_to_file( <ls.parameters>,  s.file, b.run )
+
+These read and write calls are meant to allow you to write an R script, for example, that automatically writes configuration files runs corresponding simulation based on changing a particular parameter value a value to see the effect on Fst, Heterozygosity, etc.  Note also that you can simply open a configuration file in a text editor, change the parameter values , and (re)run it with the run_easypop call.  For details on manually revising a configuration file, see the notes in the text document "easypop.revised.usage.txt" available at the link given above.
 
 To view plotted replicate mean, per-generation values of quantities in EASYPOP's equ output files, you can call,
 
