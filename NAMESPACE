@@ -3,5 +3,7 @@
 export(locate_easypop)
 export(plot_easypop_replicate_equ_means)
 export(plot_easypop_replicate_equ_values)
+export(read_parameters_from_file)
 export(run_easypop)
 export(setup_easypop)
+export(write_parameters_to_file)
