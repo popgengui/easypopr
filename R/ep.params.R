@@ -2220,7 +2220,46 @@ read_parameters_from_file=function( s.file )
 
 }#end read_parameters_from_file
 
+#' check_for_invalid_param_names
+#'
+#' in a list of param names values,
+#' we compare each name in the list to
+#' the list of valid easypop parameter names
+#' with a call to stop and a message if any names
+#' are not valid
+#'
+#' @param ls.parameters a list of easypop parameter names and values
+#'
+check_for_invalid_param_names = function( ls.parameters )
+{
+	v.invalids=NULL
+
+	for( s.name in names( ls.parameters ) )
+	{
+		if( !( s.name %in% names( ALL.EP.PARAMS.WITH.TYPE ) ) )
+		{
+			v.invalids=c( v.invalids, s.name )
+						    
+		}#end if name not in ep master list
+
+	}#end for each name in list
+
+	if( length( v.invalids ) > 0 )
+	{
+		s.invalids=paste( v.invalids, collapse=", " )
+
+		s.msg=paste( "In function check_for_invalid_param_names,",
+				" in the list of parameter names, the",
+				" following are not valid easypop config file param names: ",
+			    	s.invalids, sep="" )
+		stop( s.msg )
+
+	}#end if at least one invalid name, error
+
+}#end check_for_invalid_param_names
+
 #' write_parameters_to_files
+#'
 #' write a new file with the parameter values given by the list argument,
 #' and, optionally, run a simulation based on the new setup.
 #'
@@ -2240,13 +2279,22 @@ read_parameters_from_file=function( s.file )
 write_parameters_to_file = function( ls.parameters, s.file, b.run=FALSE )
 {
 	
+	#script will stop if any of the param names
+	#in the list do not have a match in ALL.EP.PARAMS.WITH.TYPE	
+	#note that we do this because the user may expect a param
+	#to change, but if the wrong name is used in assigning 
+	#a value to the parm in this list, R will just add the new
+	#name/value to the list, and easypop will not use it 
+	#(will ignore it), and instead run using the original 
+	#unrevised value.
+	check_for_invalid_param_names( ls.parameters )	
+
 	write.config.file( ls.parameters, s.file )
 
 	if( b.run )
 	{
 		run_easypop( s.file )
 	}#end if we should run the sim
-
 
 }#end write_parameters_to_file
 

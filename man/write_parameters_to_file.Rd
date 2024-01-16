@@ -2,9 +2,7 @@
 % Please edit documentation in R/ep.params.R
 \name{write_parameters_to_file}
 \alias{write_parameters_to_file}
-\title{write_parameters_to_files
-write a new file with the parameter values given by the list argument,
-and, optionally, run a simulation based on the new setup.}
+\title{write_parameters_to_files}
 \usage{
 write_parameters_to_file(ls.parameters, s.file, b.run = FALSE)
 }
@@ -24,7 +22,6 @@ file will be written}
 runs a simulation based on the configuration file as parameterized by the list argument.}
 }
 \description{
-write_parameters_to_files
 write a new file with the parameter values given by the list argument,
 and, optionally, run a simulation based on the new setup.
 }
