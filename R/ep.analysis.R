@@ -95,13 +95,14 @@ files.are.all.of.type.equ = function( v.file.names )
 
 #' plot_easypop_replicate_equ_values
 #'
-#' for each data frame given in arg ldf.data.frames, list of items, each
-#' representing an ep output *equ file,  a line is plotted showing the
-#' per-generation values for the quantity (e.g. Fst), associated with the column
-#' name given by arg s.colname and returns them in a vector length i.num.values,
-#' of user-entered values
+#' for each item in v.data.source (see below for param v.data.source, 
+#' each is plotted showing the per-generation values for the quantity (e.g. Fst), 
+#' associated with the column name given by arg s.colname and returns them in a 
+#' vector length i.num.values, of user-entered values
 #'
-#' @param   s.colname  a column name from the equ file's first line
+#' @param   s.colname  a (quoted) column name from the equ file's first line, one of,
+#' "Ho", "Hs", "Ht", "Fis", "Fst", or "Fit".
+
 #' @param   v.data.source one of:  (1) a list of data frames, as created by calling
 #'   \code{\link[utils]{read.table}} on a set of *.equ file, or (2) a vector of file
 #'   paths to each .equ file you wish to read, or (3) one string giving the name
