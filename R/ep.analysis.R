@@ -105,7 +105,7 @@ files.are.all.of.type.equ = function( v.file.names )
 #' @param   v.data.source one of:  (1) a list of data frames, as created by calling
 #'   \code{\link[utils]{read.table}} on a set of *.equ file, or (2) a vector of file
 #'   paths to each .equ file you wish to read, or (3) one string giving the name
-#'   of an easypop configuration file (as created, for example, witha a call to setup_easypop). 
+#'   of an easypop configuration file (as created, for example, with a call to setup_easypop). 
 #'   Note that for option (2) the vector of file paths can be generated with
 #'   the \code{\link[base]{file.path}} using the \code{full.names = TRUE} argument.
 #'   In case (3), the program looks for equ files matching the "name_of_file" value
@@ -226,9 +226,9 @@ get.list.equ.files.from.results.base.name=function( s.outfile.base )
 #' The name_of_file entry  in each config file is used to
 #' locate the *equ files
 #' @param vs.config.files vector of names of ep config files
-#' @param s.colname names one of the columns of an equ file,
+#' @param s.colname quoted string names one of the columns of an equ file,
 #' as given in the first line of an equ file, one of,
-#' Ho, Hs, Ht, Fis, Fst, or Fit.
+#' "Ho", "Hs", "Ht", "Fis", "Fst", or "Fit".
 #
 #'@export
  
