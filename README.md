@@ -29,7 +29,7 @@ We also provide functions to read in an existing configuration file,
 
 which gives you a list of parameter names/values.  You can then change parameter values, and write a new configuration file (and optionally run it based on the parameter list with, 
 
-     write_parameters_to_file( <ls.parameters>,  s.file, b.run=FALSE )
+     write_parameters_to_file( <ls.parameters>,  <s.file>, [b.run=FALSE] )
 
 These read and write calls are meant to allow you to write an R script, for example, that automatically writes configuration files and runs corresponding simulations based on changing a particular parameter value a value to see the effect on Fst, Heterozygosity, etc.  Note also that you can simply open a configuration file in a text editor, change the parameter values , and (re)run it with the run_easypop call.  For details on manually revising a configuration file, see the notes in the text document "easypop.revised.usage.txt" available at the link given above.
 
@@ -41,7 +41,7 @@ where the vector argument is one or more config files used by EASYPOP to run a s
 
 To view per-generation, individual replicate quantities you can call,
 	
-    plot_easypop_replicate_equ_values( <quantity> <data source> )
+    plot_easypop_replicate_equ_values( <quantity>, <data source> )
 
 where data source is one of (1) a list of data frames as created by calling 'read.table' on a set of equ files, or (2) a vector of file paths to each .equ file you wish to read, or (3) one string giving the name of an easypop configuration file (as created, for example with a call to setup_easypop).  In case (3), the program assumes it will find equ results files as named in the configuration file's "name_of_file" entry.
 
