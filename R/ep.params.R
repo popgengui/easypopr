@@ -2202,8 +2202,8 @@ write.config.file=function( ls.params.and.values, s.file )
 }#end write.config.file
 
 #' read_parameters_from_file
-#' From an existing easypop config file,
 #'
+#' From an existing easypop config file,
 #' get a list whose names are the parameter names
 #' and whose values are the associated parameter values.
 #'
@@ -2265,7 +2265,7 @@ check_for_invalid_param_names = function( ls.parameters )
 #'
 #' @param ls.parameters list whose names are easypop param names 
 #' and whose values are corresponding easypop parameter values.  Note that
-#' it is assumed that the list comproses a complete and valid set of parameters, 
+#' it is assumed that the list comprises a complete and valid set of parameters, 
 #' hence is almost always based on a set read in from an existing configuration file..
 #' Also note that when you write a revised configuration file you should always reset the "name_of_file" 
 #' parameter to avoid the simulation failing bacause it will not overwrite existing output 
@@ -2273,7 +2273,7 @@ check_for_invalid_param_names = function( ls.parameters )
 #'
 #' @param s.file names a new file (not currently in use), to which the revised config 
 #' file will be written
-#' @param b.run optional boolean, devault value is FALSE, if TRUE, then easypop automatically
+#' @param b.run optional boolean, default value is FALSE, if TRUE, then easypop automatically
 #' runs a simulation based on the configuration file as parameterized by the list argument.
 #' @export
 write_parameters_to_file = function( ls.parameters, s.file, b.run=FALSE )
@@ -2297,4 +2297,5 @@ write_parameters_to_file = function( ls.parameters, s.file, b.run=FALSE )
 	}#end if we should run the sim
 
 }#end write_parameters_to_file
+
 
