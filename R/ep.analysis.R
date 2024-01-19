@@ -239,14 +239,30 @@ plot_easypop_replicate_equ_means = function( vs.config.files, s.colname ) {
 
 	for( s.file in vs.config.files )
 	{
+
 		s.outfile.base = get.results.file.base.name.from.config.file( s.file )
 		l.equ.files = get.list.equ.files.from.results.base.name( s.outfile.base )		
 		df.means = get.mean.equ.file( l.equ.files$equnames, l.equ.files$equpath ) 
 		ldf.means[[s.outfile.base]] = df.means 
 	}#end for each config file
 
+	#20240118 we borrow from Will's ggplot code above, but add
+	#a legend that shows which config file generated which line:
 
-	return( plot_easypop_replicate_equ_values( s.colname, ldf.means ) )
+	v.output.file.basenames=names(ldf.means)
+
+    	names(ldf.means) <- paste0("run", 1:length(ldf.means))
+  	ldf.means <- data.table::rbindlist(ldf.means, idcol = "run")
+	ldf.means$config.file = vs.config.files
+
+	ldf.means <- ldf.means[,c( "run",  "gen", s.colname)]
+
+	p <- ggplot2::ggplot(ldf.means, ggplot2::aes_string(x = "gen", y = s.colname, color = "run")) +
+	  ggplot2::geom_line(show.legend = TRUE) +
+	  ggplot2::theme_bw() + 
+	  ggplot2::scale_color_hue( labels = v.output.file.basenames )
+	
+   	return(p)
 
 }#end plot.easypop.replicate.means
 
