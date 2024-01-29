@@ -1,3 +1,8 @@
+#ep.params.R
+#code to prompt user at the R console for parameters,
+#write and read easypop configuration files, and run
+#easypop simulations.
+
 #This is a "master" list of all (possible) easypop parameters
 #This list is used below to parameter data types to properly
 #write them to file.  As of 20231210, this list is not used
@@ -197,8 +202,8 @@ MAX_NUMBER_MUTATION_MODEL = as.integer( 4 )
 #using a large number to allow practically any value:
 MAX_DISPERSAL_DISTANCE = 1e50
 
-#when the user is entering an array,
-#the propmt string will sub in the
+#when the user is entering an array at the
+#R console, the prompt string will sub in the
 #loop number (1-base) for this placeholder:
 INDEX.HOLDER.STRING = "iiindexii"
 
@@ -2263,7 +2268,7 @@ check_for_invalid_param_names = function( ls.parameters )
 #' write a new file with the parameter values given by the list argument,
 #' and, optionally, run a simulation based on the new setup.
 #'
-#' @param ls.parameters list whose names are easypop param names 
+#' @param ls.parameters list whose names are easypop config file param names 
 #' and whose values are corresponding easypop parameter values.  Note that
 #' it is assumed that the list comprises a complete and valid set of parameters, 
 #' hence is almost always based on a set read in from an existing configuration file..
