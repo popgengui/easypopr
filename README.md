@@ -39,7 +39,7 @@ These read and write calls are meant to allow you to write an R script, for exam
 ## Automating multiple parameter tests
 We also provide a function call that can run multiple simulations given a list of parameters, each with a list of settings:
 
-     configure_multiple_easypop_runs =function( <l.settings>, <s.starting.config.file>, <s.filebase>,  <b.run> = FALSE)
+     configure_multiple_easypop_runs =function( <l.settings>, <s.starting.config.file>, <s.filebase>,  [b.run = FALSE] )
 
 For example, you have a configuration file already created, "my.cfg",  (using for example, the function setup_easypop), and you make a list like this:
 
