@@ -1,7 +1,7 @@
 # easypopr
 An R package to run the population simulation program, EASYPOP, authored by F. Balloux, (c.f. Balloux, Francois. "EASYPOP (version 1.7): a computer program for population genetics simulations." Journal of heredity 92.3 (2001): 301-302 ).
 
-This version has revisions to the interface by T. Cosart.  You'll find the author's original user guide, as well as documentation detailing the revised input methods, and per-OS exacutables at
+This version has revisions to the interface by T. Cosart.  You'll find the author's original user guide, as well as documentation detailing the revised input methods, and per-OS executables at
 
      https://drive.google.com/drive/folders/1ZbbVeYR1ix8rI43d2myc1Fg9LTz3qfA_?usp=drive_link
 
@@ -32,6 +32,22 @@ which gives you a list of parameter names/values.  You can then change parameter
      write_parameters_to_file( <ls.parameters>,  <s.file>, [b.run=FALSE] )
 
 These read and write calls are meant to allow you to write an R script, for example, that automatically writes configuration files and runs corresponding simulations based on changing a particular parameter value a value to see the effect on Fst, Heterozygosity, etc.  Note also that you can simply open a configuration file in a text editor, change the parameter values , and (re)run it with the run_easypop call.  For details on manually revising a configuration file, see the notes in the text document "easypop.revised.usage.txt" available at the link given above.
+
+We also provide a function call that can run multiple simulations given a list of parameters, each with a list of settings:
+
+     configure_multiple_easypop_runs =function( <l.settings>, <s.starting.config.file>, <s.filebase>,  <b.run> = FALSE)
+
+For example, you have a configuration file already created, "my.cfg",  (using for example, the function setup_easypop), and you make a list like this:
+
+     l.settings = list( "number_populations" = c( 5, 10, 15 ), "mutation_rate" = c( 0.001, 0.005 ) )
+
+The function call:
+
+     configure_multiple_easypop_runs( l.settings, "my.cfg", "my.pop.mut.test", TRUE )
+
+would result in 6 configuration files created, such that the each of the 3 values for "number_populations" would be paired with each of the 2 "mutation_rate values, all other parameters set as in the "my.cfg" file.  The new 6 configuration files would be named "my.pop.mut.test_n.cfg", where n = 1 to 6. With the b.run argument set to TRUE, easypop would run a simulation on each, with output files named (and numbered) like the configuration files.  The l.settings argument can list an arbitrary number of parameter names (as seen in an easypop configuration file), each with an arbitrary number of values.  Note, as a warning, that a list (l.settings) with many parameters, each with many values can create a combinatorically huge number of configurations.  Besides a huge number of output files, a large input may also interrupt the execution by violating R's stack limitation, as our function uses recursion to create the configurations.
+
+
 
 To view plotted replicate mean, per-generation values of quantities in EASYPOP's equ output files, you can call,
 
