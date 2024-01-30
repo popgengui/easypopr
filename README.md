@@ -41,7 +41,7 @@ We also provide a function call that can run multiple simulations given a list o
 
      configure_multiple_easypop_runs( <l.settings>, <s.starting.config.file>, <s.filebase>,  [b.run = FALSE] )
 
-For example, you have a configuration file already created, "my.cfg",  (using for example, the function setup_easypop), and you make a list like this:
+For example, you have a configuration file already created, "my.cfg",  (using for example, the function setup_easypop), and, matching exactly the parameter names of interest in your cfg file, you make a list like this:
 
      l.settings = list( "number_populations" = c( 5, 10, 15 ), "mutation_rate" = c( 0.001, 0.005 ) )
 
@@ -49,7 +49,7 @@ The function call:
 
      configure_multiple_easypop_runs( l.settings, "my.cfg", "my.pop.mut.test", TRUE )
 
-would result in 6 configuration files created, such that the each of the 3 values for "number_populations" would be paired with each of the 2 "mutation_rate" values, with all other parameters set as in the "my.cfg" file.  The new 6 configuration files would be named "my.pop.mut.test_n.cfg", where n = 1 to 6. With the b.run argument set to TRUE, easypop would run a simulation on each, with output files named (and numbered) like the configuration files.  The l.settings argument can list an arbitrary number of parameter names (as seen in an easypop configuration file), each with an arbitrary number of values.  Note, as a warning, that a list (l.settings) with many parameters, each with many values can create a huge number of configurations.  Besides a huge number of output files, a large input may also interrupt the execution by violating R's stack limitation, as our function uses recursion to create the configurations.
+would result in 6 configuration files created, such that each of the 3 values for "number_populations" would be paired with each of the 2 "mutation_rate" values, with all other parameters set as in the "my.cfg" file.  The new 6 configuration files would be named "my.pop.mut.test_n.cfg", where n = 1 to 6. With the b.run argument set to TRUE, easypop would run a simulation on each, with output files named (and numbered) like the configuration files.  The l.settings argument can list an arbitrary number of parameter names (as seen in an easypop configuration file), each with an arbitrary number of values.  Note, as a warning, that a list (l.settings) with many parameters, each with many values can create a huge number of configurations.  Besides a huge number of output files, a large input may also interrupt the execution by violating R's stack limitation, as our function uses recursion to create the configurations.
 
 ## Plotting results
 
