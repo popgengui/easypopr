@@ -5,6 +5,61 @@
 #limitation
 ep.env = new.env( parent = baseenv() )
 
+update.config.key = function( i.config.number, l.config )
+{
+	#this function, added 20240106, updates rows for a table file
+	#that will show which values of the pertinent params are assoc
+	#which which config file (number)
+	s.params.that.change = get( "v.names.of.test.params", envir = ep.env )
+	m.copy.current.set.configs = get( "m.current.set.configs", envir = ep.env )
+
+	v.vals.this.config = unlist( lapply( X = s.params.that.change, 
+					    FUN = function(x) l.config[[x]] ) ) 
+
+	v.config.num.with.vals = c( i.config.number, v.vals.this.config )
+	#new row describes current config:	
+	m.copy.current.set.configs = rbind( m.copy.current.set.configs, 
+					 	v.config.num.with.vals )
+
+	assign( "m.current.set.configs", m.copy.current.set.configs, 
+	       						envir = ep.env ) 
+}#end update.config.key
+
+
+write.config.key.table = function()
+{
+	#To be called just before returning from the last recursive call,
+	#when all config files have been written.
+	#This function needs no args, as the ep.env has been
+	#assigned all the needed values (see fx, update.config.key):
+	s.file.name = get( "s.config.key.file.name", envir = ep.env )
+	m.config.key.table = get( "m.current.set.configs", envir = ep.env )
+	v.param.names = get( "v.names.of.test.params", envir = ep.env )
+	v.col.names = c( "config_file_number", v.param.names )
+
+	colnames( m.config.key.table ) = v.col.names 
+
+	if( file.exists( s.file.name ) )
+	{
+		#we won't stop the execution, as we don't consider this file's
+		#absense as critical to using the output:
+		print ( paste0( "The function write.config.key.table can't write the file named, ",
+			       		s.file.name, 
+			       		", because the file name is already in use." ) )
+		return ( NULL )
+	}
+	else
+	{
+write.table( x = m.config.key.table , 
+			    	file = s.file.name, 
+				row.names = FALSE,
+	       			quote = FALSE,
+				sep = "\t" )
+	}#end if file exists, else write table
+
+}#end write.config.key.table
+
+
 update.param.value = function( l.config, l.settings, idx.param, idx.value )
 {
 	l.updated = l.config
@@ -16,7 +71,6 @@ update.param.value = function( l.config, l.settings, idx.param, idx.value )
 
 	return( l.updated )
 }#end update.param.value
-
 
 make.config = function (  l.config, s.filebase, b.run = FALSE )
 {
@@ -34,6 +88,10 @@ make.config = function (  l.config, s.filebase, b.run = FALSE )
 
 	#have to update output file base name:
 	l.config$name_of_file = paste0( s.filenames, "." )
+
+	#we add a new row to our key file that associates
+	#a config number with a set of param values:
+	update.config.key( i.current.config.count, l.config )
 
 	write_parameters_to_file( l.config, 
 		paste0( s.filebase, "_", i.current.config.count,  ".cfg" ), 
@@ -66,6 +124,9 @@ do.recursive.configs = function( l.settings, s.filebase, b.run = FALSE )
 	if( i.local.current.param.number < 1 )
 	{
 		print( "done making configurations" )
+		#added 20240206, to write a table
+		#keying config numnber to param vals:
+		write.config.key.table()
 		return()
 	}#end if param num < 1
 
@@ -125,7 +186,11 @@ do.recursive.configs = function( l.settings, s.filebase, b.run = FALSE )
 #' 
 #' given a list of parameter names, each with a vector of values,
 #' for each combination of settings, create an easypop configuration file
-#' and, optionally run each file as it is created.
+#' and, optionally run each file as it is created.  After all configurations
+#' are written (and, optionally, run), the program writes  a tabular file with 
+#' the given filebase and with extension, ".config.key.tsv"  This table gives 
+#' in it's first column a config file number, and in columns 2..N, the values 
+#' for the params that were in the l.settings list (see parameter descriptions).
 #'
 #' @param l.settings a list whose names are easypop config file parameter names, 
 #'          and whose values are vectors of settings (values) for each parameter
@@ -154,6 +219,15 @@ configure_multiple_easypop_runs =function( l.settings, s.starting.config.file, s
 	assign( "v.param.value.totals", v.param.value.totals, envir = ep.env )
 	assign( "i.current.param.number", 1, envir = ep.env )
 	assign( "i.config.count", 0, envir = ep.env )
+
+	#these added 20240206, to give users a key to the settings in each config:
+	assign( "m.current.set.configs", NULL, envir = ep.env ) 
+	#this will help extract the current vals for test params from the 
+	#current config
+	assign( "v.names.of.test.params", names( l.settings ), envir = ep.env )
+	assign( "s.config.key.file.name", paste0( s.filebase, ".config.key.tsv" ), 
+	       								envir = ep.env )
+	#end additions 20240206
 
 
 	do.recursive.configs( l.settings, s.filebase, b.run = b.run ) 

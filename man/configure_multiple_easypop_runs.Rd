@@ -24,5 +24,9 @@ a simulation is run based on the config}
 \description{
 given a list of parameter names, each with a vector of values,
 for each combination of settings, create an easypop configuration file
-and, optionally run each file as it is created.
+and, optionally run each file as it is created.  After all configurations
+are written (and, optionally, run), the program writes  a tabular file with
+the given filebase and with extension, ".config.key.tsv"  This table gives
+in it's first column a config file number, and in columns 2..N, the values
+for the params that were in the l.settings list (see parameter descriptions).
 }
