@@ -184,20 +184,23 @@ do.recursive.configs = function( l.settings, s.filebase, b.run = FALSE )
 
 #' configure_multiple_easypop_runs
 #' 
-#' given a list of parameter names, each with a vector of values,
-#' for each combination of settings, create an easypop configuration file
-#' and, optionally run each file as it is created.  After all configurations
-#' are written (and, optionally, run), the program writes  a tabular file with 
-#' the given filebase and with extension, ".config.key.tsv"  This table gives 
-#' in it's first column a config file number, and in columns 2..N, the values 
-#' for the params that were in the l.settings list (see parameter descriptions).
+#' given a list of parameter names, each with a vector of values, for each 
+#' combination of settings, create an easypop configuration file
+#' and, optionally run each file as it is created.  Configuration and output files
+#' mames are numberd as created.  After all configurations are written (and, optionally, run), 
+#' the program also writes  a tabular file with the given filebase and with extension, 
+#' ".config.key.tsv"  This table gives in it's first column a config file number, and in 
+#' columns 2..N, the values for the params that were in the l.settings list 
+#' (see parameter descriptions).
 #'
 #' @param l.settings a list whose names are easypop config file parameter names, 
 #'          and whose values are vectors of settings (values) for each parameter
 #'
 #' @param s.starting.config.file names an easypop config file to be used as the basis
 #'        for the simulations, with revised settings as given by the first arg
-#'
+#' @param s.filebase names the prefix used to name configuration files
+#'        (*.cfg) and output files (*equ, *gen, etc).  The program also adds an 
+#'        integer to the file names that indicates its order of creation.
 #' @param b.run  optional, default = FALSE, if set to TRUE, as each config is created,
 #'        a simulation is run based on the config
 #' @export
