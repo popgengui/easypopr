@@ -13,3 +13,7 @@ Roxygen: list(markdown = TRUE)
 Imports:
     data.table,
     ggplot2
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
