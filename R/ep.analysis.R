@@ -136,7 +136,9 @@ plot_easypop_replicate_equ_values = function( s.colname, v.data.source  )
      && !files.are.all.of.type.equ( v.data.source ) )
   {
 	  s.outfile.base=get.results.file.base.name.from.config.file( v.data.source )
-  	  l.files = get.list.equ.files.from.results.base.name( s.outfile.base )
+	  s.config.file.path = dirname( v.data.source )
+  	  l.files = get.list.equ.files.from.results.base.name( s.config.file.path,
+							       		s.outfile.base )
 	  ldf.data.frames = paste( l.files$equpath, l.files$equnames, sep="/" )
   }
   else#in this case, we assume its already in a form that is ready to be processed below
@@ -205,15 +207,21 @@ get.results.file.base.name.from.config.file = function( s.config.file )
 	
 }#end get.results.file.base.name.from.config.file
 
-get.list.equ.files.from.results.base.name=function( s.outfile.base )
+get.list.equ.files.from.results.base.name=function( s.config.file.path, s.outfile.base )
 {	
+	#20240208
+	#Problem when R console's wd is not the same as the config file, so that
+	#the outfile base needs a path prepended.  Remaining problem is when
+	#the user enters an absolute path for the name_of_file param.
+
 	#for the list.files fx divide into the actual file base and the path
        	#that leads to it. fx dirname will output a dot if there is no preceeding
 	#path, which is the correct value for cwd (default) when using  list.files
 	s.file.only = basename( s.outfile.base )
-	s.path.only = dirname( s.outfile.base )
+	s.path.only = s.config.file.path
 
 	s.equ.file.pattern=paste( s.file.only, ".*equ", sep="" )
+
 	v.equ.files = get.list.equ.files( s.equ.file.pattern, s.path.only )
 	
 	return( list( "equnames" = v.equ.files, "equpath" = s.path.only ) )
@@ -241,7 +249,12 @@ plot_easypop_replicate_equ_means = function( vs.config.files, s.colname ) {
 	{
 
 		s.outfile.base = get.results.file.base.name.from.config.file( s.file )
-		l.equ.files = get.list.equ.files.from.results.base.name( s.outfile.base )		
+
+		s.config.file.path = dirname( s.file )
+
+		l.equ.files = get.list.equ.files.from.results.base.name( s.config.file.path, 
+										s.outfile.base )		
+
 		df.means = get.mean.equ.file( l.equ.files$equnames, l.equ.files$equpath ) 
 		ldf.means[[s.outfile.base]] = df.means 
 	}#end for each config file

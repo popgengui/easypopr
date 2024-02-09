@@ -2263,7 +2263,7 @@ check_for_invalid_param_names = function( ls.parameters )
 
 }#end check_for_invalid_param_names
 
-#' write_parameters_to_files
+#' write_parameters_to_file
 #'
 #' write a new file with the parameter values given by the list argument,
 #' and, optionally, run a simulation based on the new setup.

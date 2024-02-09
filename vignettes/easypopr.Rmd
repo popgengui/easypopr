@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette gives you examples of configuring and running EASYPOP simulations inside easypopr.  We also describe the plotting functions the package provides.  Note that this vignette does not run the example commands that initiate simulations, since they would write files to your system.  If you'd like to run the simulations, please copy and paste the commands into your console, 
+This vignette gives you examples of configuring and running EASYPOP simulations inside easypopr. We also describe the plotting functions the package provides. Note that this vignette does not run the example commands that initiate simulations, since they would write files to your system. If you'd like to run the simulations, please copy and paste the commands into your console,
 
 ## About EASYPOP
 
@@ -57,14 +57,17 @@ If you have an existing configuration file, you can run EASYPOP with the command
     run_easypop( s.file.name = "mysettings.cfg" )
 ```
 
-After the simulation runs, you'll find output files as named according to the configuration file's setting for the "name_of_file" parameter.  For a description of the simulator's output see the author's manual, available at the link given above.
+After the simulation runs, you'll find output files as named according to the configuration file's setting for the "name_of_file" parameter. For a description of the simulator's output see the author's manual, available at the link given above.
 
 ## Revising and running an existing configuration file
 
-To quickly revise an existing configuration file, you can load its settings into a list by calling "read_parameters_from_file."  For example (we first access a demo configuration file included in the package):
+To quickly revise an existing configuration file, you can load its settings into a list by calling "read_parameters_from_file." For example (we first access a demo configuration file included in the package):
 
 ```{r, eval=T}
-    s.config.file = system.file( "extdata", "demo.standard.cfg", package = "easypopr") 
+    s.config.file = system.file( "extdata", 
+                            "demo.standard.cfg", 
+                            package = "easypopr") 
+
     l.config = read_parameters_from_file( s.file = s.config.file )
 ```
 
@@ -107,7 +110,7 @@ You can conveniently run multiple simulations based on changing settings in an e
           "number_populations" = c( 5, 10, 50 ) )
 ```
 
-For the following command, we don't need to change the name_of_file parameter, since the program will automatically name the files.  Again, here we use our demo configuration file.  Now, you can write the 9 configuration files each with one combination of mutation rate and number of populations values:
+For the following command, we don't need to change the name_of_file parameter, since the program will automatically name the files. Again, here we use our demo configuration file. Now, you can write the 9 configuration files each with one combination of mutation rate and number of populations values:
 
 ```{r, eval=F}
 
@@ -134,6 +137,33 @@ The s.filebase value will be the prefixed file name for both the configuration f
 
 ## Plotting simulation results
 
-The package provides plotting functions to see the F- and Heteryzygosity statistics that are found in EASYPOP's *.equ output files.  To see a per replicate plot for each generation in a simulation you can call:
+The package provides functions that plot values in EASYPOP's equ output files, which give per-generation values for heterozygosity and F-statisics, including Ho, Hs, Ht, Fis, Fst, and Fit. To demonstrate, we'll access a pair of EASYPOP output equ files included in the package:
 
+```{r, eval = TRUE}
+
+    s.equ.file.1 = system.file( "extdata", 
+                              "demo.standard.001.equ", 
+                              package = "easypopr")
+    s.equ.file.2 = system.file( "extdata", 
+                              "demo.standard.002.equ", 
+                              package = "easypopr")
+ 
+```
+To plot per-replicate values for one of the values, we can call:
+
+```{r, fig.height=3, fig.width=4, eval=T}
+    plot_easypop_replicate_equ_values( s.colname = "Fst", 
+                              v.data.source = c( s.equ.file.1, s.equ.file.2 ) )
+
+```
+
+You can also plot the mean values over replicates of one or more simulation runs, using the name of the configuration file on which the simulation was based.  Using our demo.standard.cfg configuration and its results, we can see the mean observered heterozygosity values over the two replicates run in our standard demo:
+
+
+```{r, fig.height=3, fig.width=6, eval=T}
+    s.config = system.file( "extdata", 
+                            "demo.standard.cfg", 
+                            package = "easypopr") 
+    plot_easypop_replicate_equ_means( s.config, "Ho")
+```
 
