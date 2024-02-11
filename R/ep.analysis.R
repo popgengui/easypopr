@@ -6,6 +6,52 @@
 #used to compare output of the revised easypop
 #program versus the original.
 
+is.absolute.path=function( s.path )
+{
+	#to help find equ files associated
+	#with a config file's "name_of_file" entry, 
+	#this function checks a path to see if it's 
+	#an absolute.
+	
+	#Note that after a few tests in R it looks 
+	#like R in windows 10 can resolve abs paths 
+	#in unix-style, or with init backslash (escaped) 
+	#without drive spec, or with an init drive spec
+
+	s.abs.path.unix.first.char = "/"
+	b.path.is.abs = FALSE
+	s.first.char = substr( s.path, 1, 1 )
+
+	#I think R on all platforms can resolve from the
+	#old unix first char:
+	if( s.first.char == s.abs.path.unix.first.char )
+	{
+		b.path.is.abs = TRUE
+	}
+	else if ( .Platform$OS.type == "windows" )
+	{
+		
+		if ( s.first.char == "\\" )         
+		{
+			b.path.is.abs = TRUE
+		}#end if first char backslach
+		else
+		{
+			s.drive.pattern = "^[A-Z,a-z]:"
+			i.hit = grep( pattern = s.drive.pattern, x = s.path )
+
+			if( i.hit == 1 )
+			{
+				b.path.is.abs = TRUE
+			}
+		}#end if starts with backslash, else drive ref
+	}#end if first char "/" else if on windows, 
+	 #check for other abs path first char formats
+
+	return ( b.path.is.abs )
+
+}#end is.absolute.path
+
 get.list.equ.files=function( s.file.pattern, s.path )
 {
 
@@ -13,8 +59,8 @@ get.list.equ.files=function( s.file.pattern, s.path )
 
 	if( length( v.files ) == 0 )
 	{
-		stop( paste( "error in get.list.equ.files:  no files found in path, ",
-			    	s.path, "and file pattern,", s.file.pattern ) )
+		stop( paste( "error in get.list.equ.files:  no files found in path,",
+			    	s.path, ", and file pattern,", s.file.pattern ) )
 
 	}#end if length is zero
 
@@ -217,14 +263,26 @@ get.list.equ.files.from.results.base.name=function( s.config.file.path, s.outfil
 	#for the list.files fx divide into the actual file base and the path
        	#that leads to it. fx dirname will output a dot if there is no preceeding
 	#path, which is the correct value for cwd (default) when using  list.files
+
+	s.path.only = NULL
 	s.file.only = basename( s.outfile.base )
-	s.path.only = s.config.file.path
+	b.base.name.abs = is.absolute.path( s.outfile.base )
+
+	if(  b.base.name.abs )
+	{
+		s.path.only = dirname( s.outfile.base )
+	}
+	else
+	{
+		s.path.only = s.config.file.path
+	}#end if outfile base is abs path, else not
 
 	s.equ.file.pattern=paste( s.file.only, ".*equ", sep="" )
 
 	v.equ.files = get.list.equ.files( s.equ.file.pattern, s.path.only )
 	
 	return( list( "equnames" = v.equ.files, "equpath" = s.path.only ) )
+
 }#end get.list.equ.files.from.results.base.name
 
 #' plot_easypop_replicate_equ_means
