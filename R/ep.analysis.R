@@ -303,6 +303,8 @@ plot_easypop_replicate_equ_means = function( vs.config.files, s.colname ) {
 
 	ldf.means = list()
 
+	i.last.num.gens=NULL
+
 	for( s.file in vs.config.files )
 	{
 
@@ -314,6 +316,33 @@ plot_easypop_replicate_equ_means = function( vs.config.files, s.colname ) {
 										s.outfile.base )		
 
 		df.means = get.mean.equ.file( l.equ.files$equnames, l.equ.files$equpath ) 
+
+		#20240213 we add a check to make sure
+		#all configurations have the same number
+		#of generations. If not ggplot command 
+		#(or is it the data.table command?)
+		#will fail.  Not able right now to 
+		#get allowance for variable num gens
+		i.current.num.gens=dim( df.means )[1]
+
+		if( is.null( i.last.num.gens ) )
+		{
+			i.last.num.gens = i.current.num.gens
+		}
+		else
+		{
+			if( i.current.num.gens != i.last.num.gens )
+			{
+				s.msg=paste0( "In plot_easypop_replicate_equ_means, ",
+					     "the program currently can't plot runs from ",
+					     "multiple configurations unless the number of ",
+					     "generations run is identical in all of the configurations." )
+				stop( s.msg )
+			}#end if unequal num gens
+
+			i.current.num.gens = i.last.num.gens
+		}# end if i.last.num.gens is null, else not
+
 		ldf.means[[s.outfile.base]] = df.means 
 	}#end for each config file
 

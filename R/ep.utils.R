@@ -87,7 +87,11 @@ make.config = function (  l.config, s.filebase, b.run = FALSE )
 	s.filenames = paste0( s.filebase, "_", i.current.config.count )
 
 	#have to update output file base name:
-	l.config$name_of_file = paste0( s.filenames, "." )
+	#20240213 adding "rep" go the output name
+	#as terminating with just the config count and a dot
+	#breaks code that finds outputfiles for just one config
+	#when config count exceeds 10^1
+	l.config$name_of_file = paste0( s.filenames, ".rep." )
 
 	#we add a new row to our key file that associates
 	#a config number with a set of param values:
