@@ -42,7 +42,7 @@ We want to look at Ne estimates at incremental numbers of generations after popu
 l.init.config = read_parameters_from_file( s.initial.config.file )
 ```
 
-We've set up our intial configuration file using the "setup_easypop" function, that prompts us for each setting.  We can look at our configuration file, to see ow we have asked EASYPOP to use 2 migration schemes:
+We've set up our initial configuration file using the "setup_easypop" function, that prompts us for each setting.  We can look at our configuration file, to see ow we have asked EASYPOP to use 2 migration schemes:
 
 ```{r, eval=T}
 
@@ -93,5 +93,5 @@ configure_multiple_easypop_runs( l.settings = l.gen.settings,
                                  
 ```
 
-Our vignette does not automatically run the above command, since it would write many files to your drive, but if you run it, you'll see output that includes the 40 configuration files (numbered 1 to 40).  Because we've set the b.run argument to TRUE, you will also find simulation output for each of the 40 simulations, with run numbers that corrspond to the configuration file number.  Among the latter are the *.gen (genepop) formatted files that can be used as input into the Ne estimator.  Note, also, that you'll find one output file that has the extension, "config.file.key.tsv," which lists the parameter setting (i.e. generation total) associated with each configuration file.
+Our vignette does not automatically run the above command, since it would write many files to your drive, but if you run it, you'll see output that includes the 40 configuration files (numbered 1 to 40).  Because we've set the b.run argument to TRUE, you will also find simulation output for each of the 40 simulations, with run numbers that correspond to the configuration file number.  Among the latter are the *.gen (genepop) formatted files that can be used as input into the Ne estimator.  Note, also, that you'll find one output file that has the extension, "config.file.key.tsv," which lists the parameter setting (i.e. generation total) associated with each configuration file.
 
