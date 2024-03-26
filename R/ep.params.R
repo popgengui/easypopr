@@ -178,7 +178,11 @@ ALL.EP.PARAMS.WITH.TYPE=list(
 			 = list( "name" = "file_giving_pedigrees:", "valtype" = "logical", "value" = NULL ),
 		"name_of_file"
 			 = list( "name" = "name_of_file:", "valtype" = "character", "value" = NULL ),
-		"number_of_replicates"= list( "name" = "number_of_replicates:", "valtype" = "integer", "value" = NULL ) )
+		"number_of_replicates" = list( "name" = "number_of_replicates:", "valtype" = "integer", "value" = NULL ),
+		#//20240326 we add new option for per-generation genepop output:
+		"print_gen_and_dat_each_generation" = list( "name" = "print_gen_and_dat_each_generation", 
+							   	"valtype" =  "logical",
+								"value" = NULL ) )
 
 vs.param.numeric.types.stored.as.strings = c( "array.integer", "array.numeric", "list.numeric", "matrix.numeric" )
 
@@ -1749,6 +1753,18 @@ get.output.parameters = function( i.number.of.populations, i.two.sexes )
 		s.prompt, 1, "integer", c( 1, MAX_NUMBER_REPLICATES ) )
 
 	lv.output[["number_of_replicates"]] = v.user.values[1]
+
+	s.prompt = paste( "Do you want a gen and dat file for each generation ?:y/n", 
+		"(If no, then a gen and dat file is output only for the last generation)",
+		sep="\n" );
+
+	v.user.values = prompt.for.values.and.return.user.entries( 
+			s.prompt, 1, "character", NULL )
+
+	s.per.gen.files = v.user.values[1]
+	i.per.gen.files = ifelse( s.per.gen.files == "y", TRUE.AS.INT, FALSE.AS.INT )
+
+	lv.output[["print_gen_and_dat_each_generation"]] = i.per.gen.files
 
 	return ( lv.output )
 
