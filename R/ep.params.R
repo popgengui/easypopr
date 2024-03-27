@@ -7,6 +7,10 @@
 #This list is used below to parameter data types to properly
 #write them to file.  As of 20231210, this list is not used
 #to store user values, hence the "value" field is not relevant.
+
+#20240327 Note that we have added param print_gen_and_dat_each_generation
+#the new option that allows users to get per-generation genotyping info via
+#a gen and a dat files for each generation.
 ALL.EP.PARAMS.WITH.TYPE=list(	
 		"ploidy"
 			 = list( "name" = "ploidy:", "valtype" = "integer", "value" = NULL ),
