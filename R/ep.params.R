@@ -1979,7 +1979,9 @@ setup_easypop = function( s.file.name, run = FALSE)
 
 	print.param.list( lv.as.list, s.file.name )
 
-	print( "finished writing parameter values" )
+	s.msg=paste0( "finished writing parameter values to file, ",
+		    	s.file.name )
+	print( s.msg )
 	
 	if(run){
 	  run_easypop(s.file.name)
