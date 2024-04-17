@@ -2,8 +2,8 @@
 An R package to run the population simulation program, EASYPOP, authored by F. Balloux, (c.f. Balloux, Francois. "EASYPOP (version 1.7): a computer program for population genetics simulations." Journal of heredity 92.3 (2001): 301-302 ).
 
 This version has revisions to the interface by T. Cosart.  You'll find the author's original user guide, as well as documentation detailing the revised input methods, and per-OS executables at
-
-     https://drive.google.com/drive/folders/1ZbbVeYR1ix8rI43d2myc1Fg9LTz3qfA_?usp=drive_link
+   	
+	https://github.com/popgengui/easypop-revised 
 
 ## Installation
 You don't need to download the executables to run our R package version.  You can install the package in your R installation using the devtools package, with the R console command: 
