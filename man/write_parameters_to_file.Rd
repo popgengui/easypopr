@@ -2,12 +2,12 @@
 % Please edit documentation in R/ep.params.R
 \name{write_parameters_to_file}
 \alias{write_parameters_to_file}
-\title{write_parameters_to_files}
+\title{write_parameters_to_file}
 \usage{
 write_parameters_to_file(ls.parameters, s.file, b.run = FALSE)
 }
 \arguments{
-\item{ls.parameters}{list whose names are easypop param names
+\item{ls.parameters}{list whose names are easypop config file param names
 and whose values are corresponding easypop parameter values.  Note that
 it is assumed that the list comprises a complete and valid set of parameters,
 hence is almost always based on a set read in from an existing configuration file..

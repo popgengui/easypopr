@@ -186,60 +186,72 @@ do.recursive.configs = function( l.settings, s.filebase, b.run = FALSE )
 
 }#end do.recursive.configs
 
+
 #' configure_multiple_easypop_runs
-#' 
-#' given a list of parameter names, each with a vector of values, for each 
-#' combination of settings, create an easypop configuration file
-#' and, optionally run each file as it is created.  Configuration and output files
-#' mames are numberd as created.  After all configurations are written (and, optionally, run), 
-#' the program also writes  a tabular file with the given filebase and with extension, 
-#' ".config.key.tsv"  This table gives in it's first column a config file number, and in 
-#' columns 2..N, the values for the params that were in the l.settings list 
-#' (see parameter descriptions).
 #'
-#' @param l.settings a list whose names are easypop config file parameter names, 
-#'          and whose values are vectors of settings (values) for each parameter
+#' given a list of parameter names, each with a vector of values, for each
+#' combination of settings, create an easypop configuration file and, optionally
+#' run each file as it is created.  Configuration and output files mames are
+#' numberd as created.  After all configurations are written (and, optionally,
+#' run), the program also writes  a tabular file with the given filebase and
+#' with extension, ".config.key.tsv"  This table gives in it's first column a
+#' config file number, and in columns 2..N, the values for the params that were
+#' in the l.settings list (see parameter descriptions).
 #'
-#' @param s.starting.config.file names an easypop config file to be used as the basis
-#'        for the simulations, with revised settings as given by the first arg
-#' @param s.filebase names the prefix used to name configuration files
-#'        (*.cfg) and output files (*equ, *gen, etc).  The program also adds an 
-#'        integer to the file names that indicates its order of creation.
-#' @param b.run  optional, default = FALSE, if set to TRUE, as each config is created,
-#'        a simulation is run based on the config
+#' @param l.settings a list whose names are easypop config file parameter names,
+#'   and whose values are vectors of settings (values) for each parameter
+#'
+#' @param s.starting.config.file names an easypop config file to be used as the
+#'   basis for the simulations, with revised settings as given by the first arg
+#' @param s.filebase names the prefix used to name configuration files (*.cfg)
+#'   and output files (*equ, *gen, etc).  The program also adds an integer to
+#'   the file names that indicates its order of creation.
+#' @param b.run  optional, default = FALSE, if set to TRUE, as each config is
+#'   created, a simulation is run based on the config
+#'   
+#' @return A \code{\link{data.frame}} containing file names and parameter values
+#'   for each new config file.
 #' @export
 #'
 
 configure_multiple_easypop_runs =function( l.settings, s.starting.config.file, s.filebase,  b.run = FALSE )
 {
-	v.param.value.totals =unlist( lapply( 1 : length( l.settings ), 
-				  FUN = function(x) length( l.settings[[x]] ) ) ) 
-	
-	l.starting.config = read_parameters_from_file( s.starting.config.file )
-
-	assign( "l.config", l.starting.config, envir = ep.env )
-
-	assign( "v.current.value.indices", 
-	       		rep( 1, length( l.settings ) ), 
-			envir = ep.env ) 
-
-	assign( "v.param.value.totals", v.param.value.totals, envir = ep.env )
-	assign( "i.current.param.number", 1, envir = ep.env )
-	assign( "i.config.count", 0, envir = ep.env )
-
-	#these added 20240206, to give users a key to the settings in each config:
-	assign( "m.current.set.configs", NULL, envir = ep.env ) 
-	#this will help extract the current vals for test params from the 
-	#current config
-	assign( "v.names.of.test.params", names( l.settings ), envir = ep.env )
-	assign( "s.config.key.file.name", paste0( s.filebase, ".config.key.tsv" ), 
-	       								envir = ep.env )
-	#end additions 20240206
-
-
-	do.recursive.configs( l.settings, s.filebase, b.run = b.run ) 
-
+  v.param.value.totals =unlist( lapply( 1 : length( l.settings ), 
+                                        FUN = function(x) length( l.settings[[x]] ) ) ) 
+  
+  l.starting.config = read_parameters_from_file( s.starting.config.file )
+  
+  assign( "l.config", l.starting.config, envir = ep.env )
+  
+  assign( "v.current.value.indices", 
+          rep( 1, length( l.settings ) ), 
+          envir = ep.env ) 
+  
+  assign( "v.param.value.totals", v.param.value.totals, envir = ep.env )
+  assign( "i.current.param.number", 1, envir = ep.env )
+  assign( "i.config.count", 0, envir = ep.env )
+  
+  #these added 20240206, to give users a key to the settings in each config:
+  assign( "m.current.set.configs", NULL, envir = ep.env ) 
+  #this will help extract the current vals for test params from the 
+  #current config
+  assign( "v.names.of.test.params", names( l.settings ), envir = ep.env )
+  assign( "s.config.key.file.name", paste0( s.filebase, ".config.key.tsv" ), 
+          envir = ep.env )
+  #end additions 20240206
+  
+  
+  do.recursive.configs( l.settings, s.filebase, b.run = b.run )
+  
+  config_count <- get("i.config.count", ep.env)
+  
+  info_table <- cbind(data.frame(config_file = paste0(s.filebase, "_", 1:config_count, ".cfg")),
+                      read.table(get("s.config.key.file.name", ep.env), header = TRUE, sep = "\t"))
+  
+  if(b.runs){
+    info_table$outfile <- paste0(s.filebase, "_", 1:config_count, ".cfg")
+  }
+  
+  return(info_table)
 }#end ep_auto_config
-
-
 
