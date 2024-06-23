@@ -4,8 +4,13 @@
 \alias{get.genetic.parameters}
 \title{get.genetic.parameters}
 \usage{
-get.genetic.parameters()
+get.genetic.parameters(i.ploidy)
+}
+\arguments{
+\item{i.ploidy, }{integer: 0, 1, or 2, indicating haplo-diplo, haplo, or diplody respectively}
 }
 \description{
 prompts user for genetic parameters and returns user-entered values as a list.
+Single ploidy arg just lets the program know whether or not user specified haploidy.
+If so we skip prompting for recombination rates under haploidy
 }
