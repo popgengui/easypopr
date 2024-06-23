@@ -1,0 +1,167 @@
+---
+title: "easypopr basics"
+output: rmarkdown::html_vignette
+description: >
+  This vignette illustrates the basics of configuring and running EASYPOP simulations in R.
+
+vignette: >
+  %\VignetteIndexEntry{basics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette gives you examples of configuring and running EASYPOP simulations inside easypopr. We also describe the plotting functions the package provides. Note that this vignette does not run the example commands that initiate simulations, since they would write files to your system. If you'd like to run the simulations, please copy and paste the commands into your console,
+
+## About EASYPOP
+
+The genetic simulation program EASYPOP is authored by F. Balloux, (c.f. Balloux, Francois. "EASYPOP (version 1.7): a computer program for population genetics simulations." Journal of heredity 92.3 (2001): 301-302 ). The version used in easypopr has revisions to the interface by T. Cosart.
+
+For details about EASYPOP's methods, parameters, and output, you'll find the author's original manual in pdf at:
+
+<https://github.com/popgengui/easypop-revised/tree/main/docs>
+
+Besides the manual, you'll also find text files that tell you about the revised interface and the format of the configuration file.
+
+Our easypopr package includes the EASYPOP executable, but, if you'd like to use EASYPOP outside of our package you can also find an executable for each platform, at:
+
+<https://github.com/popgengui/easypop-revised>
+
+## First Use
+
+When you load the easypopr library, you see a message showing you which easypop executable is in use. It's name should match the platform (Windows, Mac, or Linux) that your R installation is using:
+
+```{r setup}
+library(easypopr)
+```
+
+To set up an EASYPOP simulation, you first provide the program with parameter settings. You can make a complete set of parameters and write them to a configuration file with the command:
+
+```{r, eval = F}
+    setup_easypop( s.file.name = "mysettings.cfg", run = TRUE)
+```
+
+With this command the program will prompt you for settings and record your responses in a file named "mysettings.cfg." By setting the optional, "run = TRUE", EASYPOP will run a simulation based on the settings in "mysettings.cfg". If the default run = FALSE is used, the program exits after writing the configuration file.
+
+If you have an existing configuration file, you can run EASYPOP with the command:
+
+```{r, eval = F}
+    run_easypop( s.file.name = "mysettings.cfg" )
+```
+
+After the simulation runs, you'll find output files as named according to the configuration file's setting for the "name_of_file" parameter. For a description of the simulator's output see the author's manual, available at the link given above.
+
+## Revising and running an existing configuration file
+
+To quickly revise an existing configuration file, you can load its settings into a list by calling "read_parameters_from_file." For example (we first access a demo configuration file included in the package):
+
+```{r, eval=T}
+    s.config.file = system.file( "extdata", 
+                            "demo.standard.cfg", 
+                            package = "easypopr") 
+
+    l.config = read_parameters_from_file( s.file = s.config.file )
+```
+
+Our list, l.config, has names matching parameter names in the configuration file, and their corresponding values, for example
+
+```{r, eval=T}
+    l.config$number_populations
+    l.config$mutation_rate
+```
+
+We can change parameter values:
+
+```{r, eval = T}
+    l.config$number_populations = 10
+    l.config$mutation_rate = 0.01
+    l.config$name_of_file = "pop.10.mut.01"
+```
+
+A few caveats on revising configurations:
+
+-   When revising a configuration list you should change the "name_of_file" parameter, since EASYPOP will not run if it finds existing output files whose base names (prefixes) match the name_of_file value.
+
+-   Some parameter values, i.e. qualitative parameters like mating scheme, migration scheme, mutation scheme, depend on the presence of others, so that, for example, simply changing the migration scheme number from 3 (Island migration) to 4 (hierarchical stepping stone), will invalidate the configuration, as it will be missing several parameters required for the latter scheme. It's recommended in such cases that you instead create a new configuration file that uses the new scheme.
+
+With the configuration list loaded and revised, you can then write a new configuration file and (optionally, by adding TRUE as the second argument) run the corresponding simulation:
+
+```{r, eval = F}
+    write_parameters_to_file(ls.parameters = l.config, 
+                             s.file = "pop.10.mut.01.cfg", 
+                             b.run = TRUE )
+```
+
+## Running multiple simulations with multiple parameter changes
+
+You can conveniently run multiple simulations based on changing settings in an existing configuration file. First, make a list with one or more parameters (existing in the configuration file). Note that the names in your list should match exactly the names used in the configuration file. If you assign each a vector of values:
+
+```{r, eval=T}
+    l.params.to.vary = list( 
+          "mutation_rate" = c( 0.01, 0.005, 0.0001 ),
+          "number_populations" = c( 5, 10, 50 ) )
+```
+
+For the following command, we don't need to change the name_of_file parameter, since the program will automatically name the files. Again, here we use our demo configuration file. Now, you can write the 9 configuration files each with one combination of mutation rate and number of populations values:
+
+```{r, eval=F}
+
+  s.config.file = system.file( "extdata", "demo.standard.cfg", package = "easypopr") 
+  configure_multiple_easypop_runs( l.settings =  l.params.to.vary, 
+                                   s.starting.config.file = s.config.file, 
+                                   s.filebase = "test.mut.and.pops",
+                                   b.run = TRUE )
+```
+
+The s.filebase value will be the prefixed file name for both the configuration files and the EASYPOP output files. An ordinal integer is also added to the name to distinguish the runs. The optional 4th argument, set to TRUE, will automatically initiate a simulation run based on each configuration. This function also writes a tabular configuration key table that helps you associate a configuration file with a set of the parameter values. You'll find it among the files with an extension, .config.key.tsv. For this example you'd find a file, test.mut.and.pops.config.key.tsv, with these these columns:
+
+| config_file_number | mutation_rate | number_populations |
+|--------------------|---------------|--------------------|
+| 1                  | 0.01          | 5                  |
+| 2                  | 0.01          | 10                 |
+| 3                  | 0.01          | 50                 |
+| 4                  | 0.005         | 5                  |
+| 5                  | 0.005         | 10                 |
+| 6                  | 0.005         | 50                 |
+| 7                  | 1e-04         | 5                  |
+| 8                  | 1e-04         | 10                 |
+| 9                  | 1e-04         | 50                 |
+
+## Plotting simulation results
+
+The package provides functions that plot values in EASYPOP's equ output files, which give per-generation values for heterozygosity and F-statisics, including Ho, Hs, Ht, Fis, Fst, and Fit. To demonstrate, we'll access a pair of EASYPOP output equ files included in the package:
+
+```{r, eval = TRUE}
+
+    s.equ.file.1 = system.file( "extdata", 
+                              "demo.standard.001.equ", 
+                              package = "easypopr")
+    s.equ.file.2 = system.file( "extdata", 
+                              "demo.standard.002.equ", 
+                              package = "easypopr")
+ 
+```
+To plot per-replicate values for one of the values, we can call:
+
+```{r, fig.height=3, fig.width=4, eval=T}
+    plot_easypop_replicate_equ_values( s.colname = "Fst", 
+                              v.data.source = c( s.equ.file.1, s.equ.file.2 ) )
+
+```
+
+You can also plot the mean values over replicates of one or more simulation runs, using the name of the configuration file on which the simulation was based.  Using our demo.standard.cfg configuration and its results, we can see the mean observered heterozygosity values over the two replicates run in our standard demo:
+
+
+```{r, fig.height=3, fig.width=6, eval=T}
+    s.config = system.file( "extdata", 
+                            "demo.standard.cfg", 
+                            package = "easypopr") 
+    plot_easypop_replicate_equ_means( s.config, "Ho")
+```
+

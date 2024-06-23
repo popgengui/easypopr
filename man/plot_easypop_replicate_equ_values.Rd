@@ -4,21 +4,24 @@
 \alias{plot_easypop_replicate_equ_values}
 \title{plot_easypop_replicate_equ_values}
 \usage{
-plot_easypop_replicate_equ_values(s.colname, ldf.data.frames)
+plot_easypop_replicate_equ_values(s.colname, v.data.source)
 }
 \arguments{
-\item{s.colname}{a column name from the equ file's first line}
+\item{s.colname}{a (quoted) column name from the equ file's first line, one of,
+"Ho", "Hs", "Ht", "Fis", "Fst", or "Fit".}
 
-\item{ldf.data.frames}{either a list of data frames, as created by calling
-\code{\link[utils]{read.table}} on a set of *.equ file, or a vector of file
-paths to each .equ file you wish to read. The latter can be generated with
-the \code{\link[base]{file.path}} using the \code{full.names = TRUE}
-argument.}
+\item{v.data.source}{one of:  (1) a list of data frames, as created by calling
+\code{\link[utils]{read.table}} on a set of *.equ file, or (2) a vector of file
+paths to each .equ file you wish to read, or (3) one string giving the name
+of an easypop configuration file (as created, for example, with a call to setup_easypop).
+Note that for option (2) the vector of file paths can be generated with
+the \code{\link[base]{file.path}} using the \code{full.names = TRUE} argument.
+In case (3), the program looks for equ files matching the "name_of_file" value
+listed in the configuration file}
 }
 \description{
-for each data frame given in arg ldf.data.frames, list of items, each
-representing an ep output *equ file,  a line is plotted showing the
-per-generation values for the quantity (e.g. Fst), associated with the column
-name given by arg s.colname and returns them in a vector length i.num.values,
-of user-entered values
+for each item in v.data.source (see below for param v.data.source,
+each is plotted showing the per-generation values for the quantity (e.g. Fst),
+associated with the column name given by arg s.colname and returns them in a
+vector length i.num.values, of user-entered values
 }

@@ -11,7 +11,7 @@ setup_easypop(s.file.name, run = FALSE)
 can write the parameter values entered at the prompts.}
 
 \item{run}{logical, default FALSE. If TRUE, easypop will automatically be run
-on the after parameter file creation is complete.}
+after parameter file creation is complete.}
 }
 \description{
 Prompts the user for parameter values used to run an EASYPOP simulation. and

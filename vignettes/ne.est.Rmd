@@ -1,0 +1,97 @@
+---
+title: "Ne estimation"
+output: rmarkdown::html_vignette
+description: >
+  This vignette illustrates simulating the effect on Ne of populations isolated after panmixia.
+
+vignette: >
+  %\VignetteIndexEntry{Ne estimation under segregation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette  shows how you can use EASYPOP along with an Ne estimator to explore the effects of population segregation on genetic diversity.
+
+## Simulating population segregation with EASYPOP
+
+The easypopr package includes a configuration we can use as a basis for testing population diversity at various numbers of generations after a segregating event that isolates all the populations from each other.  After loading the easypopr package:
+
+```{r setup}
+library(easypopr)
+```
+We'll locate the configuration file that will serve as the starting configuration for our tests:
+
+```{r, eval=T}
+
+    s.initial.config.file = system.file( "extdata", 
+                            "demo.segregation.cfg", 
+                            package = "easypopr") 
+```
+
+We want to look at Ne estimates at incremental numbers of generations after population segregation.  Note that we can, by loading our initial config file into a list, see how we've set the migration and generation parameters to simulate population isolation after 10 generations:
+
+```{r, eval=T}
+
+l.init.config = read_parameters_from_file( s.initial.config.file )
+```
+
+We've set up our initial configuration file using the "setup_easypop" function, that prompts us for each setting.  We can look at our configuration file, to see ow we have asked EASYPOP to use 2 migration schemes:
+
+```{r, eval=T}
+
+l.init.config$same_migration_scheme_all_simulation
+```
+
+We've set it to use Island connectivity (EASYPOP's migration scheme number 3) for both:
+
+```{r, eval=T}
+l.init.config$migration_model
+l.init.config$migration_model_second_scheme
+```
+
+We start with a high migration rate that ensures panmixia:
+
+```{r, eval=T}
+l.init.config$proportion_female_migration
+l.init.config$proportion_male_migration
+```
+
+Then, for our second scheme, we shut down all migration:
+
+```{r, eval=T}
+l.init.config$proportion_female_migration_second_scheme
+l.init.config$proportion_male_migration_second_scheme
+```
+
+We've set the "burn-in" to 10 generations, that is, the initial generations with high migration:
+
+```{r, eval=T}
+l.init.config$number_of_generations_before_migration_scheme_change
+```
+
+For our test, we want to estimate Ne for populations for an increasing number of generations after the migration shuts down at generation 11.  We can use easypopr to automate running multiple simulations that vary the number of generations, so that we'll have the "gen" (genepop) output files that represent the populations at various times after segregation.  First we make a list whose name matches the EASYPOP configuration file's name for the parameter that gives the total generations to run:
+
+```{r, eval=T}
+
+l.gen.settings = list( "number_of_generations" = 11:50 )
+```
+With the vector value in the list, we'll have output for simulations with the number of segregated generations increasing from 1, 2, 3...40 (since the first 10 generations will be the "burn-in" of panmixia).  We can run these simulations automatically with this command:
+
+```{r, eval=F}
+
+configure_multiple_easypop_runs( l.settings = l.gen.settings,
+                                 s.starting.config.file = s.initial.config.file,
+                                 s.filebase = "segregate.vary.gens",
+                                 b.run = TRUE )
+                                 
+```
+
+Our vignette does not automatically run the above command, since it would write many files to your drive, but if you run it, you'll see output that includes the 40 configuration files (numbered 1 to 40).  Because we've set the b.run argument to TRUE, you will also find simulation output for each of the 40 simulations, with run numbers that correspond to the configuration file number.  Among the latter are the *.gen (genepop) formatted files that can be used as input into the Ne estimator.  Note, also, that you'll find one output file that has the extension, "config.file.key.tsv," which lists the parameter setting (i.e. generation total) associated with each configuration file.
+

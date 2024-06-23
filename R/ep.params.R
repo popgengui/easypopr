@@ -1,7 +1,16 @@
+#ep.params.R
+#code to prompt user at the R console for parameters,
+#write and read easypop configuration files, and run
+#easypop simulations.
+
 #This is a "master" list of all (possible) easypop parameters
 #This list is used below to parameter data types to properly
 #write them to file.  As of 20231210, this list is not used
 #to store user values, hence the "value" field is not relevant.
+
+#20240327 Note that we have added param print_gen_and_dat_each_generation
+#the new option that allows users to get per-generation genotyping info via
+#a gen and a dat files for each generation.
 ALL.EP.PARAMS.WITH.TYPE=list(	
 		"ploidy"
 			 = list( "name" = "ploidy:", "valtype" = "integer", "value" = NULL ),
@@ -10,7 +19,7 @@ ALL.EP.PARAMS.WITH.TYPE=list(
 		"two_sexes"
 			 = list( "name" = "two_sexes:", "valtype" = "logical", "value" = NULL ),
 		"random_mating"
-			 = list( "name" = "random_mating:", "valtype" = "numeric", "value" = NULL ),
+			 = list( "name" = "random_mating:", "valtype" = "logical", "value" = NULL ),
 		"proportion_clonal_mating"
 			 = list( "name" = "proportion_clonal_mating:", "valtype" = "numeric", "value" = NULL ),
 		"proportion_selfing_of_nonclones"
@@ -62,7 +71,7 @@ ALL.EP.PARAMS.WITH.TYPE=list(
 		"same_number_populations_each_archipelago"
 			 = list( "name" = "same_number_populations_each_archipelago:", "valtype" = "logical", "value" = NULL ),
 		"same_number_populations_each_archipelago_second_scheme"
-			 = list( "name" = "same_number_populations_each_archipelago_second_scheme:", "logical" = "numeric", "value" = NULL ),
+			 = list( "name" = "same_number_populations_each_archipelago_second_scheme:", "valtype" = "logical", "value" = NULL ),
 		"per_archipelago_number_of_populations"
 			 = list( "name" = "per_archipelago_number_of_populations:", "valtype" = "array.integer", "value" = NULL ),
 		"per_archipelago_number_of_populations_second_scheme"
@@ -173,9 +182,13 @@ ALL.EP.PARAMS.WITH.TYPE=list(
 			 = list( "name" = "file_giving_pedigrees:", "valtype" = "logical", "value" = NULL ),
 		"name_of_file"
 			 = list( "name" = "name_of_file:", "valtype" = "character", "value" = NULL ),
-		"number_of_replicates"= list( "name" = "number_of_replicates:", "valtype" = "integer", "value" = NULL ) )
+		"number_of_replicates" = list( "name" = "number_of_replicates:", "valtype" = "integer", "value" = NULL ),
+		#//20240326 we add new option for per-generation genepop output:
+		"print_gen_and_dat_each_generation" = list( "name" = "print_gen_and_dat_each_generation", 
+							   	"valtype" =  "logical",
+								"value" = NULL ) )
 
-
+vs.param.numeric.types.stored.as.strings = c( "array.integer", "array.numeric", "list.numeric", "matrix.numeric" )
 
 FALSE.AS.INT = as.integer( 0 )
 TRUE.AS.INT = as.integer( 1 )
@@ -197,8 +210,8 @@ MAX_NUMBER_MUTATION_MODEL = as.integer( 4 )
 #using a large number to allow practically any value:
 MAX_DISPERSAL_DISTANCE = 1e50
 
-#when the user is entering an array,
-#the propmt string will sub in the
+#when the user is entering an array at the
+#R console, the prompt string will sub in the
 #loop number (1-base) for this placeholder:
 INDEX.HOLDER.STRING = "iiindexii"
 
@@ -221,6 +234,51 @@ MUTATION_MODEL_LIST =
 		       	sep="\n" );
 
 lr.conversion.functions=list ( "integer" = as.integer, "numeric" = as.numeric, "character" = as.character );
+
+#' try.to.convert
+#' given a character-type, convert it to the type
+#' named by the given target type
+#'
+#' @param s.string.to.convert character string to be converted
+#' @param s.target.type string naming a type, one of "numeric", 
+#'        "integer", or (trivially) "character" 
+#' we make this fx more extensible by returning NULL
+#' if the converstion fails, letting the caller handle failures.
+#'
+
+try.to.convert = function(  s.string.to.convert, s.target.type )
+{
+	u.result.of.try = NULL
+
+	if( !s.target.type %in% names( lr.conversion.functions ) )
+	{
+		s.msg = paste ( "In fx try.to.convert,",
+				      "no conversion function found for type, ",
+				      s.target.type )
+		stop( s.msg )
+	}#end if unknown target type
+
+	#we use tryCatch to return NULL if the conversion fails.
+	#note that failed conversions of numbers can return NA
+	#and generate only a warning (??), so we make handlers for
+	#both both errors and warnings, in both cases returning NULL
+	u.result.of.try = tryCatch( 
+					{	#the value assigned to the tryCatch call if no error or warning: 
+						lr.conversion.functions[[s.target.type]]( s.string.to.convert );
+					},	  
+					error = function ( e )
+					{
+						return( NULL )
+					},
+					warning = function ( w )
+					{
+						return( NULL )
+					}
+	)#end call to try catch
+
+	return( u.result.of.try )
+
+}#end try.to.convert
 
 format.vals.as.nonscientific.strings=function( v.numeric )
 {
@@ -294,23 +352,7 @@ prompt.for.values.and.return.user.entries=function( s.prompt, i.num.values, s.ty
 			v.scan.buff = scan( nmax=1, what = s.type.of.values, 
 					     flush = TRUE,  multi.line = FALSE )
 			
-			#we use tryCatch to return NULL if the conversion fails.
-			#note that failed conversions of numbers can return NA
-			#and generate only a warning (??), so we make handlers for
-			#both both errors and warnings, in both cases returning NULL
-			i.result.of.try = tryCatch( 
-						{	#the value assigned to the tryCatch call if no error or warning: 
-							lr.conversion.functions[[s.type.of.values]]( v.scan.buff[1] );
-						},	  
-						error = function ( e )
-						{
-							return( NULL )
-						},
-						warning = function ( w )
-						{
-							return( NULL )
-						}
-			)#end call to try catch
+			i.result.of.try = try.to.convert(  v.scan.buff[1], s.type.of.values )
 
 			if ( is.null( i.result.of.try ) )
 			{
@@ -401,8 +443,6 @@ get.selfing.parameters=function( )
 
 }#end get.selfing.parameters
 
-
-
 #' get.mating.parameters
 #' 
 #' prompts user for mating parameters and returns user-entered values as a list.
@@ -461,7 +501,6 @@ get.mating.parameters=function ( gploidy, g2sex )
 	return( lv.mating )
 
 }#end get.mating.parameters
-
 
 #' get.reproduction.parameters
 #' 
@@ -543,7 +582,7 @@ get.reproduction.parameters=function()
 			s.random.mating = v.user.values[1]	
 			i.random.mating = ifelse( s.random.mating == "y", TRUE.AS.INT, FALSE.AS.INT )
 
-			lv.selfing[["random_mating"]] =  i.random.mating
+			lv.repro[["random_mating"]] =  i.random.mating
 			
 			if( i.random.mating == FALSE.AS.INT )
 			{	
@@ -587,7 +626,7 @@ get.population.parameters = function( gploidy, g2sex )
 	{
 
 		v.user.values = prompt.for.values.and.return.user.entries( 
-			"Same number of individuals in each populations ?:y/n",
+			"Same number of individuals in each population ?:y/n",
 			1, "character", c( "y", "n" ) );
 
 		s.unif.pop.size =  v.user.values[1];
@@ -1069,9 +1108,17 @@ get.migr.spatial = function( g2sex, gnbpop, b.second.scheme )
 				1, "integer", c( 1, MAX_NUMBER_DIMENSIONS ) )
 
 	i.num.dimen = v.user.values[1]	
+
+	if( !b.second.scheme )
+	{
+		lv.params[["number_of_dimensions_defining_the_space"]] = i.num.dimen
+	}
+	else
+	{
+		lv.params[["number_of_dimensions_defining_the_space_second_scheme"]] = i.num.dimen
+	}#end if not 2nd scheme, else is
 	
 	#here we need a matrix, hence we prompt per-pop-per-dimension
-
 	for( i.pop in 1:gnbpop )
 	{
 		s.prompt = paste( "enter coordinate ", INDEX.HOLDER.STRING,
@@ -1111,7 +1158,7 @@ get.migr.spatial = function( g2sex, gnbpop, b.second.scheme )
 	if( g2sex == FALSE.AS.INT )
 	{
 
-		v.user.values = s.prompt.with.index.holder = paste( 
+		v.user.values = prompt.for.values.and.return.user.entries( 
 				"enter mean dispersal distance",
 				1, "numeric", c( 0, MAX_DISPERSAL_DISTANCE ) )
 
@@ -1173,14 +1220,34 @@ get.migration.scheme.details = function( g2sex, gnbpop, b.second.scheme )
 
 	lv.scheme = list()
 	lv.migr.params = NULL
+	gtypemigr = NULL
 
-	lv.user.values = prompt.for.values.and.return.user.entries( 
-				MIGRATION_SCHEME_PROMPT,
-				1, "integer", c( 1, MAX_NUMBER_POPULATIONS ) ) 
+	#Although not cased out, note that the case of 1 pop (gnbpop==1), should 
+	#not reach this function (see get.mating.parameters())
+	if( gnbpop > 2 )
+	{
+		lv.user.values = prompt.for.values.and.return.user.entries( 
+					MIGRATION_SCHEME_PROMPT,
+					1, "integer", c( 1, MAX_NUMBER_POPULATIONS ) ) 
 
-	gtypemigr = lv.user.values[1] 
+		gtypemigr = lv.user.values[1] 
+	}
+	else #2 pops
+	{
+		#island migration the only option for 2 pops:
+		gtypemigr = 3
+	}#end if more than 2 else migration is island type
 
-	lv.scheme[["migration_model"]] = gtypemigr
+	if( b.second.scheme )
+	{
+		lv.scheme[["migration_model_second_scheme"]] = gtypemigr
+	}
+	else
+	{
+
+		lv.scheme[["migration_model"]] = gtypemigr
+	}#end if second scheme, else not
+
 
 	if( gtypemigr == 1 )
 	{
@@ -1232,27 +1299,26 @@ get.migration.parameters = function( g2sex, gnbpop )
 	lv.scheme = list()
 	gtypemigr = NULL
 
-	if ( gnbpop <= 2 )
+	#special case, 1 pop, no migration:	
+	if( gnbpop == 1 )
 	{
-		#default for 1 or 2 pops is  island
+		#default for 1 pop is  island
 		lv.migr[["migration_model"]] = 3
-		gtypemigr = 3
 
-		if( gnbpop == 1 )
+		#ep uses vars labeled "female" when under haploidy and needs
+		#a value:	
+		lv.migr[["proportion_female_migration"]] = 0.0
+		if( g2sex == TRUE.AS.INT )
 		{
-			#ep uses vars labeled "female" when under haploidy and needs
-			#a value:	
-			lv.migr[["proportion_female_migration"]] = 0.0
-			if( g2sex == TRUE.AS.INT )
-			{
-				#2-sexes, we also need to set maile migr
-				#to zero for 1-pop scenario:
-				lv.migr[["proportion_male_migration"]] = 0
-			}#end if 2 sexes
-			return( lv.migr )
-		}#end if one pop only return after trivial migration assignments
+			#2-sexes, we also need to set male migr
+			#to zero for 1-pop scenario:
+			lv.migr[["proportion_male_migration"]] = 0.0
+		}#end if 2 sexes
 
-	}#end if only one or two pops, set as island model
+		lv.migr[["same_migration_scheme_all_simulation"]] = TRUE.AS.INT
+
+		return( lv.migr )
+	}#end if one pop only return after trivial migration assignments
 
 	v.user.values = prompt.for.values.and.return.user.entries( 
 			"Same migration scheme over all simulation? (y/n)",
@@ -1274,6 +1340,7 @@ get.migration.parameters = function( g2sex, gnbpop )
 
 		print("migration model for the first part of the simulation?");
 		lv.scheme.one = get.migration.scheme.details( g2sex, gnbpop, FALSE )
+
 		print("migration model for the second part of the simulation?");
 		lv.scheme.two = get.migration.scheme.details( g2sex, gnbpop, TRUE )
 
@@ -1371,7 +1438,7 @@ get.mutation.scheme = function( i.num.loci, i.unif.mut.scheme )
 		{
 
 			s.prompt = paste( "Mutation model for locus ", i.locus, 
-					 "?", MUTATION_MODEL_LIST,  sep="" )
+					 "?\n", MUTATION_MODEL_LIST,  sep="" )
 
 			v.user.values = prompt.for.values.and.return.user.entries( 
 				s.prompt, 1, "integer", c( 1, MAX_NUMBER_MUTATION_MODEL ) )
@@ -1548,8 +1615,12 @@ get.generation.parameters=function( i.unif.migr.scheme )
 #' get.genetic.parameters
 #' 
 #' prompts user for genetic parameters and returns user-entered values as a list.
+#' Single ploidy arg just lets the program know whether or not user specified haploidy. 
+#' If so we skip prompting for recombination rates under haploidy
 #'
-get.genetic.parameters = function( )
+#' @param   i.ploidy, integer: 0, 1, or 2, indicating haplo-diplo, haplo, or diplody respectively
+#'
+get.genetic.parameters = function( i.ploidy )
 {
 	lv.genetics = list()
 	v.user.values = NULL
@@ -1561,25 +1632,29 @@ get.genetic.parameters = function( )
 	
 	lv.genetics[["number_of_loci"]] = i.num.loci	
 
-	v.user.values = prompt.for.values.and.return.user.entries( 
-		"Free recombination between loci?: y/n",
-		1, "character", c( "y", "n" ) )
-
-	s.free.recomb = v.user.values[1]
-	i.free.recomb = ifelse( s.free.recomb=="y", TRUE.AS.INT, FALSE.AS.INT )
-	lv.genetics[["free_recombination_between_loci"]] = i.free.recomb
-
-	if(  i.free.recomb == FALSE )
+	#non-haploid only.  easypop only looks for this bool if ploidy is 0 or 2:
+	if ( i.ploidy != 1 )
 	{
-		s.prompt = paste( "Recombination rate between adjacent loci (ie between locus n and n+1)",
-					"The recombination rate must be comprised between 0.0 and 0.5",
-					sep = "\n" );
 		v.user.values = prompt.for.values.and.return.user.entries( 
-			s.prompt, 1, "numeric", c( 0.0, 0.5 ) )
+			"Free recombination between loci?: y/n",
+			1, "character", c( "y", "n" ) )
 
-		f.recomb = v.user.values[1]
-		lv.genetics[["recombination_rate_between_adjacent_loci"]] = f.recomb
-	}#end if non-free recomb
+		s.free.recomb = v.user.values[1]
+		i.free.recomb = ifelse( s.free.recomb=="y", TRUE.AS.INT, FALSE.AS.INT )
+		lv.genetics[["free_recombination_between_loci"]] = i.free.recomb
+
+		if(  i.free.recomb == FALSE )
+		{
+			s.prompt = paste( "Recombination rate between adjacent loci (ie between locus n and n+1)",
+						"The recombination rate must be comprised between 0.0 and 0.5",
+						sep = "\n" );
+			v.user.values = prompt.for.values.and.return.user.entries( 
+				s.prompt, 1, "numeric", c( 0.0, 0.5 ) )
+
+			f.recomb = v.user.values[1]
+			lv.genetics[["recombination_rate_between_adjacent_loci"]] = f.recomb
+		}#end if non-free recomb
+	}#end if non haploid, check for recombination rates
 
 	v.user.values = prompt.for.values.and.return.user.entries( 
 				"Do all loci have the same mutation scheme?:y/n",
@@ -1683,6 +1758,18 @@ get.output.parameters = function( i.number.of.populations, i.two.sexes )
 
 	lv.output[["number_of_replicates"]] = v.user.values[1]
 
+	s.prompt = paste( "Do you want a gen and dat file for each generation ?:y/n", 
+		"(If no, then a gen and dat file is output only for the last generation)",
+		sep="\n" );
+
+	v.user.values = prompt.for.values.and.return.user.entries( 
+			s.prompt, 1, "character", NULL )
+
+	s.per.gen.files = v.user.values[1]
+	i.per.gen.files = ifelse( s.per.gen.files == "y", TRUE.AS.INT, FALSE.AS.INT )
+
+	lv.output[["print_gen_and_dat_each_generation"]] = i.per.gen.files
+
 	return ( lv.output )
 
 }#end get.output.parameters
@@ -1706,7 +1793,7 @@ get.ep.parameters=function()
 	lv.param.vals=append( lv.param.vals, lv.migr )
 
 
-	lv.genetics = get.genetic.parameters( )
+	lv.genetics = get.genetic.parameters( lv.param.vals$ploidy )
 	lv.param.vals=append( lv.param.vals, lv.genetics )
 
 	lv.generations = get.generation.parameters( lv.param.vals[["same_migration_scheme_all_simulation"]] )
@@ -1762,7 +1849,7 @@ get.parameter.list.for.ep.processing = function( lv.param.vals, lv.ep.list.with.
 			}
 			else
 			{
-				stop( "error:  found value of logical param",
+				stop( "error: found value of logical param ",
 					s.name, ", ", v.val, ", expecting ",
 					TRUE.AS.INT, " or ", FALSE.AS.INT, 
 					sep = "" )	
@@ -1825,6 +1912,13 @@ check.for.inclusion.in.config.file = function( s.param.name, lv.param.list )
 	
 }#end check.for.inclusion.in.config.file
 
+#' print.param.list
+#' prints the param name-value pairs to the file named in the args.
+#'
+#'
+#' @param lv.param.list list whose names are ep param names and values are the corresponding values
+#' @param s.filename name of the file to which to write the name-value pairs
+#'
 print.param.list = function( lv.param.list, s.filename )
 {
 	vs.lines=c()
@@ -1860,7 +1954,7 @@ print.param.list = function( lv.param.list, s.filename )
 #' @param s.file.name string giving the name of a new file to which the program
 #'   can write the parameter values entered at the prompts.
 #' @param run logical, default FALSE. If TRUE, easypop will automatically be run
-#'   on the after parameter file creation is complete.
+#'   after parameter file creation is complete.
 #' @export
 setup_easypop = function( s.file.name, run = FALSE)
 {
@@ -1872,8 +1966,8 @@ setup_easypop = function( s.file.name, run = FALSE)
 	
 	if( b.exists )
 	{
-		stop( "error:  the file", s.file.name,
-		     	"already exists.  Please provide ",
+		stop( "error: the file ", s.file.name,
+		     	" already exists.  Please provide ",
 			"a file name not already in use." )
 
 	}#end if file exists
@@ -1885,7 +1979,9 @@ setup_easypop = function( s.file.name, run = FALSE)
 
 	print.param.list( lv.as.list, s.file.name )
 
-	print( "finished writing parameter values" )
+	s.msg=paste0( "finished writing parameter values to file, ",
+		    	s.file.name )
+	print( s.msg )
 	
 	if(run){
 	  run_easypop(s.file.name)
@@ -1906,6 +2002,10 @@ run_easypop = function ( s.file.name )
   s.file.name <- normalizePath(s.file.name)
 	if( file.exists(Sys.getenv("EASYPOP.EXECUTABLE")) )
 	{
+		#For gui-generated R consoles in widnows, which seem to buffer the
+		#ep stdout messages while it is running, to at least give the user some indication
+		#that easypop has been called:
+		print( "running easypop..." )
 		system ( paste( Sys.getenv("EASYPOP.EXECUTABLE"), "read", s.file.name ) )
 	}
 	else
@@ -1974,3 +2074,255 @@ locate_easypop <- function(path){
     }
   }
 }
+
+#' convert.param.val.from.string
+#' given a parameter name, convert
+#' the given value to one of numeric, integer,
+#' or character, using the master parameter list
+#' @param s.param.name character easypop config file parameter name
+#' @param s.value character (string) value to be converted
+#' 
+#' Assumes the s.param.name
+
+
+convert.param.val.from.string = function( s.param.name, s.value )
+{
+	
+	u.value = NULL
+
+	s.type.of.value = ALL.EP.PARAMS.WITH.TYPE[[s.param.name]][["valtype"]]
+
+	#some singly numerics but listed in arrays, lists, matrix, should remain strings:
+	if( !s.type.of.value %in% names( lr.conversion.functions ) )
+	{
+		s.type.of.value = "character" 
+	}#end if a composit type
+
+	#will return NULL if converstion fails, 
+	#which we simply pass to caller
+	u.value = try.to.convert( s.value, s.type.of.value )
+
+	return( u.value )
+}#end convert.param.val.from.string
+
+#' make.list.from.cfg.lines
+#'
+#' from a vector of easypop config
+#' file lines, make a list whose
+#' names are param names, and whose
+#' values are the corresponding param vals
+#'
+#' @param v.lines vector of character strings, 
+#'         each a config file line
+#'
+make.list.from.cfg.lines=function( v.lines )
+{
+	s.cfg.separator = ":\t" 
+
+	ls.names.and.values = list()
+
+	for( s.line in v.lines )
+	{
+		v.matches = grep( s.cfg.separator, s.line )
+
+		if( length( v.matches ) != 1  )
+		{
+			s.msg = paste( "In fx, make.list.from.cfg.lines, ", 
+				      "Malformed entry in easypop configuration file: ",
+				      s.line,
+				      " Expected entries have two strings separated by ",
+				      "a colon<tab> pair.", sep = "" )
+			stop( s.msg )
+		}#end if no single separator match found
+
+
+		l.name.and.val = strsplit( s.line, s.cfg.separator )
+		s.param.name = l.name.and.val[[1]][1]
+		s.val.as.string = l.name.and.val[[1]][2]
+
+		if( !s.param.name %in%  names( ALL.EP.PARAMS.WITH.TYPE ) )
+		{
+			s.msg=paste( "Error in make.list.from.cfg.lines", 
+			      	"No match in the master param list",
+				"for the param name,",
+				s.param.name )
+			stop( s.msg )
+
+		}#end if no value
+
+		u.converted.value = convert.param.val.from.string( s.param.name, s.val.as.string )
+
+		if( is.null( u.converted.value ) )
+		{
+			s.expected.type=ALL.EP.PARAMS.WITH.TYPE[[s.param.name]][["valtype"]]
+			s.msg=paste( "Error in make.list.from.cfg.lines, ",
+			      "failed conversion for param, ",
+			      s.param.name,
+			      ", with value, \"",
+			      s.val.as.string,
+		       		"\".  Could not convert to expected type, ",
+			      s.expected.type, 
+			      "." , sep = "" )
+
+			stop( s.msg )
+		}#end if converstion returns null	
+
+
+		ls.names.and.values[[ s.param.name ]] = u.converted.value
+
+	}#end for each line
+
+	return( ls.names.and.values )
+
+}#end make.list.from.cfg.lines
+
+#' read.config.file
+#' Reads in an ep config file as a list
+#' @param s.file  names an ep config file
+
+read.config.file=function( s.file )
+{
+	ls.params.and.values = list()
+
+	if( !file.exists( s.file ) )
+	{
+		s.msg=paste("File:", s.file, "does not exist." )
+		stop( s.msg )
+	}#end if no such file
+	
+	v.lines = readLines( s.file )
+
+	ls.params.and.values = make.list.from.cfg.lines( v.lines )
+
+	return( ls.params.and.values )
+
+}##end read.config.file
+
+#' write.config.file
+#' Writes an ep config file whose
+#' parameter names are those of the arg list,
+#' and values are the list's values.  These are
+#' written to the file named by the 2nd arg.
+#'
+#' @param ls.params.and.values a list whose names are ep param names
+#' and whose values are their corrsponding values.
+#' @param s.file names the file to be written
+#' The file name should not refer to an existing file
+#' @return a list whose names are easypop parameter names and whose
+#' values are their associated values.
+write.config.file=function( ls.params.and.values, s.file )
+{
+
+	if( file.exists( s.file ) )
+	{
+		stop( "error: the file ", s.file,
+		     	" already exists.  Please provide ",
+			"a file name not already in use." )
+	}#end if file exists
+
+	print( "writing parameter names and values to file..." )
+
+	print.param.list( ls.params.and.values, s.file )
+
+	print( "done writing file." )
+
+}#end write.config.file
+
+#' read_parameters_from_file
+#'
+#' From an existing easypop config file,
+#' get a list whose names are the parameter names
+#' and whose values are the associated parameter values.
+#'
+#' @param s.file  names an existing easypop configuration file
+#' @return a list whose names are the parameter names, and values
+#' are the associated parameter values
+#' @export
+
+read_parameters_from_file=function( s.file )
+{
+	ls.params.and.values = read.config.file( s.file )
+
+	return ( ls.params.and.values )
+
+}#end read_parameters_from_file
+
+#' check_for_invalid_param_names
+#'
+#' in a list of param names values,
+#' we compare each name in the list to
+#' the list of valid easypop parameter names
+#' with a call to stop and a message if any names
+#' are not valid
+#'
+#' @param ls.parameters a list of easypop parameter names and values
+#'
+check_for_invalid_param_names = function( ls.parameters )
+{
+	v.invalids=NULL
+
+	for( s.name in names( ls.parameters ) )
+	{
+		if( !( s.name %in% names( ALL.EP.PARAMS.WITH.TYPE ) ) )
+		{
+			v.invalids=c( v.invalids, s.name )
+						    
+		}#end if name not in ep master list
+
+	}#end for each name in list
+
+	if( length( v.invalids ) > 0 )
+	{
+		s.invalids=paste( v.invalids, collapse=", " )
+
+		s.msg=paste( "In function check_for_invalid_param_names,",
+				" in the list of parameter names, the",
+				" following are not valid easypop config file param names: ",
+			    	s.invalids, sep="" )
+		stop( s.msg )
+
+	}#end if at least one invalid name, error
+
+}#end check_for_invalid_param_names
+
+#' write_parameters_to_file
+#'
+#' write a new file with the parameter values given by the list argument,
+#' and, optionally, run a simulation based on the new setup.
+#'
+#' @param ls.parameters list whose names are easypop config file param names 
+#' and whose values are corresponding easypop parameter values.  Note that
+#' it is assumed that the list comprises a complete and valid set of parameters, 
+#' hence is almost always based on a set read in from an existing configuration file..
+#' Also note that when you write a revised configuration file you should always reset the "name_of_file" 
+#' parameter to avoid the simulation failing bacause it will not overwrite existing output 
+#' files (i.e. that share the same basename as given by "name_of_file").
+#'
+#' @param s.file names a new file (not currently in use), to which the revised config 
+#' file will be written
+#' @param b.run optional boolean, default value is FALSE, if TRUE, then easypop automatically
+#' runs a simulation based on the configuration file as parameterized by the list argument.
+#' @export
+write_parameters_to_file = function( ls.parameters, s.file, b.run=FALSE )
+{
+	
+	#script will stop if any of the param names
+	#in the list do not have a match in ALL.EP.PARAMS.WITH.TYPE	
+	#note that we do this because the user may expect a param
+	#to change, but if the wrong name is used in assigning 
+	#a value to the parm in this list, R will just add the new
+	#name/value to the list, and easypop will not use it 
+	#(will ignore it), and instead run using the original 
+	#unrevised value.
+	check_for_invalid_param_names( ls.parameters )	
+
+	write.config.file( ls.parameters, s.file )
+
+	if( b.run )
+	{
+		run_easypop( s.file )
+	}#end if we should run the sim
+
+}#end write_parameters_to_file
+
+
