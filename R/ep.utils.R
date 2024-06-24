@@ -372,10 +372,10 @@ format_snpR <- function(files, verbose = FALSE){
   if(input_type == "files"){
     obj <- snpR:::.suppress_specific_warning(
       snpR:::.suppress_specific_warning(
-        snpR:::.suppress_specific_warning(list(dat = lapply(files, function(f){
+        snpR:::.suppress_specific_warning(lapply(files, function(f){
           if(verbose){cat("Reading: ", f, "\n")}
           return(snpR::read_genepop(f))
-        })), 
+        }), 
         "incomplete final"), 
         "levels are duplicated"), 
       "allelic identities")
