@@ -207,6 +207,8 @@ do.recursive.configs = function( l.settings, s.filebase, b.run = FALSE )
 #'        integer to the file names that indicates its order of creation.
 #' @param b.run  optional, default = FALSE, if set to TRUE, as each config is created,
 #'        a simulation is run based on the config
+#'        
+#' @return A data.frame containing run/config information.
 #' @export
 #'
 
@@ -237,9 +239,203 @@ configure_multiple_easypop_runs =function( l.settings, s.starting.config.file, s
 	#end additions 20240206
 
 
-	do.recursive.configs( l.settings, s.filebase, b.run = b.run ) 
+	do.recursive.configs( l.settings, s.filebase, b.run = b.run )
+	
+	# pull in metadata
+	config_count <- get("i.config.count", ep.env)
+	
+	info_table <- cbind(data.frame(config_file = paste0(s.filebase, "_", 1:config_count, ".cfg")),
+	                    read.table(get("s.config.key.file.name", ep.env), header = TRUE, sep = "\t"))
+	
+	if(b.run){
+	  outfiles <- lapply(1:config_count, 
+	                     function(x) list.files(pattern = paste0(s.filebase, "_", x, ".+\\.gen$")))
+	  info_table$outfiles <- character(nrow(info_table))
+	  for(i in 1:nrow(info_table)){
+	    info_table$outfiles[i] <- I(outfiles[i])
+	  }
+	}
+	
+	return(info_table)
 
 }#end ep_auto_config
+
+
+#' Format easypopr genepop outfiles into snpRdata objects
+#' 
+#' Generates data files for the 'snpR' package given a vector of file names or 
+#' config outputs from \code{\link{configure_multiple_easypop_runs}}. Requires
+#' 'snpR' to be installed.
+#'
+#' @param files Either a vector of file names pointing to easypop/genepop
+#' output files ending in either '.gen' or '.genepop' or a run info table
+#' like that produced by \code{\link{configure_multiple_easypop_runs}}.
+#'        
+#' @return A nested list containing snpRdata objects in '$dat' and possibly
+#'   '$meta' containing run metadata if provided an run info table.
+#' @export
+#' @examplesIf "snpR" %in% rownames(utils::installed.packages())
+#' 
+#' # pull in example config file
+#' s.config.file = system.file( "extdata", 
+#'                              "demo.standard.cfg", 
+#'                              package = "easypopr") 
+#' 
+#' # run for two different numbers of populations
+#' l.params.to.vary = list(
+#'   "number_populations" = c(5, 10))
+#' 
+#' # run
+#' info <- 
+#'   configure_multiple_easypop_runs( l.settings =  l.params.to.vary, 
+#'                                    s.starting.config.file = s.config.file, 
+#'                                    s.filebase = "test_pops",
+#'                                    b.run = TRUE )
+#' 
+#' # pull into snpR format
+#' d <- format_snpR(info)
+#' 
+#' # check results
+#' d$meta # metadata for each object
+#' snpR::summarize_facets(d$dat[[1]], "genepop_pop") # five pops
+#' snpR::summarize_facets(d$dat[[3]], "genepop_pop") # ten pops
+#' 
+#' # can also be run with a vector of file names:
+#' d <- format_snpR(unlist(info$outfiles))
+format_snpR <- function(files){
+  #============sanity checks==========
+  # check installed
+  if(!"snpR" %in% rownames(utils::installed.packages())){
+    say <- paste0("Package 'snpR' not found.")
+    cat(say, "")
+    cat("Install? (y or n)\n")
+    
+    if(!interactive()){
+      stop(say)
+    }
+    
+    resp <- readLines(n = 1)
+    resp <- tolower(resp)
+
+    if(resp != "y"){
+      stop(say)
+    }
+    
+    if(!"remotes" %in% rownames(utils::installed.packages())){
+      install.packages("remotes")
+    }
+    
+    remotes::install_github("hemstrow/snpR")
+  }
+  
+  if(is.character(files)){
+    input_type <- "files"
+    
+    if(any(!file.exists(files))){
+      missing_files <- which(!file.exists(files))
+      stop(paste0("File(s) not found:\n\t", paste0(files[missing_files], collapse = "\n\t"), "\n"))
+    }
+    
+    bad_extensions <- which(!(grepl("\\.gen$", files) | grepl("\\.genepop$", files)))
+    if(length(bad_extensions) > 0){
+      stop(paste0("File(s) have bad extensions. Extensions must be '.gen' or '.genepop':\n\t", paste0(files[bad_extensions], collapse = "\n\t"), "\n"))
+    }
+  }
+  
+  else if(is.data.frame(files)){
+    input_type <- "info_table"
+    
+    if(!"outfiles" %in% colnames(files)){
+      stop("A column named 'outfiles' is expected in a data.frame list of simulation outputs.\n")
+    }
+    
+    outfiles <- unlist(files$outfiles)
+    
+    if(any(!file.exists(outfiles))){
+      missing_files <- which(!file.exists(outfiles))
+      stop(paste0("File(s) not found:\n\t", paste0(outfiles[missing_files], collapse = "\n\t"), "\n"))
+    }
+    
+    bad_extensions <- which(!(grepl("\\.gen$", outfiles) | grepl("\\.genepop$", outfiles)))
+    if(length(bad_extensions) > 0){
+      stop(paste0("File(s) have bad extensions. Extensions must be '.gen' or '.genepop':\n\t", paste0(outfiles[bad_extensions], collapse = "\n\t"), "\n"))
+    }
+  }
+  
+  
+  
+  #==================read in the genepop file(s) listed===========
+  # if not an info table, easy -- the wierd supress wrapping is to suppress some warnings that always happen when
+  # reading in genepop files generated by easypopr 
+  # (allelic identity, overlapping facet level, and incomplete final line warnings)
+  if(input_type == "files"){
+    obj <- snpR:::.suppress_specific_warning(
+      snpR:::.suppress_specific_warning(
+        snpR:::.suppress_specific_warning(list(dat = lapply(files, snpR::read_genepop)), 
+                                          "incomplete final"), 
+        "levels are duplicated"), 
+      "allelic identities")
+    
+    obj <- list(dat = obj)
+  }
+  
+  # otherwise we grab metadata as well
+  else if(input_type == "info_table"){
+
+    # set up storage
+    obj <- vector("list", length(outfiles))
+    prog <- 1
+    
+    meta_table <- data.frame(config_file = character(length(obj)),
+                             config_file_number = numeric(length(obj)))
+    meta_table <- cbind(meta_table, files[rep(1, nrow(meta_table)),-c(1:2)])
+    meta_table$outfiles <- NULL
+    meta_table$rep <- 0
+    meta_table$outfile <- ""
+    
+    # read in each file and store metadata
+    for(i in 1:nrow(files)){
+      i_info <- files[i,which(colnames(files) != "outfiles")]
+      for(j in 1:length(files[1,"outfiles"][[1]])){
+        tfile <- files[i,"outfiles"][[1]][j]
+        j_info <- cbind(i_info, rep = as.numeric(gsub("\\..+$", "", gsub(".+rep\\.", "", tfile))))
+        j_info$outfile <- tfile
+        
+        obj[[prog]] <- snpR:::.suppress_specific_warning(
+          snpR:::.suppress_specific_warning(
+            snpR:::.suppress_specific_warning(snpR::read_genepop(tfile), 
+                                              "incomplete final"), 
+            "levels are duplicated"), 
+          "allelic identities")
+        
+        
+        meta_table[prog,] <- j_info
+        prog <- prog + 1
+      }
+    }
+    
+    obj <- list(dat = obj, meta = meta_table)
+  }
+  
+  # done
+  return(obj)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -12,8 +12,13 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Imports:
     data.table,
-    ggplot2
+    ggplot2,
+    utils
 Suggests: 
     knitr,
-    rmarkdown
+    remotes,
+    rmarkdown,
+    snpR
+Remotes:
+    hemstrow/snpR
 VignetteBuilder: knitr
