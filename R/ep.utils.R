@@ -249,7 +249,7 @@ configure_multiple_easypop_runs =function( l.settings, s.starting.config.file, s
 	
 	if(b.run){
 	  outfiles <- lapply(1:config_count, 
-	                     function(x) list.files(pattern = paste0(s.filebase, "_", x, ".+\\.gen$")))
+	                     function(x) list.files(pattern = paste0(gsub("\\.", "\\\\.", s.filebase), "_", x, "\\..+.gen$")))
 	  info_table$outfiles <- character(nrow(info_table))
 	  for(i in 1:nrow(info_table)){
 	    info_table$outfiles[i] <- I(outfiles[i])
@@ -270,6 +270,7 @@ configure_multiple_easypop_runs =function( l.settings, s.starting.config.file, s
 #' @param files Either a vector of file names pointing to easypop/genepop
 #' output files ending in either '.gen' or '.genepop' or a run info table
 #' like that produced by \code{\link{configure_multiple_easypop_runs}}.
+#' @param verbose logical, default FALSE. If TRUE, prints progress statements.
 #'        
 #' @return A nested list containing snpRdata objects in '$dat' and possibly
 #'   '$meta' containing run metadata if provided an run info table.
@@ -302,7 +303,7 @@ configure_multiple_easypop_runs =function( l.settings, s.starting.config.file, s
 #' 
 #' # can also be run with a vector of file names:
 #' d <- format_snpR(unlist(info$outfiles))
-format_snpR <- function(files){
+format_snpR <- function(files, verbose = FALSE){
   #============sanity checks==========
   # check installed
   if(!"snpR" %in% rownames(utils::installed.packages())){
@@ -371,8 +372,11 @@ format_snpR <- function(files){
   if(input_type == "files"){
     obj <- snpR:::.suppress_specific_warning(
       snpR:::.suppress_specific_warning(
-        snpR:::.suppress_specific_warning(list(dat = lapply(files, snpR::read_genepop)), 
-                                          "incomplete final"), 
+        snpR:::.suppress_specific_warning(list(dat = lapply(files, function(f){
+          if(verbose){cat("Reading: ", f, "\n")}
+          return(snpR::read_genepop(f))
+        })), 
+        "incomplete final"), 
         "levels are duplicated"), 
       "allelic identities")
     
@@ -394,10 +398,13 @@ format_snpR <- function(files){
     meta_table$outfile <- ""
     
     # read in each file and store metadata
+    if(verbose){cat("Reading parameters.\n")}
     for(i in 1:nrow(files)){
+      if(verbose){cat("Set:", i, "\n")}
       i_info <- files[i,which(colnames(files) != "outfiles")]
       for(j in 1:length(files[1,"outfiles"][[1]])){
         tfile <- files[i,"outfiles"][[1]][j]
+        if(verbose){cat("\t", tfile, "\n")}
         j_info <- cbind(i_info, rep = as.numeric(gsub("\\..+$", "", gsub(".+rep\\.", "", tfile))))
         j_info$outfile <- tfile
         

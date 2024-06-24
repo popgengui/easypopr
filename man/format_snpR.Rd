@@ -4,12 +4,14 @@
 \alias{format_snpR}
 \title{Format easypopr genepop outfiles into snpRdata objects}
 \usage{
-format_snpR(files)
+format_snpR(files, verbose = FALSE)
 }
 \arguments{
 \item{files}{Either a vector of file names pointing to easypop/genepop
 output files ending in either '.gen' or '.genepop' or a run info table
 like that produced by \code{\link{configure_multiple_easypop_runs}}.}
+
+\item{verbose}{logical, default FALSE. If TRUE, prints progress statements.}
 }
 \value{
 A nested list containing snpRdata objects in '$dat' and possibly
