@@ -21,18 +21,19 @@ This vignette  shows how you can use EASYPOP along with an Ne estimator to explo
 
 ## Simulating population segregation with EASYPOP
 
-The easypopr package includes a configuration we can use as a basis for testing population diversity at various numbers of generations after a segregating event that isolates all the populations from each other.  After loading the easypopr package:
+The easypopr package includes a configuration we can use as a basis for testing population diversity at various numbers of generations after a segregating event that isolates all the populations from each other.  After loading the easypopr package (and ggplot2, for later):
 
 ```{r setup}
 library(easypopr)
+library(ggplot2)
 ```
 We'll locate the configuration file that will serve as the starting configuration for our tests:
 
 ```{r, eval=T}
 
-    s.initial.config.file = system.file( "extdata", 
-                            "demo.segregation.cfg", 
-                            package = "easypopr") 
+s.initial.config.file = system.file( "extdata", 
+                                     "demo.segregation.cfg", 
+                                     package = "easypopr") 
 ```
 
 We want to look at Ne estimates at incremental numbers of generations after population segregation.  Note that we can, by loading our initial config file into a list, see how we've set the migration and generation parameters to simulate population isolation after 10 generations:
@@ -80,18 +81,181 @@ For our test, we want to estimate Ne for populations for an increasing number of
 
 ```{r, eval=T}
 
-l.gen.settings = list( "number_of_generations" = 11:50 )
+l.gen.settings = list( "number_of_generations" = 11:20 )
 ```
 With the vector value in the list, we'll have output for simulations with the number of segregated generations increasing from 1, 2, 3...40 (since the first 10 generations will be the "burn-in" of panmixia).  We can run these simulations automatically with this command:
 
 ```{r, eval=F}
 
-configure_multiple_easypop_runs( l.settings = l.gen.settings,
-                                 s.starting.config.file = s.initial.config.file,
-                                 s.filebase = "segregate.vary.gens",
-                                 b.run = TRUE )
+info = configure_multiple_easypop_runs( l.settings = l.gen.settings,
+                                        s.starting.config.file = s.initial.config.file,
+                                        s.filebase = "segregate.vary.gens",
+                                        b.run = TRUE )
                                  
 ```
 
-Our vignette does not automatically run the above command, since it would write many files to your drive, but if you run it, you'll see output that includes the 40 configuration files (numbered 1 to 40).  Because we've set the b.run argument to TRUE, you will also find simulation output for each of the 40 simulations, with run numbers that correspond to the configuration file number.  Among the latter are the *.gen (genepop) formatted files that can be used as input into the Ne estimator.  Note, also, that you'll find one output file that has the extension, "config.file.key.tsv," which lists the parameter setting (i.e. generation total) associated with each configuration file.
+Our vignette does not automatically run the above command, since it would write many files to your drive, but if you run it, you'll see output that includes the 40 configuration files (numbered 1 to 40).  Because we've set the b.run argument to TRUE, you will also find simulation output for each of the 40 simulations, with run numbers that correspond to the configuration file number.  Among the latter are the *.gen (genepop) formatted files that can be used as input into the Ne estimator.  Note, also, that you'll find one output file that has the extension, "config.file.key.tsv," which lists the parameter setting (i.e. generation total) associated with each configuration file, which `configure_multiple_easypop_runs` also returns as a `data.frame`.
+
+## Estimating effective size with snpR and NeEstimator
+We'd strongly recommend reading through the introduction vignette for `snpR` (`snpR_introduction`) before doing this part of the excercise! `snpR` with the vignettes can be installed and viewed with:
+```{r, eval=FALSE}
+remotes::install_github("hemstrow/snpR", build_vignettes = TRUE)
+
+vignette("snpR_introduction", "snpR")
+```
+
+
+Next, we'll use the package `snpR` to calculate effective size ($N_{e}$) for each population and for the metapop in each generation. `easypopr` includes the function `format_snpR` which will produce files from us given the paths to genepop files or the table returned by `configure_multiple_easypop_runs`. Note that we need to have `snpR` installed here, although `easypopr` will offer to do so for you if it is not.
+
+```{r, eval = FALSE}
+pops = format_snpR(info, # can also take a vector of file names directly
+                   verbose = TRUE) # report progress
+```
+
+This returns a list containing the `snpRdata` objects (`$dat`) and their metadata (`$meta`)
+
+To estimate $N_{e}$, we need to have the external (non-R) program `NeEstimator` installed, which `snpR` interfaces with. We then supply the path to the `NeEstimator` executable to the function `calc_ne`. 
+
+### Meta population $N_{e}$ estimation
+First, we'll calculate $N_{e}$ for the metapopulation.
+
+```{r, eval=FALSE}
+# calc Ne
+ne_meta <- lapply(pops$dat, function(x){
+  x <- snpR::calc_ne(x, # object to calculate ne for
+                     NeEstimator_path = "/usr/bin/Ne2-1.exe") # path to exe.
+  return(snpR::get.snpR.stats(x, stats = "ne")$pop) # fetch results
+})
+
+# combine data
+ne_meta <- data.table::rbindlist(ne_meta)
+
+# add metadata
+ne_meta <- cbind(ne_meta, pops$meta)
+
+```
+
+We can then plot the result using `ggplot2`, and see that our metapopulation $N_{e}$ goes down every generation but starts to stabilize at around ~100.
+
+```{r, eval=FALSE}
+ggplot(ne_meta, aes(x = number_of_generations, y = LDNe_0.05)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw() +
+  scale_x_continuous(breaks = seq(12, 20, by = 2))
+```
+
+
+### Individual population $N_{e}$ estimation
+
+Next, we will do the same process but calculate effective size in each individual population by tweaking the `calc_ne` argument to specify that we want $N_{e}$ for each population using `facets = "genepop_pop"`. Note that we know to use `"genepop_pop"` because when we call one `snpRdata` object, it tells us that that is the available sample-level facet. This will always be the facet to use to break the data down by population if using data made by `easypopr`.
+
+```{r, eval=FALSE}
+# call one object to see details
+pops$dat[[1]]
+
+# calc Ne
+ne_meta <- lapply(pops$dat, function(x){
+  x <- snpR::calc_ne(x, # object to calculate ne for
+                     facets = "genepop_pop", # specific we want ne for each pop
+                     NeEstimator_path = "/usr/bin/Ne2-1.exe") # path to exe.
+  return(snpR::get.snpR.stats(x, facets = "genepop_pop",
+                              stats = "ne")$pop) # fetch results
+})
+
+# combine data
+ne_meta <- data.table::rbindlist(ne_meta)
+
+# add metadata, repeating the meta once for each pop
+ne_meta <- cbind(ne_meta, # data
+                 pops$meta[rep(1:nrow(pops$meta), each = 10),]) # meta, reped for each pop)
+
+```
+
+We can then plot those results in roughly the same way, but coloring by population:
+
+```{r, eval=FALSE}
+# using the batlow color scale
+ggplot(ne_meta, aes(x = number_of_generations, y = LDNe_0.05, color = pop)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw() +
+  scale_x_continuous(breaks = seq(12, 20, by = 2)) +
+  scale_color_manual(values = c('#001959','#0D355E','#1C5360','#3E6C54','#687A3D',
+                                '#99872D','#D49347','#F8A380','#FDB6BC','#F9CCF9'))
+```
+
+We can see that $N_{e}$ is pretty consistently ~80 over time in all populations.
+
+## Extra: other statistics
+We can plot other statistics, like expected heterozygosity ($H_{e}$), equally easy using other `snpR` functions.
+```{r, eval=FALSE}
+# calc Ne
+he_meta <- lapply(pops$dat, function(x){
+  x <- snpR::calc_he(x)
+  return(snpR::get.snpR.stats(x, stats = "he")$weighted.means) # fetch results
+})
+
+# combine data
+he_meta <- data.table::rbindlist(he_meta)
+
+# add metadata
+he_meta <- cbind(he_meta, pops$meta)
+
+ggplot(he_meta, aes(x = number_of_generations, y = weighted_mean_he)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw() +
+  scale_x_continuous(breaks = seq(12, 20, by = 2))
+```
+
+Note that if you plan on doing many statistics, it's more efficient (faster) to do them at once and save results into `snpR` data objects, then fetch and merge later. This uses some slightly more advanced `snpR` and general R code. Here's an example with observed heterozygosity ($H_{o}$) and $H{e}$
+
+```{r, eval=FALSE}
+# calc he, ho
+he_ho <- lapply(pops$dat, function(x){
+  x <- snpR::calc_he(x, "genepop_pop")
+  x <- snpR::calc_ho(x, "genepop_pop") # snpR is written to overwrite new stats
+  return(x) # fetch results
+})
+
+# fetch and combine data with metadata
+he_ho_results <- vector("list", length(he_ho))
+for(i in 1:length(he_ho)){
+  he_ho_results[[i]] <- snpR::get.snpR.stats(he_ho[[i]], 
+                                              "genepop_pop",
+                                              c("ho", "he"))$weighted.means # fetch
+  he_ho_results[[i]] <- cbind(he_ho_results[[i]], pops$meta[i,]) # bind
+  
+}
+
+# bind and plot, results will contain both he and ho
+he_ho_results <- data.table::rbindlist(he_ho_results)
+
+# He
+ggplot(he_ho_results, aes(x = number_of_generations, y = weighted_mean_he, color = subfacet)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw() +
+  scale_x_continuous(breaks = seq(12, 20, by = 2)) +
+  scale_color_manual(values = c('#001959','#0D355E','#1C5360','#3E6C54','#687A3D',
+                                '#99872D','#D49347','#F8A380','#FDB6BC','#F9CCF9'))
+
+# ho
+ggplot(he_ho_results, aes(x = number_of_generations, y = weighted_mean_ho, color = subfacet)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw() +
+  scale_x_continuous(breaks = seq(12, 20, by = 2)) +
+  scale_color_manual(values = c('#001959','#0D355E','#1C5360','#3E6C54','#687A3D',
+                                '#99872D','#D49347','#F8A380','#FDB6BC','#F9CCF9'))
+
+# ho vs He vs generation
+ggplot(he_ho_results, aes(x = weighted_mean_he, y = weighted_mean_ho, color = number_of_generations)) +
+  geom_point() +
+  geom_smooth() +
+  theme_bw() +
+  geom_abline(slope = 1, intercept = 0)
+
+```
 
