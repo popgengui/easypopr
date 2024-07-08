@@ -443,12 +443,14 @@ get.selfing.parameters=function( )
 
 }#end get.selfing.parameters
 
-#' get.mating.parameters
-#' 
-#' prompts user for mating parameters and returns user-entered values as a list.
-#'
-#' @param   gploidy, integer giving ploidy
-#' @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
+
+#not a public fx, so removing apostrophes from the comment markup
+# get.mating.parameters
+# 
+# prompts user for mating parameters and returns user-entered values as a list.
+#
+# @param   gploidy, integer giving ploidy
+# @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
 
 get.mating.parameters=function ( gploidy, g2sex )
 {
@@ -1207,13 +1209,16 @@ get.migr.spatial = function( g2sex, gnbpop, b.second.scheme )
 
 }#end get.migr.spatial
 
-#' get.migration.scheme.details
-#' 
-#' prompts user for details of migration scheme parameters and returns user-entered values as a list.
-#' this function is called only if the number of pops exceeds 2 (else they are trivially assigned island in 
-#' the fx, get.migration.parameters. 
-#' @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
-#' @param   gnbpop, integer, number of populations.
+# not a public fx, so removing the apostrophes from the markup, so it's not listed
+#in the RStudio help pages
+#
+# get.migration.scheme.details
+# 
+# prompts user for details of migration scheme parameters and returns user-entered values as a list.
+# this function is called only if the number of pops exceeds 2 (else they are trivially assigned island in 
+# the fx, get.migration.parameters. 
+# @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
+# @param   gnbpop, integer, number of populations.
 
 get.migration.scheme.details = function( g2sex, gnbpop, b.second.scheme )
 {
@@ -1612,14 +1617,18 @@ get.generation.parameters=function( i.unif.migr.scheme )
 	return( lv.generations )
 }#end get.generation.parameters
 
-#' get.genetic.parameters
-#' 
-#' prompts user for genetic parameters and returns user-entered values as a list.
-#' Single ploidy arg just lets the program know whether or not user specified haploidy. 
-#' If so we skip prompting for recombination rates under haploidy
-#'
-#' @param   i.ploidy, integer: 0, 1, or 2, indicating haplo-diplo, haplo, or diplody respectively
-#'
+#note removing the aprostrophe, as this is not a user-visible
+#function, so that RStudio won't
+#list this in the help pages.
+
+# get.genetic.parameters
+# 
+# prompts user for genetic parameters and returns user-entered values as a list.
+# Single ploidy arg just lets the program know whether or not user specified haploidy. 
+# If so we skip prompting for recombination rates under haploidy
+#
+# @param   i.ploidy, integer: 0, 1, or 2, indicating haplo-diplo, haplo, or diplody respectively
+#
 get.genetic.parameters = function( i.ploidy )
 {
 	lv.genetics = list()
