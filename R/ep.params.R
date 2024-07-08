@@ -292,15 +292,16 @@ format.vals.as.nonscientific.strings=function( v.numeric )
 	return( v.strings )
 }#end format.vals.as.nonscientific.strings
 
-#' prompt.for.values.and.return.user.entries
-#' 
-#' prompts user at the console for parameter values, stores
-#' and returns them in a vector length i.num.values, of user-entered values
-#'
-#' @param   s.prompt, printed to console on each iteration to get another value
-#' @param   i.num.values, number of entries to get from the user.
-#' @param   s.type.of.values, string, one of "integer", "numeric", or "character"
-#' @param   v.valid.range  min, max values (inclusive) of valid values. If type "character", then NULL or list of valid strings)
+#202407 removing apostrophes from roxygen markup, don't want this nonpublic fx to show in Rstudio help:
+# prompt.for.values.and.return.user.entries
+# 
+# prompts user at the console for parameter values, stores
+# and returns them in a vector length i.num.values, of user-entered values
+#
+# @param   s.prompt, printed to console on each iteration to get another value
+# @param   i.num.values, number of entries to get from the user.
+# @param   s.type.of.values, string, one of "integer", "numeric", or "character"
+# @param   v.valid.range  min, max values (inclusive) of valid values. If type "character", then NULL or list of valid strings)
 
 prompt.for.values.and.return.user.entries=function( s.prompt, i.num.values, s.type.of.values, v.valid.range  )
  {
@@ -396,9 +397,10 @@ prompt.for.values.and.return.user.entries=function( s.prompt, i.num.values, s.ty
 
 }#end prompt.for.values.and.return.user.entries
 
-#' get.selfing.parameters
-#' 
-#' prompt user for selfing parameters, return a list with user-entered values.
+# 202407 removing apostrophes from markup, dont want this non-public fx in Rstudio help pages
+# get.selfing.parameters
+# 
+# prompt user for selfing parameters, return a list with user-entered values.
 
 get.selfing.parameters=function( )
 {
@@ -504,10 +506,11 @@ get.mating.parameters=function ( gploidy, g2sex )
 
 }#end get.mating.parameters
 
-#' get.reproduction.parameters
-#' 
-#' prompts user for reproduction parameters and returns user-entered values as a list.
-#'
+#202407 remove aposrophe from roxygen markup. don't want this non-public fx to show in RStudio help
+# get.reproduction.parameters
+# 
+# prompts user for reproduction parameters and returns user-entered values as a list.
+#
 
 get.reproduction.parameters=function()
 {
@@ -603,13 +606,13 @@ get.reproduction.parameters=function()
 }#end get.reproduction.parameters
 
 
-
-#' get.population.parameters
-#' 
-#' prompts user for population parameters and returns user-entered values as a list.
-#'
-#' @param   gploidy, integer giving ploidy
-#' @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
+#202407 removing apostrophes from roxygen markup, don't want this nonpublic fx to show in Rstudio help:
+# get.population.parameters
+# 
+# prompts user for population parameters and returns user-entered values as a list.
+#
+# @param   gploidy, integer giving ploidy
+# @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
 
 get.population.parameters = function( gploidy, g2sex )
 {
@@ -1290,12 +1293,14 @@ get.migration.scheme.details = function( g2sex, gnbpop, b.second.scheme )
 
 }#end get.migration.scheme.details
 
-#' get.migration.parameters
-#' 
-#' prompts user for migration scheme parameters and returns user-entered values as a list.
-#'
-#' @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
-#' @param   gnbpop, integer, number of populations.
+#202407 removing apostrophes from roxygen markup, don't want this nonpublic fx to show in Rstudio help:
+
+# get.migration.parameters
+# 
+# prompts user for migration scheme parameters and returns user-entered values as a list.
+#
+# @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
+# @param   gnbpop, integer, number of populations.
 
 get.migration.parameters = function( g2sex, gnbpop )
 {
@@ -1921,13 +1926,15 @@ check.for.inclusion.in.config.file = function( s.param.name, lv.param.list )
 	
 }#end check.for.inclusion.in.config.file
 
-#' print.param.list
-#' prints the param name-value pairs to the file named in the args.
-#'
-#'
-#' @param lv.param.list list whose names are ep param names and values are the corresponding values
-#' @param s.filename name of the file to which to write the name-value pairs
-#'
+#202407 removing apostrophes from roxygen markup, don't want this nonpublic fx to show in Rstudio help:
+
+# print.param.list
+# prints the param name-value pairs to the file named in the args.
+#
+#
+# @param lv.param.list list whose names are ep param names and values are the corresponding values
+# @param s.filename name of the file to which to write the name-value pairs
+#
 print.param.list = function( lv.param.list, s.filename )
 {
 	vs.lines=c()
