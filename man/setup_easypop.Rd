@@ -2,7 +2,7 @@
 % Please edit documentation in R/ep.params.R
 \name{setup_easypop}
 \alias{setup_easypop}
-\title{Parameterize and optionally run and EASYPOP simulation.}
+\title{Parameterize and optionally run an EASYPOP simulation.}
 \usage{
 setup_easypop(s.file.name, run = FALSE)
 }
