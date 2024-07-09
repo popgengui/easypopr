@@ -1962,14 +1962,15 @@ print.param.list = function( lv.param.list, s.filename )
 }#end print.param.list
 
 
-#' setup_easypop
+#' Parameterize and optionally run and EASYPOP simulation.
 #'
-#' Prompts the user for parameter values used to run an EASYPOP simulation. and
-#' writes the values to a file named by the argument.
+#' Prompts the user for parameter values used to run an EASYPOP simulation and
+#' writes the values to a file named by the argument.  Optionally runs the simulation
+#' using the configuration file (see the description of the argument "run").
 #'
 #' @param s.file.name string giving the name of a new file to which the program
 #'   can write the parameter values entered at the prompts.
-#' @param run logical, default FALSE. If TRUE, easypop will automatically be run
+#' @param run logical, default FALSE. If TRUE, EASYPOP will automatically be run
 #'   after parameter file creation is complete.
 #' @export
 setup_easypop = function( s.file.name, run = FALSE)
@@ -2005,12 +2006,12 @@ setup_easypop = function( s.file.name, run = FALSE)
 
 }#end setup_easypop
 
-#' run_easypop
+#' Run EASYPOP using an existing configuration file
 #' 
 #' Runs an EASYPOP simulation using the parameters given in the file
 #' named by the argument.
 #'
-#' @param s.file.name string giving the name of an existing file holding EASYPOP simulation parameters 
+#' @param s.file.name string giving the name of an existing configuration file holding EASYPOP simulation parameters (as created, typically, by running the package function, setup_easypop.)
 #' @export
 
 run_easypop = function ( s.file.name )
@@ -2244,13 +2245,13 @@ write.config.file=function( ls.params.and.values, s.file )
 
 }#end write.config.file
 
-#' read_parameters_from_file
+#' Read Parameters from an EASYPOP configuraion file
 #'
-#' From an existing easypop config file,
+#' From an existing EASYPOP configuration file,
 #' get a list whose names are the parameter names
 #' and whose values are the associated parameter values.
 #'
-#' @param s.file  names an existing easypop configuration file
+#' @param s.file  names an existing EASYPOP configuration file
 #' @return a list whose names are the parameter names, and values
 #' are the associated parameter values
 #' @export
@@ -2301,22 +2302,25 @@ check_for_invalid_param_names = function( ls.parameters )
 
 }#end check_for_invalid_param_names
 
-#' write_parameters_to_file
+#' Write EASYPOP parameter values to a new configuration file
 #'
-#' write a new file with the parameter values given by the list argument,
+#' Write a new file with the parameter values given by the list argument,
 #' and, optionally, run a simulation based on the new setup.
 #'
-#' @param ls.parameters list whose names are easypop config file param names 
-#' and whose values are corresponding easypop parameter values.  Note that
+#' @param ls.parameters list whose names are EASYPOP configuration file parameter names 
+#' and whose values are corresponding EASYPOP parameter values.  Note that
 #' it is assumed that the list comprises a complete and valid set of parameters, 
-#' hence is almost always based on a set read in from an existing configuration file..
+#' hence is almost always based on a set read in from an existing configuration file 
+#' (see function, read_parameters_from_file).
 #' Also note that when you write a revised configuration file you should always reset the "name_of_file" 
-#' parameter to avoid the simulation failing bacause it will not overwrite existing output 
-#' files (i.e. that share the same basename as given by "name_of_file").
+#' parameter to avoid the simulation failing because it will not overwrite existing output 
+#' files (i.e. that share the same basename as given by "name_of_file"). If you set the 2nd
+#' argument to TRUE, EASYPOP will run based on the new configuration file (see argument descriptions).
+#' 
 #'
-#' @param s.file names a new file (not currently in use), to which the revised config 
+#' @param s.file names a new file (not currently in use), to which the revised configuration 
 #' file will be written
-#' @param b.run optional boolean, default value is FALSE, if TRUE, then easypop automatically
+#' @param b.run optional boolean, default value is FALSE, if TRUE, then EASYPOP automatically
 #' runs a simulation based on the configuration file as parameterized by the list argument.
 #' @export
 write_parameters_to_file = function( ls.parameters, s.file, b.run=FALSE )

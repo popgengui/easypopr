@@ -59,7 +59,6 @@ write.table( x = m.config.key.table ,
 
 }#end write.config.key.table
 
-
 update.param.value = function( l.config, l.settings, idx.param, idx.value )
 {
 	l.updated = l.config
@@ -186,27 +185,27 @@ do.recursive.configs = function( l.settings, s.filebase, b.run = FALSE )
 
 }#end do.recursive.configs
 
-#' configure_multiple_easypop_runs
+#' Create multiple EASYPOP configuration files that combine multiple values of multiple parameters
 #' 
-#' given a list of parameter names, each with a vector of values, for each 
-#' combination of settings, create an easypop configuration file
+#' Given a list of parameter names, each with a vector of values, for each 
+#' combination of settings, create an EASYPOP configuration file
 #' and, optionally run each file as it is created.  Configuration and output files
-#' mames are numberd as created.  After all configurations are written (and, optionally, run), 
-#' the program also writes  a tabular file with the given filebase and with extension, 
-#' ".config.key.tsv"  This table gives in it's first column a config file number, and in 
-#' columns 2..N, the values for the params that were in the l.settings list 
-#' (see parameter descriptions).
+#' mames are numbered as created.  After all configurations are written (and, optionally, run), 
+#' the program also writes a tabular file with the given filebase and with extension, 
+#' ".config.key.tsv"  This table gives in it's first column a configuration file number, and in 
+#' columns 2..N, the values for the parameters that were in the l.settings list 
+#' (see argument descriptions).
 #'
-#' @param l.settings a list whose names are easypop config file parameter names, 
+#' @param l.settings a list whose names are EASYPOP configuration file parameter names, 
 #'          and whose values are vectors of settings (values) for each parameter
 #'
-#' @param s.starting.config.file names an easypop config file to be used as the basis
+#' @param s.starting.config.file names an EASYPOP configuration file to be used as the basis
 #'        for the simulations, with revised settings as given by the first arg
-#' @param s.filebase names the prefix used to name configuration files
-#'        (*.cfg) and output files (*equ, *gen, etc).  The program also adds an 
+#' @param s.filebase names the prefix used to name the ouput configuration files
+#'        (*.cfg) and output results files (*equ, *gen, etc).  The program also adds an 
 #'        integer to the file names that indicates its order of creation.
-#' @param b.run  optional, default = FALSE, if set to TRUE, as each config is created,
-#'        a simulation is run based on the config
+#' @param b.run  optional, default = FALSE. If set to TRUE, as each config is created,
+#'        a simulation is run based on the configuration.
 #' @export
 #'
 
