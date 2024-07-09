@@ -18,20 +18,20 @@ and whose values are vectors of settings (values) for each parameter}
 \item{s.starting.config.file}{names an easypop config file to be used as the basis
 for the simulations, with revised settings as given by the first arg}
 
-\item{s.filebase}{names the prefix used to name configuration files
-(*.cfg) and output files (*equ, *gen, etc).  The program also adds an
+\item{s.filebase}{names the prefix used to name the ouput configuration files
+(*.cfg) and output results files (*equ, *gen, etc).  The program also adds an
 integer to the file names that indicates its order of creation.}
 
-\item{b.run}{optional, default = FALSE, if set to TRUE, as each config is created,
-a simulation is run based on the config}
+\item{b.run}{optional, default = FALSE. If set to TRUE, as each config is created,
+a simulation is run based on the configuration.}
 }
 \description{
-given a list of parameter names, each with a vector of values, for each
+Given a list of parameter names, each with a vector of values, for each
 combination of settings, create an easypop configuration file
 and, optionally run each file as it is created.  Configuration and output files
-names are numbered as created.  After all configurations are written (and, optionally, run),
-the program also writes  a tabular file with the given filebase and with extension,
+mames are numbered as created.  After all configurations are written (and, optionally, run),
+the program also writes a tabular file with the given filebase and with extension,
 ".config.key.tsv"  This table gives in it's first column a config file number, and in
-columns 2..N, the values for the params that were in the l.settings list
-(see parameter descriptions).
+columns 2..N, the values for the parameters that were in the l.settings list
+(see argument descriptions).
 }

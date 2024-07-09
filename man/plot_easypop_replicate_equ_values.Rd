@@ -11,17 +11,20 @@ plot_easypop_replicate_equ_values(s.colname, v.data.source)
 "Ho", "Hs", "Ht", "Fis", "Fst", or "Fit".}
 
 \item{v.data.source}{one of:  (1) a list of data frames, as created by calling
-\code{\link[utils]{read.table}} on a set of *.equ file, or (2) a vector of file
+\code{\link[utils]{read.table}} on a set of *.equ files, or (2) a vector of file
 paths to each .equ file you wish to read, or (3) one string giving the name
-of an easypop configuration file (as created, for example, with a call to setup_easypop).
+of one EASYPOP configuration file (as created, for example, with a call to setup_easypop).
 Note that for option (2) the vector of file paths can be generated with
 the \code{\link[base]{file.path}} using the \code{full.names = TRUE} argument.
-In case (3), the program looks for equ files matching the "name_of_file" value
-listed in the configuration file}
+In case (3), the program looks for equ files whose prefixes match the "name_of_file" value
+given in the configuration file}
 }
 \description{
-for each item in v.data.source (see below for param v.data.source,
-each is plotted showing the per-generation values for the quantity (e.g. Fst),
-associated with the column name given by arg s.colname and returns them in a
-vector length i.num.values, of user-entered values
+For each item in v.data.source (see the argument descriptions below for details),
+each replicate is plotted showing the per-generation values for the quantity
+(e.g. Fst) associated with the column name given by argument, s.colname.
+The function returns a call to ggplot2::ggplot.  If you call the function without assigning
+the return to a variable, a plot graphic is shown. If you assign the call to
+a holder variable, you will have a list comprising the ggplot components, which can be
+plotted, for example, with a call to plot().
 }
