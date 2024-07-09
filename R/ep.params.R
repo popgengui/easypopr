@@ -1962,7 +1962,7 @@ print.param.list = function( lv.param.list, s.filename )
 }#end print.param.list
 
 
-#' Parameterize and optionally run and EASYPOP simulation.
+#' Parameterize and optionally run an EASYPOP simulation.
 #'
 #' Prompts the user for parameter values used to run an EASYPOP simulation and
 #' writes the values to a file named by the argument.  Optionally runs the simulation

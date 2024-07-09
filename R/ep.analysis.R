@@ -286,7 +286,7 @@ get.list.equ.files.from.results.base.name=function( s.config.file.path, s.outfil
 
 }#end get.list.equ.files.from.results.base.name
 
-#' Plot the per-generation mean values of a set of EASYPOP equ files
+#' Plot per-generation mean values from a set of EASYPOP equ output files
 #'
 #' For each EASYPOP configuration file given in the vector argument,
 #' plot the per-generation, replicate mean values for the 
