@@ -2,7 +2,7 @@
 % Please edit documentation in R/ep.utils.R
 \name{configure_multiple_easypop_runs}
 \alias{configure_multiple_easypop_runs}
-\title{configure_multiple_easypop_runs}
+\title{Create multiple EASYPOP configuration files that combine multiple values of multiple parameters}
 \usage{
 configure_multiple_easypop_runs(
   l.settings,
@@ -12,10 +12,10 @@ configure_multiple_easypop_runs(
 )
 }
 \arguments{
-\item{l.settings}{a list whose names are easypop config file parameter names,
+\item{l.settings}{a list whose names are EASYPOP configuration file parameter names,
 and whose values are vectors of settings (values) for each parameter}
 
-\item{s.starting.config.file}{names an easypop config file to be used as the basis
+\item{s.starting.config.file}{names an EASYPOP configuration file to be used as the basis
 for the simulations, with revised settings as given by the first arg}
 
 \item{s.filebase}{names the prefix used to name the ouput configuration files
@@ -27,11 +27,11 @@ a simulation is run based on the configuration.}
 }
 \description{
 Given a list of parameter names, each with a vector of values, for each
-combination of settings, create an easypop configuration file
+combination of settings, create an EASYPOP configuration file
 and, optionally run each file as it is created.  Configuration and output files
 mames are numbered as created.  After all configurations are written (and, optionally, run),
 the program also writes a tabular file with the given filebase and with extension,
-".config.key.tsv"  This table gives in it's first column a config file number, and in
+".config.key.tsv"  This table gives in it's first column a configuration file number, and in
 columns 2..N, the values for the parameters that were in the l.settings list
 (see argument descriptions).
 }

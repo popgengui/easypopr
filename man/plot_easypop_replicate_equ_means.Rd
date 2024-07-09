@@ -2,7 +2,7 @@
 % Please edit documentation in R/ep.analysis.R
 \name{plot_easypop_replicate_equ_means}
 \alias{plot_easypop_replicate_equ_means}
-\title{plot_easypop_replicate_equ_means}
+\title{Plot the per-generation mean values of a set of EASYPOP equ files}
 \usage{
 plot_easypop_replicate_equ_means(vs.config.files, s.colname)
 }

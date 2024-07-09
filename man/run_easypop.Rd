@@ -2,7 +2,7 @@
 % Please edit documentation in R/ep.params.R
 \name{run_easypop}
 \alias{run_easypop}
-\title{run_easypop}
+\title{Run EASYPOP using an existing configuration file}
 \usage{
 run_easypop(s.file.name)
 }

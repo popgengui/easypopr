@@ -2,7 +2,7 @@
 % Please edit documentation in R/ep.params.R
 \name{read_parameters_from_file}
 \alias{read_parameters_from_file}
-\title{read_parameters_from_file}
+\title{Read Parameters from an EASYPOP configuraion file}
 \usage{
 read_parameters_from_file(s.file)
 }

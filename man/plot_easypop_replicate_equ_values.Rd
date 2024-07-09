@@ -2,7 +2,7 @@
 % Please edit documentation in R/ep.analysis.R
 \name{plot_easypop_replicate_equ_values}
 \alias{plot_easypop_replicate_equ_values}
-\title{plot_easypop_replicate_equ_values}
+\title{Plot the per-generation, per-replicate values from a set of EASYPOP equ output files}
 \usage{
 plot_easypop_replicate_equ_values(s.colname, v.data.source)
 }

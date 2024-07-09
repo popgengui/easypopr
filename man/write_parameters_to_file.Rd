@@ -2,7 +2,7 @@
 % Please edit documentation in R/ep.params.R
 \name{write_parameters_to_file}
 \alias{write_parameters_to_file}
-\title{write_parameters_to_file}
+\title{Write EASYPOP parameter values to a new configuration file}
 \usage{
 write_parameters_to_file(ls.parameters, s.file, b.run = FALSE)
 }
