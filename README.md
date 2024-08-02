@@ -34,7 +34,7 @@ which gives you a list of parameter names/values.  You can then change parameter
 
      write_parameters_to_file( <ls.parameters>,  <s.file>, [b.run=FALSE] )
 
-These read and write calls are meant to allow you to write an R script, for example, that automatically writes configuration files and runs corresponding simulations based on changing a particular parameter value a value to see the effect on Fst, Heterozygosity, etc.  Note also that you can simply open a configuration file in a text editor, change the parameter values , and (re)run it with the run_easypop call.  For details on manually revising a configuration file, see the notes in the text document "easypop.revised.usage.txt" available at the link given above.
+These read and write calls are meant to allow you to write an R script, for example, that automatically writes configuration files and runs corresponding simulations based on changing a particular parameter value to see the effect on Fst, Heterozygosity, etc.  Note also that you can simply open a configuration file in a text editor, change the parameter values , and (re)run it with the run_easypop call.  For details on manually revising a configuration file, see the notes in the text document "easypop.revised.usage.txt" available at the link given above.
 
 ## Automating multiple parameter tests
 We also provide a function call that can run multiple simulations given a list of parameters, each with a list of settings:
