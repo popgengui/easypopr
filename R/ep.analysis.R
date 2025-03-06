@@ -39,6 +39,10 @@ is.absolute.path=function( s.path )
 		{
 			s.drive.pattern = "^[A-Z,a-z]:"
 			i.hit = grep( pattern = s.drive.pattern, x = s.path )
+			
+			if(length(i.hit) == 0){
+			  return(FALSE)
+			}
 
 			if( i.hit == 1 )
 			{
@@ -154,7 +158,7 @@ files.are.all.of.type.equ = function( v.file.names )
 #'   paths to each .equ file you wish to read, or (3) one string giving the name
 #'   of an easypop configuration file (as created, for example, with a call to setup_easypop). 
 #'   Note that for option (2) the vector of file paths can be generated with
-#'   the \code{\link[base]{file.path}} using the \code{full.names = TRUE} argument.
+#'   the \code{\link[base]{list.files}} using the \code{full.names = TRUE} argument.
 #'   In case (3), the program looks for equ files matching the "name_of_file" value
 #'   listed in the configuration file
 #'  
@@ -163,7 +167,7 @@ files.are.all.of.type.equ = function( v.file.names )
 
 plot_easypop_replicate_equ_values = function( s.colname, v.data.source  )
 {
-  
+
   ldf.data.frames = NULL
 
   #20231221.  We preserve the code that analyzes the orig fx arg, ldf.data.frames
@@ -178,27 +182,32 @@ plot_easypop_replicate_equ_values = function( s.colname, v.data.source  )
   #to extract equ output file names:
 
   if( is.character ( v.data.source ) 
-     && length( v.data.source )  == 1
-     && !files.are.all.of.type.equ( v.data.source ) )
+      && !files.are.all.of.type.equ( v.data.source ) &
+      all(tools::file_ext(v.data.source) == "cfg") )
   {
-	  s.outfile.base=get.results.file.base.name.from.config.file( v.data.source )
-	  s.config.file.path = dirname( v.data.source )
-  	  l.files = get.list.equ.files.from.results.base.name( s.config.file.path,
-							       		s.outfile.base )
-	  ldf.data.frames = paste( l.files$equpath, l.files$equnames, sep="/" )
+    if(length(v.data.source) != 1){
+      stop("Only one .cfg file can be proccessed at once with plot_easypop_replicate_equ_values(). To plot multiple configs, try plot_easypop_replicate_equ_means().\n")
+    }
+    s.outfile.base=get.results.file.base.name.from.config.file( v.data.source )
+    s.config.file.path = dirname( v.data.source )
+    l.files = get.list.equ.files.from.results.base.name( s.config.file.path,
+                                                         s.outfile.base )
+    ldf.data.frames = paste( l.files$equpath, l.files$equnames, sep="/" )
   }
   else#in this case, we assume its already in a form that is ready to be processed below
-  {  
-	  ldf.data.frames = v.data.source
+  { 
+    ldf.data.frames = v.data.source
   }#end if single string, non-equ file name, else either a data df or an equ file name
-
   if(!is.data.frame(ldf.data.frames[[1]])){
     check <- unlist(lapply(ldf.data.frames, file.exists))
     if(any(!check)){
       stop(paste0("Some files in lf.data.frames not found: \n",
                   paste0(ldf.data.frames[-check], collapse = "\n")))
     }
-    
+    if(any(tools::file_ext(ldf.data.frames) != "equ")){
+      stop("Some files are not .cfg or .equ files.\n")
+    }
+
     names(ldf.data.frames) <- basename(ldf.data.frames)
     ldf.data.frames <- lapply(ldf.data.frames, function(x) read.table(x, header = TRUE))
   }
@@ -300,70 +309,70 @@ get.list.equ.files.from.results.base.name=function( s.config.file.path, s.outfil
 #'@export
  
 plot_easypop_replicate_equ_means = function( vs.config.files, s.colname ) {
-
-	ldf.means = list()
-
-	i.last.num.gens=NULL
-
-	for( s.file in vs.config.files )
-	{
-
-		s.outfile.base = get.results.file.base.name.from.config.file( s.file )
-
-		s.config.file.path = dirname( s.file )
-
-		l.equ.files = get.list.equ.files.from.results.base.name( s.config.file.path, 
-										s.outfile.base )		
-
-		df.means = get.mean.equ.file( l.equ.files$equnames, l.equ.files$equpath ) 
-
-		#20240213 we add a check to make sure
-		#all configurations have the same number
-		#of generations. If not ggplot command 
-		#(or is it the data.table command?)
-		#will fail.  Not able right now to 
-		#get allowance for variable num gens
-		i.current.num.gens=dim( df.means )[1]
-
-		if( is.null( i.last.num.gens ) )
-		{
-			i.last.num.gens = i.current.num.gens
-		}
-		else
-		{
-			if( i.current.num.gens != i.last.num.gens )
-			{
-				s.msg=paste0( "In plot_easypop_replicate_equ_means, ",
-					     "the program currently can't plot runs from ",
-					     "multiple configurations unless the number of ",
-					     "generations run is identical in all of the configurations." )
-				stop( s.msg )
-			}#end if unequal num gens
-
-			i.current.num.gens = i.last.num.gens
-		}# end if i.last.num.gens is null, else not
-
-		ldf.means[[s.outfile.base]] = df.means 
-	}#end for each config file
-
-	#20240118 we borrow from Will's ggplot code above, but add
-	#a legend that shows which config file generated which line:
-
-	v.output.file.basenames=names(ldf.means)
-
-    	names(ldf.means) <- paste0("run", 1:length(ldf.means))
-  	ldf.means <- data.table::rbindlist(ldf.means, idcol = "run")
-	ldf.means$config.file = vs.config.files
-
-	ldf.means <- ldf.means[,c( "run",  "gen", s.colname)]
-
-	p <- ggplot2::ggplot(ldf.means, ggplot2::aes_string(x = "gen", y = s.colname, color = "run")) +
-	  ggplot2::geom_line(show.legend = TRUE) +
-	  ggplot2::theme_bw() + 
-	  ggplot2::scale_color_hue( labels = v.output.file.basenames )
-	
-   	return(p)
-
+  
+  ldf.means = list()
+  
+  i.last.num.gens=NULL
+  
+  for( s.file in vs.config.files )
+  {
+    
+    s.outfile.base = get.results.file.base.name.from.config.file( s.file )
+    
+    s.config.file.path = dirname( s.file )
+    
+    l.equ.files = get.list.equ.files.from.results.base.name( s.config.file.path, 
+                                                             s.outfile.base )		
+    
+    df.means = get.mean.equ.file( l.equ.files$equnames, l.equ.files$equpath ) 
+    
+    #20240213 we add a check to make sure
+    #all configurations have the same number
+    #of generations. If not ggplot command 
+    #(or is it the data.table command?)
+    #will fail.  Not able right now to 
+    #get allowance for variable num gens
+    i.current.num.gens=dim( df.means )[1]
+    
+    if( is.null( i.last.num.gens ) )
+    {
+      i.last.num.gens = i.current.num.gens
+    }
+    else
+    {
+      if( i.current.num.gens != i.last.num.gens )
+      {
+        s.msg=paste0( "In plot_easypop_replicate_equ_means, ",
+                      "the program currently can't plot runs from ",
+                      "multiple configurations unless the number of ",
+                      "generations run is identical in all of the configurations." )
+        stop( s.msg )
+      }#end if unequal num gens
+      
+      i.current.num.gens = i.last.num.gens
+    }# end if i.last.num.gens is null, else not
+    
+    ldf.means[[s.outfile.base]] = df.means 
+  }#end for each config file
+  
+  #20240118 we borrow from Will's ggplot code above, but add
+  #a legend that shows which config file generated which line:
+  
+  v.output.file.basenames=names(ldf.means)
+  
+  names(ldf.means) <- paste0("run", 1:length(ldf.means))
+  ldf.means <- data.table::rbindlist(ldf.means, idcol = "run")
+  ldf.means$config.file = vs.config.files
+  
+  ldf.means <- ldf.means[,c( "run",  "gen", s.colname)]
+  
+  p <- ggplot2::ggplot(ldf.means, ggplot2::aes_string(x = "gen", y = s.colname, color = "run")) +
+    ggplot2::geom_line(show.legend = TRUE) +
+    ggplot2::theme_bw() + 
+    ggplot2::scale_color_hue( labels = v.output.file.basenames )
+  
+  return(p)
+  
 }#end plot.easypop.replicate.means
 
 

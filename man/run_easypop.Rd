@@ -4,12 +4,14 @@
 \alias{run_easypop}
 \title{run_easypop}
 \usage{
-run_easypop(s.file.name)
+run_easypop(s.file.name = NULL)
 }
 \arguments{
-\item{s.file.name}{string giving the name of an existing file holding EASYPOP simulation parameters}
+\item{s.file.name}{string giving the name of an existing file holding EASYPOP
+simulation parameters. If NULL, calls \code{\link{setup_easypop}} using
+the filename "easypop.cfg".}
 }
 \description{
-Runs an EASYPOP simulation using the parameters given in the file
-named by the argument.
+Runs an EASYPOP simulation using the parameters given in the file named by
+the argument.
 }

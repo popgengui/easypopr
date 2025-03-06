@@ -44,7 +44,7 @@ library(easypopr)
 To set up an EASYPOP simulation, you first provide the program with parameter settings. You can make a complete set of parameters and write them to a configuration file with the command:
 
 ```{r, eval = F}
-    setup_easypop( s.file.name = "mysettings.cfg", run = TRUE)
+setup_easypop( s.file.name = "mysettings.cfg", run = TRUE)
 ```
 
 With this command the program will prompt you for settings and record your responses in a file named "mysettings.cfg." By setting the optional, "run = TRUE", EASYPOP will run a simulation based on the settings in "mysettings.cfg". If the default run = FALSE is used, the program exits after writing the configuration file.
@@ -52,7 +52,7 @@ With this command the program will prompt you for settings and record your respo
 If you have an existing configuration file, you can run EASYPOP with the command:
 
 ```{r, eval = F}
-    run_easypop( s.file.name = "mysettings.cfg" )
+run_easypop( s.file.name = "mysettings.cfg" )
 ```
 
 After the simulation runs, you'll find output files as named according to the configuration file's setting for the "name_of_file" parameter. For a description of the simulator's output see the author's manual, available at the link given above.
@@ -62,26 +62,26 @@ After the simulation runs, you'll find output files as named according to the co
 To quickly revise an existing configuration file, you can load its settings into a list by calling "read_parameters_from_file." For example (we first access a demo configuration file included in the package):
 
 ```{r, eval=T}
-    s.config.file = system.file( "extdata", 
-                            "demo.standard.cfg", 
-                            package = "easypopr") 
+s.config.file = system.file( "extdata", 
+                             "demo.standard.cfg", 
+                             package = "easypopr") 
 
-    l.config = read_parameters_from_file( s.file = s.config.file )
+l.config = read_parameters_from_file( s.file = s.config.file )
 ```
 
 Our list, l.config, has names matching parameter names in the configuration file, and their corresponding values, for example
 
 ```{r, eval=T}
-    l.config$number_populations
-    l.config$mutation_rate
+l.config$number_populations
+l.config$mutation_rate
 ```
 
 We can change parameter values:
 
 ```{r, eval = T}
-    l.config$number_populations = 10
-    l.config$mutation_rate = 0.01
-    l.config$name_of_file = "pop.10.mut.01"
+l.config$number_populations = 10
+l.config$mutation_rate = 0.01
+l.config$name_of_file = "pop.10.mut.01"
 ```
 
 A few caveats on revising configurations:
@@ -93,9 +93,9 @@ A few caveats on revising configurations:
 With the configuration list loaded and revised, you can then write a new configuration file and (optionally, by adding TRUE as the second argument) run the corresponding simulation:
 
 ```{r, eval = F}
-    write_parameters_to_file(ls.parameters = l.config, 
-                             s.file = "pop.10.mut.01.cfg", 
-                             b.run = TRUE )
+write_parameters_to_file(ls.parameters = l.config, 
+                         s.file = "pop.10.mut.01.cfg", 
+                         b.run = TRUE )
 ```
 
 ## Running multiple simulations with multiple parameter changes
@@ -103,35 +103,32 @@ With the configuration list loaded and revised, you can then write a new configu
 You can conveniently run multiple simulations based on changing settings in an existing configuration file. First, make a list with one or more parameters (existing in the configuration file). Note that the names in your list should match exactly the names used in the configuration file. If you assign each a vector of values:
 
 ```{r, eval=T}
-    l.params.to.vary = list( 
-          "mutation_rate" = c( 0.01, 0.005, 0.0001 ),
-          "number_populations" = c( 5, 10, 50 ) )
+l.params.to.vary = list( 
+  "mutation_rate" = c( 0.01, 0.005, 0.0001 ),
+  "number_populations" = c( 5, 10, 50 ) )
 ```
 
 For the following command, we don't need to change the name_of_file parameter, since the program will automatically name the files. Again, here we use our demo configuration file. Now, you can write the 9 configuration files each with one combination of mutation rate and number of populations values:
 
 ```{r, eval=F}
 
-  s.config.file = system.file( "extdata", "demo.standard.cfg", package = "easypopr") 
-  configure_multiple_easypop_runs( l.settings =  l.params.to.vary, 
-                                   s.starting.config.file = s.config.file, 
-                                   s.filebase = "test.mut.and.pops",
-                                   b.run = TRUE )
+s.config.file = system.file( "extdata", "demo.standard.cfg", package = "easypopr") 
+results <- configure_multiple_easypop_runs( l.settings =  l.params.to.vary, 
+                                            s.starting.config.file = s.config.file, 
+                                            s.filebase = "test.mut.and.pops",
+                                            b.run = TRUE )
+results
 ```
 
 The s.filebase value will be the prefixed file name for both the configuration files and the EASYPOP output files. An ordinal integer is also added to the name to distinguish the runs. The optional 4th argument, set to TRUE, will automatically initiate a simulation run based on each configuration. This function also writes a tabular configuration key table that helps you associate a configuration file with a set of the parameter values. You'll find it among the files with an extension, .config.key.tsv. For this example you'd find a file, test.mut.and.pops.config.key.tsv, with these these columns:
 
-| config_file_number | mutation_rate | number_populations |
-|--------------------|---------------|--------------------|
-| 1                  | 0.01          | 5                  |
-| 2                  | 0.01          | 10                 |
-| 3                  | 0.01          | 50                 |
-| 4                  | 0.005         | 5                  |
-| 5                  | 0.005         | 10                 |
-| 6                  | 0.005         | 50                 |
-| 7                  | 1e-04         | 5                  |
-| 8                  | 1e-04         | 10                 |
-| 9                  | 1e-04         | 50                 |
+```{r, echo=FALSE}
+df <- data.frame(config_file_number = 1:9,
+                 mutation_rate = rep(c(.01, .005, .0001), each = 3),
+                 number_populations = rep(c(5, 10, 50), 3))
+df
+
+```
 
 ## Plotting simulation results
 
@@ -139,29 +136,50 @@ The package provides functions that plot values in EASYPOP's equ output files, w
 
 ```{r, eval = TRUE}
 
-    s.equ.file.1 = system.file( "extdata", 
-                              "demo.standard.001.equ", 
-                              package = "easypopr")
-    s.equ.file.2 = system.file( "extdata", 
-                              "demo.standard.002.equ", 
-                              package = "easypopr")
+s.equ.file.1 = system.file( "extdata", 
+                            "demo.standard.001.equ", 
+                            package = "easypopr")
+s.equ.file.2 = system.file( "extdata", 
+                            "demo.standard.002.equ", 
+                            package = "easypopr")
  
 ```
 To plot per-replicate values for one of the values, we can call:
 
 ```{r, fig.height=3, fig.width=4, eval=T}
-    plot_easypop_replicate_equ_values( s.colname = "Fst", 
-                              v.data.source = c( s.equ.file.1, s.equ.file.2 ) )
+plot_easypop_replicate_equ_values( s.colname = "Fit", 
+                                   v.data.source = c( s.equ.file.1, s.equ.file.2 ) )
 
 ```
 
-You can also plot the mean values over replicates of one or more simulation runs, using the name of the configuration file on which the simulation was based.  Using our demo.standard.cfg configuration and its results, we can see the mean observered heterozygosity values over the two replicates run in our standard demo:
+`plot_easypop_replicate_equ_values()` can take multiple `.equ` files from a single run, one `.cfg` file, or a list of `data.frames` containing data from `.equ` files. As such, the output from `configure_multiple_easypop_runs()` can be fed in easily:
+```{r, eval=FALSE}
+plot_easypop_replicate_equ_values( s.colname = "Fis", 
+                                   v.data.source = results$config_file[1])
+```
+
+
+You can also plot the mean values over replicates of one or more simulation runs, using the name of the configuration file on which the simulation was based.  Using our demo.standard.cfg configuration and its results, we can see the mean observed heterozygosity values over the two replicates run in our standard demo:
 
 
 ```{r, fig.height=3, fig.width=6, eval=T}
-    s.config = system.file( "extdata", 
-                            "demo.standard.cfg", 
-                            package = "easypopr") 
-    plot_easypop_replicate_equ_means( s.config, "Ho")
+s.config = system.file( "extdata", 
+                        "demo.standard.cfg", 
+                        package = "easypopr") 
+plot_easypop_replicate_equ_means( s.config, "Ho")
+```
+Multiple config files can be plotted at once in this way to compare demographic (or other) scenarios:
+```{r, fig.height=3, fig.width=6, eval=T}
+s.config = system.file( "extdata", 
+                        "demo.standard.cfg", 
+                        package = "easypopr")
+s.config2 = system.file( "extdata", 
+                        "demo.bottleneck.cfg", 
+                        package = "easypopr")
+plot_easypop_replicate_equ_means( c(s.config, s.config2), "Hs")
+```
+As before, the output from `configure_multiple_easypop_runs()` can be fed into `plot_easypop_replicate_equ_means` directly.
+```{r,eval=FALSE}
+plot_easypop_replicate_equ_means( results$config_file, "Ht")
 ```
 

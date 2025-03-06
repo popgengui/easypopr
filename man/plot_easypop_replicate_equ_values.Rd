@@ -15,7 +15,7 @@ plot_easypop_replicate_equ_values(s.colname, v.data.source)
 paths to each .equ file you wish to read, or (3) one string giving the name
 of an easypop configuration file (as created, for example, with a call to setup_easypop).
 Note that for option (2) the vector of file paths can be generated with
-the \code{\link[base]{file.path}} using the \code{full.names = TRUE} argument.
+the \code{\link[base]{list.files}} using the \code{full.names = TRUE} argument.
 In case (3), the program looks for equ files matching the "name_of_file" value
 listed in the configuration file}
 }

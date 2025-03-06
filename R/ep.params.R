@@ -280,18 +280,6 @@ try.to.convert = function(  s.string.to.convert, s.target.type )
 
 }#end try.to.convert
 
-format.vals.as.nonscientific.strings=function( v.numeric )
-{
-	#expects a numeric vector,
-	#returns a vector of string reps
-	#of the numbers without using scientific
-	#notation.
-
-	v.strings = format( v.numeric, scientific = FALSE )
-   
-	return( v.strings )
-}#end format.vals.as.nonscientific.strings
-
 #' prompt.for.values.and.return.user.entries
 #' 
 #' prompts user at the console for parameter values, stores
@@ -1130,7 +1118,7 @@ get.migr.spatial = function( g2sex, gnbpop, b.second.scheme )
 
 		#if number is very small, default R will write in scientific
 		#notation -- not readable by easypop, so:	
-		v.user.values = format.vals.as.nonscientific.strings( v.user.values )
+		v.user.values = format( v.user.values, scientific = FALSE )
 
 		s.coords.this.pop=paste( v.user.values, collapse="," )
 
@@ -1370,7 +1358,7 @@ get.mutation.rate = function( i.num.loci, i.unif.mut.scheme )
 			s.prompt, i.num.loci, "numeric" , c( 0.0, 1.0 ) )
 	
 		#avoid writing floats as scientific notation:	
-		v.user.values = format.vals.as.nonscientific.strings( v.user.values )
+		v.user.values = format( v.user.values, scientific = FALSE )
 
 		s.per.locus.mut.rate=paste( v.user.values, collapse = "," )
 
@@ -1990,15 +1978,20 @@ setup_easypop = function( s.file.name, run = FALSE)
 }#end setup_easypop
 
 #' run_easypop
-#' 
-#' Runs an EASYPOP simulation using the parameters given in the file
-#' named by the argument.
 #'
-#' @param s.file.name string giving the name of an existing file holding EASYPOP simulation parameters 
+#' Runs an EASYPOP simulation using the parameters given in the file named by
+#' the argument.
+#'
+#' @param s.file.name string giving the name of an existing file holding EASYPOP
+#'   simulation parameters. If NULL, calls \code{\link{setup_easypop}} using
+#'   the filename "easypop.cfg".
 #' @export
 
-run_easypop = function ( s.file.name )
+run_easypop = function ( s.file.name = NULL)
 {
+  if(is.null(s.file.name)){
+    setup_easypop("easypop.cfg")
+  }
   s.file.name <- normalizePath(s.file.name)
 	if( file.exists(Sys.getenv("EASYPOP.EXECUTABLE")) )
 	{

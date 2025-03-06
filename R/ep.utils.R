@@ -5,7 +5,7 @@
 #limitation
 ep.env = new.env( parent = baseenv() )
 
-update.config.key = function( i.config.number, l.config )
+update_config.key = function( i.config.number, l.config )
 {
 	#this function, added 20240106, updates rows for a table file
 	#that will show which values of the pertinent params are assoc
@@ -23,7 +23,7 @@ update.config.key = function( i.config.number, l.config )
 
 	assign( "m.current.set.configs", m.copy.current.set.configs, 
 	       						envir = ep.env ) 
-}#end update.config.key
+}#end update_config.key
 
 
 write.config.key.table = function()
@@ -31,7 +31,7 @@ write.config.key.table = function()
 	#To be called just before returning from the last recursive call,
 	#when all config files have been written.
 	#This function needs no args, as the ep.env has been
-	#assigned all the needed values (see fx, update.config.key):
+	#assigned all the needed values (see fx, update_config.key):
 	s.file.name = get( "s.config.key.file.name", envir = ep.env )
 	m.config.key.table = get( "m.current.set.configs", envir = ep.env )
 	v.param.names = get( "v.names.of.test.params", envir = ep.env )
@@ -60,7 +60,7 @@ write.table( x = m.config.key.table ,
 }#end write.config.key.table
 
 
-update.param.value = function( l.config, l.settings, idx.param, idx.value )
+update_param.value = function( l.config, l.settings, idx.param, idx.value )
 {
 	l.updated = l.config
 
@@ -70,7 +70,7 @@ update.param.value = function( l.config, l.settings, idx.param, idx.value )
 	l.updated[ s.name ] = v.val 
 
 	return( l.updated )
-}#end update.param.value
+}#end update_param.value
 
 make.config = function (  l.config, s.filebase, b.run = FALSE )
 {
@@ -95,7 +95,7 @@ make.config = function (  l.config, s.filebase, b.run = FALSE )
 
 	#we add a new row to our key file that associates
 	#a config number with a set of param values:
-	update.config.key( i.current.config.count, l.config )
+	update_config.key( i.current.config.count, l.config )
 
 	write_parameters_to_file( l.config, 
 		paste0( s.filebase, "_", i.current.config.count,  ".cfg" ), 
@@ -151,7 +151,7 @@ do.recursive.configs = function( l.settings, s.filebase, b.run = FALSE )
 	}
 	else
 	{
-		l.local.config = update.param.value( l.local.config, 
+		l.local.config = update_param.value( l.local.config, 
 						    l.settings, 
 						    i.local.current.param.number, 
 						    i.current.value.index )
