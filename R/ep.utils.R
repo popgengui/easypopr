@@ -59,7 +59,6 @@ write.table( x = m.config.key.table ,
 
 }#end write.config.key.table
 
-
 update.param.value = function( l.config, l.settings, idx.param, idx.value )
 {
 	l.updated = l.config
@@ -108,7 +107,7 @@ do.recursive.configs = function( l.settings, s.filebase, b.run = FALSE )
 	#this function creates single configurations by combining
 	#multiple settings, that is, one config being the set of selected values
 	#one for each param.  This alg accomodates an arbitrary number of parameters,
-	#p1, p2, p3, with values p1.v1, p1.v2...p1vn, p2.v1, p1.v2...p2vn,
+	#p1, p2, ..., with values p1.v1, p1.v2...p1vn, p2.v1, p1.v2...p2vn,
 	#etc.  One config file is created (and optionally run) for each combination
 	#of p1.vi, p2vj, .... etc.   The code proceeds recursively from p1, p2..pn,
 	#then back up to pi-1 after all values of pi have been used in combo
@@ -171,7 +170,7 @@ do.recursive.configs = function( l.settings, s.filebase, b.run = FALSE )
 
 			make.config( l.local.config, s.filebase, b.run )
 
-		}#end if last param
+		}#end if not last param, else last
 
 	}#end if all values used, else not
 
@@ -185,7 +184,6 @@ do.recursive.configs = function( l.settings, s.filebase, b.run = FALSE )
 	do.recursive.configs( l.settings, s.filebase, b.run )	
 
 }#end do.recursive.configs
-
 
 #' configure_multiple_easypop_runs
 #'
@@ -206,8 +204,8 @@ do.recursive.configs = function( l.settings, s.filebase, b.run = FALSE )
 #' @param s.filebase names the prefix used to name configuration files (*.cfg)
 #'   and output files (*equ, *gen, etc).  The program also adds an integer to
 #'   the file names that indicates its order of creation.
-#' @param b.run  optional, default = FALSE, if set to TRUE, as each config is
-#'   created, a simulation is run based on the config
+#' @param b.run  optional, default = FALSE, if set to TRUE, as each configrration file is
+#'   created, a simulation is run based on the configuration.
 #'   
 #' @return A \code{\link{data.frame}} containing file names and parameter values
 #'   for each new config file.

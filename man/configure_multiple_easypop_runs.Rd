@@ -22,8 +22,8 @@ basis for the simulations, with revised settings as given by the first arg}
 and output files (*equ, *gen, etc).  The program also adds an integer to
 the file names that indicates its order of creation.}
 
-\item{b.run}{optional, default = FALSE, if set to TRUE, as each config is
-created, a simulation is run based on the config}
+\item{b.run}{optional, default = FALSE, if set to TRUE, as each configrration file is
+created, a simulation is run based on the configuration.}
 }
 \value{
 A \code{\link{data.frame}} containing file names and parameter values

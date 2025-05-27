@@ -2,7 +2,7 @@
 % Please edit documentation in R/ep.params.R
 \name{setup_easypop}
 \alias{setup_easypop}
-\title{setup_easypop}
+\title{Parameterize and optionally run an EASYPOP simulation.}
 \usage{
 setup_easypop(s.file.name, run = FALSE)
 }
@@ -10,10 +10,11 @@ setup_easypop(s.file.name, run = FALSE)
 \item{s.file.name}{string giving the name of a new file to which the program
 can write the parameter values entered at the prompts.}
 
-\item{run}{logical, default FALSE. If TRUE, easypop will automatically be run
+\item{run}{logical, default FALSE. If TRUE, EASYPOP will automatically be run
 after parameter file creation is complete.}
 }
 \description{
-Prompts the user for parameter values used to run an EASYPOP simulation. and
-writes the values to a file named by the argument.
+Prompts the user for parameter values used to run an EASYPOP simulation and
+writes the values to a file named by the argument.  Optionally runs the simulation
+using the configuration file (see the description of the argument "run").
 }

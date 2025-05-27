@@ -2,19 +2,19 @@
 % Please edit documentation in R/ep.params.R
 \name{read_parameters_from_file}
 \alias{read_parameters_from_file}
-\title{read_parameters_from_file}
+\title{Read Parameters from an EASYPOP configuraion file}
 \usage{
 read_parameters_from_file(s.file)
 }
 \arguments{
-\item{s.file}{names an existing easypop configuration file}
+\item{s.file}{names an existing EASYPOP configuration file}
 }
 \value{
 a list whose names are the parameter names, and values
 are the associated parameter values
 }
 \description{
-From an existing easypop config file,
+From an existing EASYPOP configuration file,
 get a list whose names are the parameter names
 and whose values are the associated parameter values.
 }

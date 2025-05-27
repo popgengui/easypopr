@@ -2,21 +2,22 @@
 % Please edit documentation in R/ep.analysis.R
 \name{plot_easypop_replicate_equ_means}
 \alias{plot_easypop_replicate_equ_means}
-\title{plot_easypop_replicate_equ_means}
+\title{Plot per-generation mean values from a set of EASYPOP equ output files}
 \usage{
 plot_easypop_replicate_equ_means(vs.config.files, s.colname)
 }
 \arguments{
-\item{vs.config.files}{vector of names of ep config files}
+\item{vs.config.files}{vector of names of EASYPOP configuration files}
 
 \item{s.colname}{quoted string names one of the columns of an equ file,
 as given in the first line of an equ file, one of,
 "Ho", "Hs", "Ht", "Fis", "Fst", or "Fit".}
 }
 \description{
-for each easypop config file given in the vector arg,
-Plot the per-generation, replicate mean values for the
-equ output files, the column given by the s.colname arg.
-The name_of_file entry  in each config file is used to
-locate the *equ files
+For each EASYPOP configuration file given in the vector argument,
+plot the per-generation, replicate mean values for the
+equ output files. The column to plot is given by the s.colname argument
+(see argument desriptions).
+The value of the "name_of_file" entry in each configuration file is used to
+locate the *equ files.
 }

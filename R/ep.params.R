@@ -292,15 +292,16 @@ format.vals.as.nonscientific.strings=function( v.numeric )
 	return( v.strings )
 }#end format.vals.as.nonscientific.strings
 
-#' prompt.for.values.and.return.user.entries
-#' 
-#' prompts user at the console for parameter values, stores
-#' and returns them in a vector length i.num.values, of user-entered values
-#'
-#' @param   s.prompt, printed to console on each iteration to get another value
-#' @param   i.num.values, number of entries to get from the user.
-#' @param   s.type.of.values, string, one of "integer", "numeric", or "character"
-#' @param   v.valid.range  min, max values (inclusive) of valid values. If type "character", then NULL or list of valid strings)
+#202407 removing apostrophes from roxygen markup, don't want this nonpublic fx to show in Rstudio help:
+# prompt.for.values.and.return.user.entries
+# 
+# prompts user at the console for parameter values, stores
+# and returns them in a vector length i.num.values, of user-entered values
+#
+# @param   s.prompt, printed to console on each iteration to get another value
+# @param   i.num.values, number of entries to get from the user.
+# @param   s.type.of.values, string, one of "integer", "numeric", or "character"
+# @param   v.valid.range  min, max values (inclusive) of valid values. If type "character", then NULL or list of valid strings)
 
 prompt.for.values.and.return.user.entries=function( s.prompt, i.num.values, s.type.of.values, v.valid.range  )
  {
@@ -396,9 +397,10 @@ prompt.for.values.and.return.user.entries=function( s.prompt, i.num.values, s.ty
 
 }#end prompt.for.values.and.return.user.entries
 
-#' get.selfing.parameters
-#' 
-#' prompt user for selfing parameters, return a list with user-entered values.
+# 202407 removing apostrophes from markup, dont want this non-public fx in Rstudio help pages
+# get.selfing.parameters
+# 
+# prompt user for selfing parameters, return a list with user-entered values.
 
 get.selfing.parameters=function( )
 {
@@ -443,12 +445,14 @@ get.selfing.parameters=function( )
 
 }#end get.selfing.parameters
 
-#' get.mating.parameters
-#' 
-#' prompts user for mating parameters and returns user-entered values as a list.
-#'
-#' @param   gploidy, integer giving ploidy
-#' @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
+
+#not a public fx, so removing apostrophes from the comment markup
+# get.mating.parameters
+# 
+# prompts user for mating parameters and returns user-entered values as a list.
+#
+# @param   gploidy, integer giving ploidy
+# @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
 
 get.mating.parameters=function ( gploidy, g2sex )
 {
@@ -502,10 +506,11 @@ get.mating.parameters=function ( gploidy, g2sex )
 
 }#end get.mating.parameters
 
-#' get.reproduction.parameters
-#' 
-#' prompts user for reproduction parameters and returns user-entered values as a list.
-#'
+#202407 remove aposrophe from roxygen markup. don't want this non-public fx to show in RStudio help
+# get.reproduction.parameters
+# 
+# prompts user for reproduction parameters and returns user-entered values as a list.
+#
 
 get.reproduction.parameters=function()
 {
@@ -601,13 +606,13 @@ get.reproduction.parameters=function()
 }#end get.reproduction.parameters
 
 
-
-#' get.population.parameters
-#' 
-#' prompts user for population parameters and returns user-entered values as a list.
-#'
-#' @param   gploidy, integer giving ploidy
-#' @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
+#202407 removing apostrophes from roxygen markup, don't want this nonpublic fx to show in Rstudio help:
+# get.population.parameters
+# 
+# prompts user for population parameters and returns user-entered values as a list.
+#
+# @param   gploidy, integer giving ploidy
+# @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
 
 get.population.parameters = function( gploidy, g2sex )
 {
@@ -1207,13 +1212,16 @@ get.migr.spatial = function( g2sex, gnbpop, b.second.scheme )
 
 }#end get.migr.spatial
 
-#' get.migration.scheme.details
-#' 
-#' prompts user for details of migration scheme parameters and returns user-entered values as a list.
-#' this function is called only if the number of pops exceeds 2 (else they are trivially assigned island in 
-#' the fx, get.migration.parameters. 
-#' @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
-#' @param   gnbpop, integer, number of populations.
+# not a public fx, so removing the apostrophes from the markup, so it's not listed
+#in the RStudio help pages
+#
+# get.migration.scheme.details
+# 
+# prompts user for details of migration scheme parameters and returns user-entered values as a list.
+# this function is called only if the number of pops exceeds 2 (else they are trivially assigned island in 
+# the fx, get.migration.parameters. 
+# @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
+# @param   gnbpop, integer, number of populations.
 
 get.migration.scheme.details = function( g2sex, gnbpop, b.second.scheme )
 {
@@ -1285,12 +1293,14 @@ get.migration.scheme.details = function( g2sex, gnbpop, b.second.scheme )
 
 }#end get.migration.scheme.details
 
-#' get.migration.parameters
-#' 
-#' prompts user for migration scheme parameters and returns user-entered values as a list.
-#'
-#' @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
-#' @param   gnbpop, integer, number of populations.
+#202407 removing apostrophes from roxygen markup, don't want this nonpublic fx to show in Rstudio help:
+
+# get.migration.parameters
+# 
+# prompts user for migration scheme parameters and returns user-entered values as a list.
+#
+# @param   g2sex, boolean, 1 or 0, whether there are 2 sexes.
+# @param   gnbpop, integer, number of populations.
 
 get.migration.parameters = function( g2sex, gnbpop )
 {
@@ -1612,14 +1622,18 @@ get.generation.parameters=function( i.unif.migr.scheme )
 	return( lv.generations )
 }#end get.generation.parameters
 
-#' get.genetic.parameters
-#' 
-#' prompts user for genetic parameters and returns user-entered values as a list.
-#' Single ploidy arg just lets the program know whether or not user specified haploidy. 
-#' If so we skip prompting for recombination rates under haploidy
-#'
-#' @param   i.ploidy, integer: 0, 1, or 2, indicating haplo-diplo, haplo, or diplody respectively
-#'
+#note removing the aprostrophe, as this is not a user-visible
+#function, so that RStudio won't
+#list this in the help pages.
+
+# get.genetic.parameters
+# 
+# prompts user for genetic parameters and returns user-entered values as a list.
+# Single ploidy arg just lets the program know whether or not user specified haploidy. 
+# If so we skip prompting for recombination rates under haploidy
+#
+# @param   i.ploidy, integer: 0, 1, or 2, indicating haplo-diplo, haplo, or diplody respectively
+#
 get.genetic.parameters = function( i.ploidy )
 {
 	lv.genetics = list()
@@ -1912,13 +1926,15 @@ check.for.inclusion.in.config.file = function( s.param.name, lv.param.list )
 	
 }#end check.for.inclusion.in.config.file
 
-#' print.param.list
-#' prints the param name-value pairs to the file named in the args.
-#'
-#'
-#' @param lv.param.list list whose names are ep param names and values are the corresponding values
-#' @param s.filename name of the file to which to write the name-value pairs
-#'
+#202407 removing apostrophes from roxygen markup, don't want this nonpublic fx to show in Rstudio help:
+
+# print.param.list
+# prints the param name-value pairs to the file named in the args.
+#
+#
+# @param lv.param.list list whose names are ep param names and values are the corresponding values
+# @param s.filename name of the file to which to write the name-value pairs
+#
 print.param.list = function( lv.param.list, s.filename )
 {
 	vs.lines=c()
@@ -1946,14 +1962,15 @@ print.param.list = function( lv.param.list, s.filename )
 }#end print.param.list
 
 
-#' setup_easypop
+#' Parameterize and optionally run an EASYPOP simulation.
 #'
-#' Prompts the user for parameter values used to run an EASYPOP simulation. and
-#' writes the values to a file named by the argument.
+#' Prompts the user for parameter values used to run an EASYPOP simulation and
+#' writes the values to a file named by the argument.  Optionally runs the simulation
+#' using the configuration file (see the description of the argument "run").
 #'
 #' @param s.file.name string giving the name of a new file to which the program
 #'   can write the parameter values entered at the prompts.
-#' @param run logical, default FALSE. If TRUE, easypop will automatically be run
+#' @param run logical, default FALSE. If TRUE, EASYPOP will automatically be run
 #'   after parameter file creation is complete.
 #' @export
 setup_easypop = function( s.file.name, run = FALSE)
@@ -1989,12 +2006,12 @@ setup_easypop = function( s.file.name, run = FALSE)
 
 }#end setup_easypop
 
-#' run_easypop
+#' Run EASYPOP using an existing configuration file
 #' 
 #' Runs an EASYPOP simulation using the parameters given in the file
 #' named by the argument.
 #'
-#' @param s.file.name string giving the name of an existing file holding EASYPOP simulation parameters 
+#' @param s.file.name string giving the name of an existing configuration file holding EASYPOP simulation parameters (as created, typically, by running the package function, setup_easypop.)
 #' @export
 
 run_easypop = function ( s.file.name )
@@ -2228,13 +2245,13 @@ write.config.file=function( ls.params.and.values, s.file )
 
 }#end write.config.file
 
-#' read_parameters_from_file
+#' Read Parameters from an EASYPOP configuraion file
 #'
-#' From an existing easypop config file,
+#' From an existing EASYPOP configuration file,
 #' get a list whose names are the parameter names
 #' and whose values are the associated parameter values.
 #'
-#' @param s.file  names an existing easypop configuration file
+#' @param s.file  names an existing EASYPOP configuration file
 #' @return a list whose names are the parameter names, and values
 #' are the associated parameter values
 #' @export
@@ -2285,22 +2302,25 @@ check_for_invalid_param_names = function( ls.parameters )
 
 }#end check_for_invalid_param_names
 
-#' write_parameters_to_file
+#' Write EASYPOP parameter values to a new configuration file
 #'
-#' write a new file with the parameter values given by the list argument,
+#' Write a new file with the parameter values given by the list argument,
 #' and, optionally, run a simulation based on the new setup.
 #'
-#' @param ls.parameters list whose names are easypop config file param names 
-#' and whose values are corresponding easypop parameter values.  Note that
+#' @param ls.parameters list whose names are EASYPOP configuration file parameter names 
+#' and whose values are corresponding EASYPOP parameter values.  Note that
 #' it is assumed that the list comprises a complete and valid set of parameters, 
-#' hence is almost always based on a set read in from an existing configuration file..
+#' hence is almost always based on a set read in from an existing configuration file 
+#' (see function, read_parameters_from_file).
 #' Also note that when you write a revised configuration file you should always reset the "name_of_file" 
-#' parameter to avoid the simulation failing bacause it will not overwrite existing output 
-#' files (i.e. that share the same basename as given by "name_of_file").
+#' parameter to avoid the simulation failing because it will not overwrite existing output 
+#' files (i.e. that share the same basename as given by "name_of_file"). If you set the 2nd
+#' argument to TRUE, EASYPOP will run based on the new configuration file (see argument descriptions).
+#' 
 #'
-#' @param s.file names a new file (not currently in use), to which the revised config 
+#' @param s.file names a new file (not currently in use), to which the revised configuration 
 #' file will be written
-#' @param b.run optional boolean, default value is FALSE, if TRUE, then easypop automatically
+#' @param b.run optional boolean, default value is FALSE, if TRUE, then EASYPOP automatically
 #' runs a simulation based on the configuration file as parameterized by the list argument.
 #' @export
 write_parameters_to_file = function( ls.parameters, s.file, b.run=FALSE )

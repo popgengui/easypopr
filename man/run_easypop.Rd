@@ -2,12 +2,12 @@
 % Please edit documentation in R/ep.params.R
 \name{run_easypop}
 \alias{run_easypop}
-\title{run_easypop}
+\title{Run EASYPOP using an existing configuration file}
 \usage{
 run_easypop(s.file.name)
 }
 \arguments{
-\item{s.file.name}{string giving the name of an existing file holding EASYPOP simulation parameters}
+\item{s.file.name}{string giving the name of an existing configuration file holding EASYPOP simulation parameters (as created, typically, by running the package function, setup_easypop.)}
 }
 \description{
 Runs an EASYPOP simulation using the parameters given in the file

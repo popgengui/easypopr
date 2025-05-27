@@ -23,17 +23,15 @@ This vignette gives you examples of configuring and running EASYPOP simulations 
 
 The genetic simulation program EASYPOP is authored by F. Balloux, (c.f. Balloux, Francois. "EASYPOP (version 1.7): a computer program for population genetics simulations." Journal of heredity 92.3 (2001): 301-302 ). The version used in easypopr has revisions to the interface by T. Cosart.
 
-For details about EASYPOP's methods, parameters, and output, you'll find the author's original manual at:
+For details about EASYPOP's methods, parameters, and output, you'll find the author's original manual in pdf at:
 
-<https://drive.google.com/file/d/1tKI4UFYF2cSqf0hEa46tdbnbVuY3RWOd/view?usp=sharing>
+<https://github.com/popgengui/easypop-revised/tree/main/docs>
 
-For details about the revised interface and the format of the configuration file, see:
-
-<https://drive.google.com/file/d/1_4eGs4LeU_rp0TUrwaIPSvSGKK1p3yTG/view?usp=sharing>
+Besides the manual, you'll also find text files that tell you about the revised interface and the format of the configuration file.
 
 Our easypopr package includes the EASYPOP executable, but, if you'd like to use EASYPOP outside of our package you can also find an executable for each platform, at:
 
-<https://drive.google.com/drive/folders/1ZbbVeYR1ix8rI43d2myc1Fg9LTz3qfA_?usp=drive_link>
+<https://github.com/popgengui/easypop-revised>
 
 ## First Use
 

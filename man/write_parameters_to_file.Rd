@@ -2,26 +2,28 @@
 % Please edit documentation in R/ep.params.R
 \name{write_parameters_to_file}
 \alias{write_parameters_to_file}
-\title{write_parameters_to_file}
+\title{Write EASYPOP parameter values to a new configuration file}
 \usage{
 write_parameters_to_file(ls.parameters, s.file, b.run = FALSE)
 }
 \arguments{
-\item{ls.parameters}{list whose names are easypop config file param names
-and whose values are corresponding easypop parameter values.  Note that
+\item{ls.parameters}{list whose names are EASYPOP configuration file parameter names
+and whose values are corresponding EASYPOP parameter values.  Note that
 it is assumed that the list comprises a complete and valid set of parameters,
-hence is almost always based on a set read in from an existing configuration file..
+hence is almost always based on a set read in from an existing configuration file
+(see function, read_parameters_from_file).
 Also note that when you write a revised configuration file you should always reset the "name_of_file"
-parameter to avoid the simulation failing bacause it will not overwrite existing output
-files (i.e. that share the same basename as given by "name_of_file").}
+parameter to avoid the simulation failing because it will not overwrite existing output
+files (i.e. that share the same basename as given by "name_of_file"). If you set the 2nd
+argument to TRUE, EASYPOP will run based on the new configuration file (see argument descriptions).}
 
-\item{s.file}{names a new file (not currently in use), to which the revised config
+\item{s.file}{names a new file (not currently in use), to which the revised configuration
 file will be written}
 
-\item{b.run}{optional boolean, default value is FALSE, if TRUE, then easypop automatically
+\item{b.run}{optional boolean, default value is FALSE, if TRUE, then EASYPOP automatically
 runs a simulation based on the configuration file as parameterized by the list argument.}
 }
 \description{
-write a new file with the parameter values given by the list argument,
+Write a new file with the parameter values given by the list argument,
 and, optionally, run a simulation based on the new setup.
 }

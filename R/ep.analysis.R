@@ -139,26 +139,27 @@ files.are.all.of.type.equ = function( v.file.names )
 		
 }#end file.is.type.equ
 
-#' plot_easypop_replicate_equ_values
+#' Plot the per-generation, per-replicate values from a set of EASYPOP equ output files
 #'
-#' for each item in v.data.source (see below for param v.data.source, 
-#' each is plotted showing the per-generation values for the quantity (e.g. Fst), 
-#' associated with the column name given by arg s.colname and returns them in a 
-#' vector length i.num.values, of user-entered values
+#' For each item in v.data.source (see the argument descriptions below for details),
+#' each replicate is plotted showing the per-generation values for the quantity 
+#' (e.g. Fst) associated with the column name given by argument, s.colname.   
+#' The function returns a call to ggplot2::ggplot.  If you call the function without assigning 
+#' the return to a variable, a plot graphic is shown. If you assign the call to
+#' a holder variable, you will have a list comprising the ggplot components, which can be 
+#' plotted, for example, with a call to plot().
 #'
 #' @param   s.colname  a (quoted) column name from the equ file's first line, one of,
 #' "Ho", "Hs", "Ht", "Fis", "Fst", or "Fit".
-
+#'
 #' @param   v.data.source one of:  (1) a list of data frames, as created by calling
-#'   \code{\link[utils]{read.table}} on a set of *.equ file, or (2) a vector of file
+#'   \code{\link[utils]{read.table}} on a set of *.equ files, or (2) a vector of file
 #'   paths to each .equ file you wish to read, or (3) one string giving the name
-#'   of an easypop configuration file (as created, for example, with a call to setup_easypop). 
+#'   of one EASYPOP configuration file (as created, for example, with a call to setup_easypop). 
 #'   Note that for option (2) the vector of file paths can be generated with
 #'   the \code{\link[base]{file.path}} using the \code{full.names = TRUE} argument.
-#'   In case (3), the program looks for equ files matching the "name_of_file" value
-#'   listed in the configuration file
-#'  
-#' 
+#'   In case (3), the program looks for equ files whose prefixes match the "name_of_file" value
+#'   given in the configuration file
 #' @export
 
 plot_easypop_replicate_equ_values = function( s.colname, v.data.source  )
@@ -285,19 +286,20 @@ get.list.equ.files.from.results.base.name=function( s.config.file.path, s.outfil
 
 }#end get.list.equ.files.from.results.base.name
 
-#' plot_easypop_replicate_equ_means
+#' Plot per-generation mean values from a set of EASYPOP equ output files
 #'
-#' for each easypop config file given in the vector arg,
-#' Plot the per-generation, replicate mean values for the 
-#' equ output files, the column given by the s.colname arg.
-#' The name_of_file entry  in each config file is used to
-#' locate the *equ files
-#' @param vs.config.files vector of names of ep config files
+#' For each EASYPOP configuration file given in the vector argument,
+#' plot the per-generation, replicate mean values for the 
+#' equ output files. The column to plot is given by the s.colname argument 
+#' (see argument desriptions).
+#' The value of the "name_of_file" entry in each configuration file is used to
+#' locate the *equ files.
+#' @param vs.config.files vector of names of EASYPOP configuration files
 #' @param s.colname quoted string names one of the columns of an equ file,
 #' as given in the first line of an equ file, one of,
 #' "Ho", "Hs", "Ht", "Fis", "Fst", or "Fit".
-#
-#'@export
+#'
+#' @export
  
 plot_easypop_replicate_equ_means = function( vs.config.files, s.colname ) {
 
