@@ -107,7 +107,7 @@ do.recursive.configs = function( l.settings, s.filebase, b.run = FALSE )
 	#this function creates single configurations by combining
 	#multiple settings, that is, one config being the set of selected values
 	#one for each param.  This alg accomodates an arbitrary number of parameters,
-	#p1, p2, p3, with values p1.v1, p1.v2...p1vn, p2.v1, p1.v2...p2vn,
+	#p1, p2, ..., with values p1.v1, p1.v2...p1vn, p2.v1, p1.v2...p2vn,
 	#etc.  One config file is created (and optionally run) for each combination
 	#of p1.vi, p2vj, .... etc.   The code proceeds recursively from p1, p2..pn,
 	#then back up to pi-1 after all values of pi have been used in combo
@@ -170,7 +170,7 @@ do.recursive.configs = function( l.settings, s.filebase, b.run = FALSE )
 
 			make.config( l.local.config, s.filebase, b.run )
 
-		}#end if last param
+		}#end if not last param, else last
 
 	}#end if all values used, else not
 
@@ -185,60 +185,71 @@ do.recursive.configs = function( l.settings, s.filebase, b.run = FALSE )
 
 }#end do.recursive.configs
 
-#' Create multiple EASYPOP configuration files that combine multiple values of multiple parameters
-#' 
-#' Given a list of parameter names, each with a vector of values, for each 
-#' combination of settings, create an EASYPOP configuration file
-#' and, optionally run each file as it is created.  Configuration and output files
-#' mames are numbered as created.  After all configurations are written (and, optionally, run), 
-#' the program also writes a tabular file with the given filebase and with extension, 
-#' ".config.key.tsv"  This table gives in it's first column a configuration file number, and in 
-#' columns 2..N, the values for the parameters that were in the l.settings list 
-#' (see argument descriptions).
+#' configure_multiple_easypop_runs
 #'
-#' @param l.settings a list whose names are EASYPOP configuration file parameter names, 
-#'          and whose values are vectors of settings (values) for each parameter
+#' given a list of parameter names, each with a vector of values, for each
+#' combination of settings, create an easypop configuration file and, optionally
+#' run each file as it is created.  Configuration and output files mames are
+#' numberd as created.  After all configurations are written (and, optionally,
+#' run), the program also writes  a tabular file with the given filebase and
+#' with extension, ".config.key.tsv"  This table gives in it's first column a
+#' config file number, and in columns 2..N, the values for the params that were
+#' in the l.settings list (see parameter descriptions).
 #'
-#' @param s.starting.config.file names an EASYPOP configuration file to be used as the basis
-#'        for the simulations, with revised settings as given by the first arg
-#' @param s.filebase names the prefix used to name the ouput configuration files
-#'        (*.cfg) and output results files (*equ, *gen, etc).  The program also adds an 
-#'        integer to the file names that indicates its order of creation.
-#' @param b.run  optional, default = FALSE. If set to TRUE, as each config is created,
-#'        a simulation is run based on the configuration.
+#' @param l.settings a list whose names are easypop config file parameter names,
+#'   and whose values are vectors of settings (values) for each parameter
+#'
+#' @param s.starting.config.file names an easypop config file to be used as the
+#'   basis for the simulations, with revised settings as given by the first arg
+#' @param s.filebase names the prefix used to name configuration files (*.cfg)
+#'   and output files (*equ, *gen, etc).  The program also adds an integer to
+#'   the file names that indicates its order of creation.
+#' @param b.run  optional, default = FALSE, if set to TRUE, as each configrration file is
+#'   created, a simulation is run based on the configuration.
+#'   
+#' @return A \code{\link{data.frame}} containing file names and parameter values
+#'   for each new config file.
 #' @export
 #'
 
 configure_multiple_easypop_runs =function( l.settings, s.starting.config.file, s.filebase,  b.run = FALSE )
 {
-	v.param.value.totals =unlist( lapply( 1 : length( l.settings ), 
-				  FUN = function(x) length( l.settings[[x]] ) ) ) 
-	
-	l.starting.config = read_parameters_from_file( s.starting.config.file )
-
-	assign( "l.config", l.starting.config, envir = ep.env )
-
-	assign( "v.current.value.indices", 
-	       		rep( 1, length( l.settings ) ), 
-			envir = ep.env ) 
-
-	assign( "v.param.value.totals", v.param.value.totals, envir = ep.env )
-	assign( "i.current.param.number", 1, envir = ep.env )
-	assign( "i.config.count", 0, envir = ep.env )
-
-	#these added 20240206, to give users a key to the settings in each config:
-	assign( "m.current.set.configs", NULL, envir = ep.env ) 
-	#this will help extract the current vals for test params from the 
-	#current config
-	assign( "v.names.of.test.params", names( l.settings ), envir = ep.env )
-	assign( "s.config.key.file.name", paste0( s.filebase, ".config.key.tsv" ), 
-	       								envir = ep.env )
-	#end additions 20240206
-
-
-	do.recursive.configs( l.settings, s.filebase, b.run = b.run ) 
-
+  v.param.value.totals =unlist( lapply( 1 : length( l.settings ), 
+                                        FUN = function(x) length( l.settings[[x]] ) ) ) 
+  
+  l.starting.config = read_parameters_from_file( s.starting.config.file )
+  
+  assign( "l.config", l.starting.config, envir = ep.env )
+  
+  assign( "v.current.value.indices", 
+          rep( 1, length( l.settings ) ), 
+          envir = ep.env ) 
+  
+  assign( "v.param.value.totals", v.param.value.totals, envir = ep.env )
+  assign( "i.current.param.number", 1, envir = ep.env )
+  assign( "i.config.count", 0, envir = ep.env )
+  
+  #these added 20240206, to give users a key to the settings in each config:
+  assign( "m.current.set.configs", NULL, envir = ep.env ) 
+  #this will help extract the current vals for test params from the 
+  #current config
+  assign( "v.names.of.test.params", names( l.settings ), envir = ep.env )
+  assign( "s.config.key.file.name", paste0( s.filebase, ".config.key.tsv" ), 
+          envir = ep.env )
+  #end additions 20240206
+  
+  
+  do.recursive.configs( l.settings, s.filebase, b.run = b.run )
+  
+  config_count <- get("i.config.count", ep.env)
+  
+  info_table <- cbind(data.frame(config_file = paste0(s.filebase, "_", 1:config_count, ".cfg")),
+                      read.table(get("s.config.key.file.name", ep.env), header = TRUE, sep = "\t"))
+  
+  if(b.runs){
+    info_table$outfile <- paste0(s.filebase, "_", 1:config_count, ".cfg")
+  }
+  
+  return(info_table)
 }#end ep_auto_config
-
-
 
