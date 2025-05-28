@@ -65,6 +65,8 @@ To view per-generation, individual replicate quantities you can call,
 
 where data source is one of (1) a list of data frames as created by calling 'read.table' on a set of equ files, or (2) a vector of file paths to each .equ file you wish to read, or (3) one string giving the name of an easypop configuration file (as created, for example with a call to setup_easypop).  In case (3), the program assumes it will find equ results files as named in the configuration file's "name_of_file" entry.
 
+## Easypop executable issues
 
+A bug has been detected in the easypop executable affecting simulations in which the spatial migration scheme is selcted as the second migration scheme.  For a description, see https://github.com/popgengui/easypop-revised/issues/1
 
 
