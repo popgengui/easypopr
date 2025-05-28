@@ -11,6 +11,21 @@
 #20240327 Note that we have added param print_gen_and_dat_each_generation
 #the new option that allows users to get per-generation genotyping info via
 #a gen and a dat files for each generation.
+
+#20250512 Updating this R prompting interface code to match functionality of
+#the current c-code in easypop 3.1. We now add:
+#     -->parameter to list options output genotype files *.gen, or *.dat
+#        or both (old default).
+#     -->parameter to list options as to which generations should produce genotype
+#        output:  last gen only (old, default), all generations, or selected generations.
+#        Note that this parameter replaces the one described aove that is a boolean
+#        (in R, "logical") selecting last-only or all.
+#     -->parameter to get a list of generations, if user wants to select generations for 
+#        genotype output.
+#     -->parameter to select the form of *.gen file to recieve, a new format grouping gen
+#        files by population (each "pop" entry reps a generation of a given pop), 
+#        or the (old, default) grouping by generations, in which eash "pop" entry reps a
+#        populatin.
 ALL.EP.PARAMS.WITH.TYPE=list(	
 		"ploidy"
 			 = list( "name" = "ploidy:", "valtype" = "integer", "value" = NULL ),
@@ -184,9 +199,29 @@ ALL.EP.PARAMS.WITH.TYPE=list(
 			 = list( "name" = "name_of_file:", "valtype" = "character", "value" = NULL ),
 		"number_of_replicates" = list( "name" = "number_of_replicates:", "valtype" = "integer", "value" = NULL ),
 		#//20240326 we add new option for per-generation genepop output:
-		"print_gen_and_dat_each_generation" = list( "name" = "print_gen_and_dat_each_generation", 
-							   	"valtype" =  "logical",
-								"value" = NULL ) )
+		#20250512 we replace the locigal print_gen_and_dat_each_generation
+		#pram with new int to allow 3 options as to which gens to output genotypes
+		#we also add:
+		#--->param to select a genotype file type (gen or dat or both)
+		#--->param to get a list of generations if the new "selected generations" option is selected
+		#--->param to choose genfiles grouped by population instead of generation (old, default ), if 
+		#    the "gen" option is selecteed.  This new gen file format makes the genfiles amenable
+		#    to temporal analysis via, eg., NeEstimator.
+		#"print_gen_and_dat_each_generation" = list( "name" = "print_gen_and_dat_each_generation", 
+		#					   	"valtype" =  "logical",
+		#						"value" = NULL ) )
+		"genotype_print_scheme" = list( "name" = "genotype_print_scheme", 
+							   	"valtype" =  "integer",
+								"value" = NULL ),
+		"genotype_file_format" = list( "name" = "genotype_file_format",
+					      			"valtype" = "integer",
+								"value" = NULL ),
+		"generations_for_genotype_files" = list( "name" = "generations_for_genotype_files",
+								"valtype" = "array.integer" ),
+		"gen_file_format" = list( "name"  = "gen_file_format",
+					 	"valtype" = "integer",
+						"value" = NULL ) )
+
 
 vs.param.numeric.types.stored.as.strings = c( "array.integer", "array.numeric", "list.numeric", "matrix.numeric" )
 
@@ -205,6 +240,13 @@ MAX_NUMBER_CHARS_FILENAME = as.integer( 5000 )
 MAX_NUMBER_ITEMS_IN_ARRAY = as.integer( 1e5 )
 MAX_NUMBER_MIGRATION_SCHEME = as.integer( 6 )
 MAX_NUMBER_MUTATION_MODEL = as.integer( 4 )
+MAX_NUMBER_GENOTYPE_PRINT_SCHEME = as.integer( 3 )
+MAX_NUMBER_GENOTYPE_FILE_FORMAT = as.integer( 3 )
+MAX_NUMBER_GEN_FILE_FORMAT =  as.integer( 2 )
+MAX_NUMBER_GENOTYPE_PRINT_SCHEME = as.integer(3)
+MAX_NUMBER_GENOTYPE_FILE_FORMAT = as.integer(3)
+MAx_NUMBER_GEN_FILE_FORMAT = as.integer(2)
+
 
 #not sure what out of bounds is here, so just
 #using a large number to allow practically any value:
@@ -215,6 +257,7 @@ MAX_DISPERSAL_DISTANCE = 1e50
 #loop number (1-base) for this placeholder:
 INDEX.HOLDER.STRING = "iiindexii"
 
+#Strings for some of the more wordy options: 
 MIGRATION_SCHEME_PROMPT = 
 	paste( "migration model?",
 		"1 = 1-dimension stepping stone;", 
@@ -232,6 +275,36 @@ MUTATION_MODEL_LIST =
 			"3= Mixed model of Ssm with a proportion of Kam mutation events)",
 			"4= Mixed model of Ssm with a proportion of static double step mutation events)", 
 		       	sep="\n" );
+
+GENOTYPE_OUTPUT_PRINT_SCHEME_PROMPT =
+	paste( "Do you want genotype file(s) for:",
+	      "1=last generation only",
+	      "2=all generations",
+	      "3=selected generations",
+	     sep="\n" );
+
+
+GENOTYPE_FILE_FORMAT_PROMPT = 
+	paste( "Genotype file output formats",
+	      "1= *.dat file format (for the program FSTAT)",
+	      "2= *.gen file format (GenePop file format)",
+	      "3= both file types.",
+	      sep="\n" );
+
+GEN_FILE_FORMAT_PROMPT = paste( "Please select a *.gen file grouping:",
+			       "1= by generation, each file lists all pops",
+			       "2= by population, each file lists generations",
+			       "   (eg. useful for temporal Ne analysis)",
+				sep="\n" );
+
+#for clarity:
+OPTION_GENOTYPE_PRINT_SCHEME_LAST_GEN = 1
+OPTION_GENOTYPE_PRINT_SCHEME_ALL_GENS = 2
+OPTION_GENOTYPE_PRINT_SCHEME_SELECTED_GENS = 3;
+
+OPTION_GENOTYPE_FILE_FORMAT_DAT=1
+OPTION_GENOTYPE_FILE_FORMAT_GEN=2
+OPTION_GENOTYPE_FILE_FORMAT_BOTH=3
 
 lr.conversion.functions=list ( "integer" = as.integer, "numeric" = as.numeric, "character" = as.character );
 
@@ -302,8 +375,12 @@ format.vals.as.nonscientific.strings=function( v.numeric )
 # @param   i.num.values, number of entries to get from the user.
 # @param   s.type.of.values, string, one of "integer", "numeric", or "character"
 # @param   v.valid.range  min, max values (inclusive) of valid values. If type "character", then NULL or list of valid strings)
+# @param   s.separator, (added 20250519) default is the defauls sep value for scan, for a whole line scan (for a generation list), 
+#	   we need sep="\n" 
 
-prompt.for.values.and.return.user.entries=function( s.prompt, i.num.values, s.type.of.values, v.valid.range  )
+prompt.for.values.and.return.user.entries=function( s.prompt, i.num.values, 
+						   	s.type.of.values, 
+							v.valid.range, s.separator=""  )
  {
 
 	#returned to caller:
@@ -326,6 +403,7 @@ prompt.for.values.and.return.user.entries=function( s.prompt, i.num.values, s.ty
 		 
 	for( idx in 1:i.num.values )
 	{
+
 		i.value.counter=i.value.counter+1
 
 		v.scan.buff = NULL;
@@ -351,7 +429,9 @@ prompt.for.values.and.return.user.entries=function( s.prompt, i.num.values, s.ty
 			cat( paste( s.prompt.with.index.number, "\n" )  )
 
 			v.scan.buff = scan( nmax=1, what = s.type.of.values, 
-					     flush = TRUE,  multi.line = FALSE )
+					     flush = TRUE,  
+					     multi.line = FALSE,
+		       			  	sep=s.separator )
 			
 			i.result.of.try = try.to.convert(  v.scan.buff[1], s.type.of.values )
 
@@ -531,7 +611,7 @@ get.reproduction.parameters=function()
 	gpropauto=NULL	
 
 	v.user.values = prompt.for.values.and.return.user.entries( 
-				"Ploidy level ? (0=haplo-diploid; 1=haploid; 2=diploid)",
+				"Ploidy level? (0=haplo-diploid; 1=haploid; 2=diploid)",
 				1, "integer", c( 0, 2 ) )
 
 	gploidy=v.user.values[1]
@@ -567,7 +647,7 @@ get.reproduction.parameters=function()
 		g2sex=1;
 
 		v.user.values = prompt.for.values.and.return.user.entries( 	
-		"Two sexes?:y/n", 1, "character", c( "y", "n" ) ); 
+		"Two sexes?: y/n", 1, "character", c( "y", "n" ) ); 
 		s.val = v.user.values[1]
 		if( s.val == "n" )
 		{
@@ -583,7 +663,7 @@ get.reproduction.parameters=function()
 		{
 
 			v.user.values = prompt.for.values.and.return.user.entries(
-					"Random mating?:y/n",1 ,"character", c( "y", "n" ) )
+					"Random mating?: y/n",1 ,"character", c( "y", "n" ) )
 			s.random.mating = v.user.values[1]	
 			i.random.mating = ifelse( s.random.mating == "y", TRUE.AS.INT, FALSE.AS.INT )
 
@@ -620,7 +700,7 @@ get.population.parameters = function( gploidy, g2sex )
 	lv.pop = list()
 
 	v.user.values = prompt.for.values.and.return.user.entries( 
-			"Number of populations ?",
+			"Number of populations?",
 			1, "integer", c( 1, MAX_NUMBER_POPULATIONS ) );
 
 	gnbpop = v.user.values[1];
@@ -631,7 +711,7 @@ get.population.parameters = function( gploidy, g2sex )
 	{
 
 		v.user.values = prompt.for.values.and.return.user.entries( 
-			"Same number of individuals in each population ?:y/n",
+			"Same number of individuals in each population?: y/n",
 			1, "character", c( "y", "n" ) );
 
 		s.unif.pop.size =  v.user.values[1];
@@ -678,7 +758,7 @@ get.population.parameters = function( gploidy, g2sex )
 			else #uniformly sized populations
 			{
 				v.user.values = prompt.for.values.and.return.user.entries( 
-						"Number of individuals ?",
+						"Number of individuals?",
 						1, "integer", c( 1, MAX_NUMBER_INDIVIDUALS_IN_POP ) )
 
 				lv.pop[["number_of_individuals"]] = v.user.values[1]
@@ -716,14 +796,14 @@ get.population.parameters = function( gploidy, g2sex )
 			else #two sexes, uniform pop sizes
 			{
 				v.user.values = prompt.for.values.and.return.user.entries( 
-							"Number of females in each population ?",
+							"Number of females in each population?",
 							1, "integer", c( 1, MAX_NUMBER_INDIVIDUALS_IN_POP ) )
 				i.females.per.pop=v.user.values[1]
 				lv.pop[["number_females_each_population"]] = i.females.per.pop
 
 
 				v.user.values = prompt.for.values.and.return.user.entries( 
-							"Number of males in each population ?",
+							"Number of males in each population?",
 							1, "integer", c( 1, MAX_NUMBER_INDIVIDUALS_IN_POP ) )
 				i.males.per.pop=v.user.values[1]
 
@@ -798,11 +878,11 @@ get.migr.proportions.non.hier=function( g2sex, b.second.scheme )
 	else
 	{
 		v.user.values = prompt.for.values.and.return.user.entries( 	
-			"proportion of female migration?(between 0 and 1)",
+			"proportion of female migration? (between 0 and 1)",
 			1, "numeric", c( 0,1 ) )
 
 		v.user.values.a = prompt.for.values.and.return.user.entries( 	
-			"proportion of male migration?(between 0 and 1)",
+			"proportion of male migration? (between 0 and 1)",
 			1, "numeric", c( 0,1 ) )
 
 		if( !b.second.scheme )
@@ -1013,7 +1093,7 @@ get.migr.hier.island = function( g2sex, gnbpop, b.second.scheme )
 	}#end if first else second scheme
 
 	v.user.values = prompt.for.values.and.return.user.entries( 
-		 "Same number of populations in each archipelago:y/n",
+		 "Same number of populations in each archipelago: y/n",
 		 1, "character", c( "y", "n" ) )
 
 	s.unif.pops.per.arch = v.user.values[1]	
@@ -1234,11 +1314,11 @@ get.migration.scheme.details = function( g2sex, gnbpop, b.second.scheme )
 	#not reach this function (see get.mating.parameters())
 	if( gnbpop > 2 )
 	{
-		lv.user.values = prompt.for.values.and.return.user.entries( 
+		v.user.values = prompt.for.values.and.return.user.entries( 
 					MIGRATION_SCHEME_PROMPT,
-					1, "integer", c( 1, MAX_NUMBER_POPULATIONS ) ) 
+					1, "integer", c( 1, MAX_NUMBER_MIGRATION_SCHEME ) ) 
 
-		gtypemigr = lv.user.values[1] 
+		gtypemigr = v.user.values[1] 
 	}
 	else #2 pops
 	{
@@ -1602,7 +1682,7 @@ get.generation.parameters=function( i.unif.migr.scheme )
 	lv.generations = list()
 	v.user.values = NULL
 
-	s.prompt = "Number of generations ?" 
+	s.prompt = "Number of generations?" 
 	v.user.values = prompt.for.values.and.return.user.entries( 
 		s.prompt, 1, "integer" , c( 1, MAX_NUMBER_GENERATIONS ) )
 	i.num.gens = v.user.values[1]
@@ -1671,7 +1751,7 @@ get.genetic.parameters = function( i.ploidy )
 	}#end if non haploid, check for recombination rates
 
 	v.user.values = prompt.for.values.and.return.user.entries( 
-				"Do all loci have the same mutation scheme?:y/n",
+				"Do all loci have the same mutation scheme?: y/n",
 				1, "character", c( "y", "n" ) )
 	
 	s.unif.mut.scheme = v.user.values[1]
@@ -1692,14 +1772,15 @@ get.genetic.parameters = function( i.ploidy )
 	return ( lv.genetics )
 }#end get.genetic.parameters
 
-get.output.parameters = function( i.number.of.populations, i.two.sexes )
+#20250512 we add number of generations arg, so we can add new genotype file output options
+get.output.parameters = function( i.number.of.populations, i.two.sexes, i.number.of.generations )
 {
 	lv.output = list()
 	v.user.values = NULL
 	i.complete.data = NULL
 	i.pops.out = NULL
 
-	s.prompt = "Do you want the complete dataset in the '.dat' and '.gen' result files ?:y/n"
+	s.prompt = "Do you want the complete dataset in the '.dat' and '.gen' result files?: y/n"
 	v.user.values = prompt.for.values.and.return.user.entries( 
 		s.prompt, 1, "character", c( "y", "n" ) )
 	s.complete.data = v.user.values[1]
@@ -1746,7 +1827,7 @@ get.output.parameters = function( i.number.of.populations, i.two.sexes )
 		}#end if two sexes, else one
 	}#end if subset
 
-	s.prompt = paste( "Do you want a file giving the complete pedigree of the simulation ?:y/n",
+	s.prompt = paste( "Do you want a file giving the complete pedigree of the simulation?: y/n",
 			"(Please notice that this file can be very huge and will slow down simulations)",
 			sep = "\n");
 
@@ -1772,21 +1853,191 @@ get.output.parameters = function( i.number.of.populations, i.two.sexes )
 
 	lv.output[["number_of_replicates"]] = v.user.values[1]
 
-	s.prompt = paste( "Do you want a gen and dat file for each generation ?:y/n", 
-		"(If no, then a gen and dat file is output only for the last generation)",
-		sep="\n" );
+	#202505 removed as we revise and add to the genotype file output options
+	#see the get.genotype.output.parameters function
 
-	v.user.values = prompt.for.values.and.return.user.entries( 
-			s.prompt, 1, "character", NULL )
+#	s.prompt = paste( "Do you want a gen and dat file for each generation?: y/n", 
+#		"(If no, then a gen and dat file is output only for the last generation)",
+#		sep="\n" );
+#
+#	v.user.values = prompt.for.values.and.return.user.entries( 
+#			s.prompt, 1, "character", NULL )
+#
+#	s.per.gen.files = v.user.values[1]
+#	i.per.gen.files = ifelse( s.per.gen.files == "y", TRUE.AS.INT, FALSE.AS.INT )
+#
+#	lv.output[["print_gen_and_dat_each_generation"]] = i.per.gen.files
 
-	s.per.gen.files = v.user.values[1]
-	i.per.gen.files = ifelse( s.per.gen.files == "y", TRUE.AS.INT, FALSE.AS.INT )
+	#20250518.  If the user answered yes to "do you want the complete data set in 
+	#output files,#then his will be NULL:
+	i.num.populations.in.result.files = lv.output[["number_populations_in_result_files"]]
 
-	lv.output[["print_gen_and_dat_each_generation"]] = i.per.gen.files
+	if( is.null( i.num.populations.in.result.files ) )
+	{
+		i.num.populations.in.result.files = i.number.of.populations
+	}#end if null, then use the total pop number
+	  
+	
+	lv.genotype.file.options = get.genotype.output.parameters( 
+							i.num.populations.in.result.files,
+							i.number.of.generations, 
+							lv.output$number_of_replicates )
 
+	lv.output=append( lv.output, lv.genotype.file.options )
 	return ( lv.output )
 
 }#end get.output.parameters
+
+#20250512 We add a function to handle all of the new
+#parameters that customize the genotype file output.
+get.genotype.output.parameters = function( i.num.populations.in.result.files, 
+					  	i.number.of.generations, 
+						i.number.of.replicates )
+{	
+	lv.genotype.output.vals = list()
+	v.user.values = NULL
+	i.genotype.print.scheme = NULL
+	i.num.generations.in.result.files = NULL
+	b.user.says.proceed = FALSE
+	i.max.attempts = 20
+	i.attempts.count = 0
+
+	while( b.user.says.proceed == FALSE 
+	      		&& i.attempts.count <= i.max.attempts )
+	{
+
+
+		i.attempts.count = i.attempts.count + 1
+		#Prompt for genotype output scheme:
+		v.user.values = prompt.for.values.and.return.user.entries( 
+						GENOTYPE_OUTPUT_PRINT_SCHEME_PROMPT,
+						1, "integer", c( 1, MAX_NUMBER_GENOTYPE_PRINT_SCHEME ) ) 
+		i.genotype.print.scheme = v.user.values[1];
+		lv.genotype.output.vals[[ "genotype_print_scheme" ]] = i.genotype.print.scheme
+
+
+		#if per-generation scheme, prompt for generation list
+
+		if( i.genotype.print.scheme == OPTION_GENOTYPE_PRINT_SCHEME_SELECTED_GENS )
+		{
+			s.range.info = paste( "numbers ranging from 1 to ", 
+							i.number.of.generations,
+							sep="" );
+			s.gen.list.prompt = paste(  "Please enter a comma-separated list of one or more generation" ,
+							s.range.info, sep="\n" );
+
+			b.gen.list.is.valid = FALSE;
+			i.prompt.count = 0;
+			MAX_PROMPTS = 20;
+
+			while( b.gen.list.is.valid == FALSE && i.prompt.count < MAX_PROMPTS )
+			{
+				i.prompt.count = i.prompt.count + 1;
+				#to get the whole list (if user uses spaces), we
+				#specify newline as the separator.
+				v.user.values = prompt.for.values.and.return.user.entries( 	
+							s.gen.list.prompt, 1, "character", NULL,
+						      	s.separator="\n" ); 
+				
+				s.list.stripped=strip.non.printing.chars( v.user.values[1] )
+
+				b.gen.list.is.valid = validate.generation.list( s.list.stripped, 
+										i.number.of.generations )
+
+				if( b.gen.list.is.valid )
+				{
+
+					lv.genotype.output.vals[[ "generations_for_genotype_files" ]] = 
+											s.list.stripped		
+				}#end if valid list, write value to param list
+			}#end while user gives invalid list, and count of tries is under limit	
+
+			#If we failed to get a valid list after MAX_PROMPTS tries:
+			if ( b.gen.list.is.valid == FALSE )
+			{
+				stop( "Error getting valid list of selected generations for gen files. Exiting.\n" )
+			}#end if
+
+		}#end if user wants selected generations	
+
+		#after calc to check output size, prompt to reset or proceed
+		if( i.genotype.print.scheme == OPTION_GENOTYPE_PRINT_SCHEME_SELECTED_GENS )
+		{
+			lv.splits = strsplit( lv.genotype.output.vals$generations_for_genotype_files, "," );
+			i.num.generations.in.result.files = length(   lv.splits[[1]] ) ;
+		}
+		else if( i.genotype.print.scheme == OPTION_GENOTYPE_PRINT_SCHEME_ALL_GENS )
+		{
+			i.num.generations.in.result.files = i.number.of.generations;
+		}
+		else if( i.genotype.print.scheme == OPTION_GENOTYPE_PRINT_SCHEME_LAST_GEN )
+		{
+			i.num.generations.in.result.files = 1;
+		}
+		else
+		{
+		
+			stop( paste( "error: in fx, get.genotype.output.parameters. ",
+				     "invalid option number for genotype print scheme: ",
+					i.genotype.print.scheme, sep="" ) );
+
+		}#end if scheme selected, all, last, else unknown
+
+		
+		i.total.pop.entries = calculate.genotype.output.size( i.num.populations.in.result.files,
+							i.num.generations.in.result.files,
+							i.number.of.replicates )
+
+		s.size.info.prompt.msg = get.size.info.prompt.msg( i.num.populations.in.result.files, 
+							    	i.num.generations.in.result.files, 
+								i.number.of.replicates, 
+								i.total.pop.entries )
+
+		v.user.values = prompt.for.values.and.return.user.entries( 
+						s.size.info.prompt.msg,
+						1, "integer", c( 1, 2 ) ) 
+
+		if( v.user.values[1] == 1 )
+		{
+			b.user.says.proceed = FALSE
+		}
+		else if( v.user.values[1] == 2 )
+		{
+			b.user.says.proceed = TRUE 
+		}
+		else
+		{
+			stop( paste( 
+				    "Error in fx get.genotype.output.parameters:",
+				    "unknown value revieved after prompt to proceed",
+				    "or reselect genotype output scheme",
+				    "value received: ", v.user.values[1],
+				    sep="\n") );
+				    
+		}#end if val 1, elseif 2, else unknown	
+
+
+	}#end while user decides on scheme
+
+	#prompt for output file format:
+	v.user.values = prompt.for.values.and.return.user.entries( 
+						GENOTYPE_FILE_FORMAT_PROMPT,
+						1, "integer", c( 1, MAX_NUMBER_GENOTYPE_FILE_FORMAT ) ) 
+	lv.genotype.output.vals[[ "genotype_file_format" ]] = v.user.values[1]
+	#if user wants gen files, prompt for format of gen:
+	if ( lv.genotype.output.vals$genotype_file_format 
+	    %in% c( OPTION_GENOTYPE_FILE_FORMAT_BOTH, OPTION_GENOTYPE_FILE_FORMAT_GEN ) )
+	{
+		v.user.values = prompt.for.values.and.return.user.entries( 
+					 	GEN_FILE_FORMAT_PROMPT,
+						1, "integer", c( 1, MAX_NUMBER_GEN_FILE_FORMAT ) )
+
+		lv.genotype.output.vals[[ "gen_file_format" ]] = v.user.values[1]
+
+	}#end if user wants gen files
+	 
+	return( lv.genotype.output.vals )
+}#get.genotype.output.parameters
 
 get.ep.parameters=function()
  {
@@ -1813,8 +2064,9 @@ get.ep.parameters=function()
 	lv.generations = get.generation.parameters( lv.param.vals[["same_migration_scheme_all_simulation"]] )
 	lv.param.vals = append( lv.param.vals, lv.generations )
 
-
-	lv.output = get.output.parameters( lv.param.vals$number_populations, lv.param.vals$two_sexes )
+	#20250512 we the number of gens to the get.output.parameters args, to implement the new genotype file output options
+	#(see new fx get.genotype.output.parameters, called by the output param getter).
+	lv.output = get.output.parameters( lv.param.vals$number_populations, lv.param.vals$two_sexes, lv.param.vals$number_of_generations )
 	lv.param.vals = append( lv.param.vals, lv.output )
 
 	return(lv.param.vals );	
@@ -2182,7 +2434,7 @@ make.list.from.cfg.lines=function( v.lines )
 			      "." , sep = "" )
 
 			stop( s.msg )
-		}#end if converstion returns null	
+		}#end if conversion returns null	
 
 
 		ls.names.and.values[[ s.param.name ]] = u.converted.value

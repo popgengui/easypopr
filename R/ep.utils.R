@@ -253,3 +253,89 @@ configure_multiple_easypop_runs =function( l.settings, s.starting.config.file, s
   return(info_table)
 }#end ep_auto_config
 
+
+#-----------202505.  These new fucntions support the addition of genotype file format/output options in ep.params.R
+
+#20250518  added to implement option for getting genotype output
+#for selected generations
+validate.generation.list = function( s.list.as.string, i.number.of.generations )
+{
+	
+	b.is.valid = FALSE;
+	v.splits = strsplit( s.list.as.string, "," )[[1]];
+	#no need to clutter the users term, as we eval ourselves:	
+	v.as.ints = suppressWarnings( as.integer( v.splits ) );
+	
+	if ( NA %in% v.as.ints )
+	{
+		v.idx.non.ints=which( is.na( v.as.ints ) );
+
+		print( "List of generations contains non-integer values:" );
+		print( v.splits[ v.idx.non.ints ] );
+
+		b.is.valid = FALSE;
+	}
+	else
+	{
+		v.idx.out.of.range = which( v.as.ints < 1 | v.as.ints > i.number.of.generations );
+		if(  length( v.idx.out.of.range ) > 0 )
+		{
+			s.msg=paste( "List of generations contains values ",
+				"less than one or more than ",
+			        "total generations: ", 	
+				i.number.of.generations, sep = "" );
+
+			print( s.msg );
+
+			b.is.valid = FALSE;
+		}
+		else
+		{
+			b.is.valid = TRUE;
+		} #end if at least one out of range
+
+	}#end if non ints in list, else all ints
+
+	return( b.is.valid )
+
+}#end validate.generation.list
+
+strip.non.printing.chars = function ( s.string )
+{
+	s.stripped = NULL;
+	s.stripped = gsub( x = s.string, pattern = " ", replacement = "" )
+	s.stripped = gsub( x = s.stripped, pattern = "\n", replacement = "" )
+	s.stripped = gsub( x = s.stripped, pattern = "\t", replacement = "" )
+	return( s.stripped )
+}#end strip.non.printing.chars
+
+get.size.info.prompt.msg = function( i.pops, i.gens, i.reps, i.entries )
+{
+	s.stats.msg=paste( i.pops, "population(s),", 
+			  	i.gens, "generation(s),",
+				i.reps, "replicate(s),", sep = " " )
+
+	s.totals.msg = paste( "totalling", i.entries, 
+			     		"\"pop\" entries", sep = " " )
+
+	s.msg=paste( "Genotype output size info:", 
+		    	"The simulation will produce genotype files for",
+			s.stats.msg,
+			s.totals.msg,
+		    	"Please select, whether to:",
+			"1= select an alternate genotype output scheme, or",
+			"2= proceed with the current settings",
+			sep="\n" ); 
+	return( s.msg )
+}#end get.size.info.prompt.msg
+
+calculate.genotype.output.size = function( i.num.pop.in.result.files, 
+			       	i.num.generations.in.result.files,
+				i.num.replicates )
+{
+	i.total.pop.entries = NULL;
+	i.total.pop.entries = i.num.pop.in.result.files * i.num.generations.in.result.files * i.num.replicates;
+	return( i.total.pop.entries )
+}#end calculate.genotype.output.size
+
+
