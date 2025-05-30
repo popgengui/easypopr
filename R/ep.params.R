@@ -268,6 +268,19 @@ MIGRATION_SCHEME_PROMPT =
 		"5 = hierarchical island ;",
 		"6 = spatial models;", sep = "\n"  )
 
+#20250528.  Given what looks like bad EASYPOP behaviour
+#when the user selects "spatial" (migr type 6) as the
+#second migrations scheme.  We disallow the user its
+#selection if this is a second migration scheme.
+MIGRATION_SCHEME_PROMPT_SECOND_SCHEME = 
+	paste( "migration model (currently the \"spatial\" model is not available for the second scheme)?",
+		"1 = 1-dimension stepping stone;", 
+		"2 = 2-dimension stepping stone (only with a square",
+		"\tnumber of populations, e.g. 9, 16,..144..);",
+		"3 = island model;",
+		"4 = hierarchical stepping stone ('contact zone');",
+		"5 = hierarchical island ;", sep = "\n"  )
+
 
 MUTATION_MODEL_LIST = 
 	paste( 	"1= Kam,(same probability to mutate to any allelic state)",
@@ -1309,14 +1322,32 @@ get.migration.scheme.details = function( g2sex, gnbpop, b.second.scheme )
 	lv.scheme = list()
 	lv.migr.params = NULL
 	gtypemigr = NULL
-
+	s.prompt=NULL
+	i.max.num.migration.scheme=NULL
 	#Although not cased out, note that the case of 1 pop (gnbpop==1), should 
 	#not reach this function (see get.mating.parameters())
 	if( gnbpop > 2 )
 	{
+		#20250528.  Given what looks like bad EASYPOP behaviour
+		#when the user selects "spatial" (migr type 6) as the
+		#second migrations scheme.  We disallow the user its
+		#selection if this is a second migration scheme.
+		if( b.second.scheme == FALSE )
+		{
+			s.prompt = MIGRATION_SCHEME_PROMPT
+			i.max.num.migration.scheme = MAX_NUMBER_MIGRATION_SCHEME
+		}
+		else
+		{
+			s.prompt = MIGRATION_SCHEME_PROMPT_SECOND_SCHEME
+			i.max.num.migration.scheme = 5
+		}#and if first, else second scheme
+		
+		#20250529.  Note above the code added to prevent users
+		#from selecting spatial migration as the second scheme
 		v.user.values = prompt.for.values.and.return.user.entries( 
-					MIGRATION_SCHEME_PROMPT,
-					1, "integer", c( 1, MAX_NUMBER_MIGRATION_SCHEME ) ) 
+					s.prompt,
+					1, "integer", c( 1, i.max.num.migration.scheme ) ) 
 
 		gtypemigr = v.user.values[1] 
 	}
@@ -1359,7 +1390,14 @@ get.migration.scheme.details = function( g2sex, gnbpop, b.second.scheme )
 	}
 	else if( gtypemigr == 6 )
 	{
-		lv.migr.params = get.migr.spatial( g2sex, gnbpop, b.second.scheme )
+		if( b.second.scheme == TRUE )
+		{
+			stop( "Error, the spatial migrationn scheme currently cannot be selected as the second scheme." )
+		}
+		else
+		{
+			lv.migr.params = get.migr.spatial( g2sex, gnbpop, b.second.scheme )
+		}
 	}
 	else
 	{
