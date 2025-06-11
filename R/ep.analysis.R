@@ -39,11 +39,13 @@ is.absolute.path=function( s.path )
 		{
 			s.drive.pattern = "^[A-Z,a-z]:"
 			i.hit = grep( pattern = s.drive.pattern, x = s.path )
-
-			if( i.hit == 1 )
+			if( length( i.hit ) > 0 )
 			{
-				b.path.is.abs = TRUE
-			}
+				if( i.hit == 1 )
+				{
+					b.path.is.abs = TRUE
+				}#end if one hit
+			}#end if i.hit > 0
 		}#end if starts with backslash, else drive ref
 	}#end if first char "/" else if on windows, 
 	 #check for other abs path first char formats
