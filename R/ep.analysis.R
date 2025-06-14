@@ -88,11 +88,11 @@ get.mean.equ.file = function( v.files, s.path )
 
 		if( i.file.count == 1 )
 		{
-			df.means=read.table( s.file.and.path, header=T, sep="\t" )
+			df.means=get_df_numeric_from_equ( s.file.and.path )
 		}
 		else
 		{
-			df.temp=read.table( s.file.and.path, header=T, sep="\t" )
+			df.temp=get_df_numeric_from_equ( s.file.and.path )
 	
 			for( s.name in names( df.temp ) )
 			{
@@ -369,5 +369,26 @@ plot_easypop_replicate_equ_means = function( vs.config.files, s.colname ) {
    	return(p)
 
 }#end plot.easypop.replicate.means
+
+#when values for an equ column is, for example, c's "-nan(ind)",
+#we can't use any auto conversion, nor the col.Classes
+#arg in read.table to get vectors that have reliably arithmeitically
+#operable values, so we use the auto coersion of non-numberic to NA 
+#of R's as.numberic:
+get_df_numeric_from_equ=function(s.equ.file )
+{
+
+	df.numeric=NULL
+
+	df.equ=read.table( s.equ.file, header=TRUE, sep="\t" )
+
+	for ( s.name in names( df.equ ) )
+	{
+		df.numeric[[s.name]] = as.numeric (df.equ[[s.name]] )
+	}#end for each name
+
+	return( df.numeric )
+
+}#end convert_equ_data_frame_cols_to_numeric
 
 
