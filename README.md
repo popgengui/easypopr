@@ -67,10 +67,10 @@ where data source is one of (1) a list of data frames as created by calling 'rea
 
 ## Easypop executable issues
 
-Note that all executables are tagged with a date of the form yyyymmdddd.
+Note that all executables are tagged with a date of the form yyyymmdd.
 
 05/2025  a bug has been detected in the easypop executable affecting simulations in which the spatial migration scheme is selcted as the second migration scheme.  The executabe date-tag 20250529, has been revised to disallow using the spatial model for the second migration scheme.  For users of earlier executables, it is recommended to avoid the spatial model as the second migration scheme.  For more details, see https://github.com/popgengui/easypop-revised/issues/1
 
-06/2025  the curren executable, tagged 20250612 is a fix for the issue noted above in the entry dated 05/2025.
+06/2025  the current executable installed with easypopr, tagged 20250612 is a fix for the issue noted above in the entry dated 05/2025.
 
 
