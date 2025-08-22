@@ -272,14 +272,19 @@ MIGRATION_SCHEME_PROMPT =
 #when the user selects "spatial" (migr type 6) as the
 #second migrations scheme.  We disallow the user its
 #selection if this is a second migration scheme.
+#20250820.  With fix for the spatial-as-second-migration-scheme bug,
+#we add it back into the list or the second scheme options, remove
+#the prohibitory message in the prompt. I'm also adding "second part"
+#to the prompt to remind user that this scheme comes after the other.
 MIGRATION_SCHEME_PROMPT_SECOND_SCHEME = 
-	paste( "migration model (currently the \"spatial\" model is not available for the second scheme)?",
+	paste( "migration model ?",
 		"1 = 1-dimension stepping stone;", 
 		"2 = 2-dimension stepping stone (only with a square",
 		"\tnumber of populations, e.g. 9, 16,..144..);",
 		"3 = island model;",
 		"4 = hierarchical stepping stone ('contact zone');",
-		"5 = hierarchical island ;", sep = "\n"  )
+		"5 = hierarchical island ;", 
+		"6 = spatial models;", sep = "\n"  )
 
 
 MUTATION_MODEL_LIST = 
@@ -1322,8 +1327,10 @@ get.migration.scheme.details = function( g2sex, gnbpop, b.second.scheme )
 	lv.scheme = list()
 	lv.migr.params = NULL
 	gtypemigr = NULL
-	s.prompt=NULL
-	i.max.num.migration.scheme=NULL
+
+	s.prompt = if(  b.second.scheme==FALSE ) MIGRATION_SCHEME_PROMPT
+				else MIGRATION_SCHEME_PROMPT_SECOND_SCHEME
+
 	#Although not cased out, note that the case of 1 pop (gnbpop==1), should 
 	#not reach this function (see get.mating.parameters())
 	if( gnbpop > 2 )
@@ -1332,22 +1339,17 @@ get.migration.scheme.details = function( g2sex, gnbpop, b.second.scheme )
 		#when the user selects "spatial" (migr type 6) as the
 		#second migrations scheme.  We disallow the user its
 		#selection if this is a second migration scheme.
-		if( b.second.scheme == FALSE )
-		{
-			s.prompt = MIGRATION_SCHEME_PROMPT
-			i.max.num.migration.scheme = MAX_NUMBER_MIGRATION_SCHEME
-		}
-		else
-		{
-			s.prompt = MIGRATION_SCHEME_PROMPT_SECOND_SCHEME
-			i.max.num.migration.scheme = 5
-		}#and if first, else second scheme
-		
-		#20250529.  Note above the code added to prevent users
-		#from selecting spatial migration as the second scheme
+		#20250820.  With a fix in the ep code for the spatial-as-
+		#second scheme, we've re-added it back to the second scheme
+		#options, we no longer need a different number for second schem
+		#hence we remove "5"for second scheme value and replace with
+		#the constant, so we get rid of a local var that set second
+		#migration option max to 5 (to avoid spatial) and again simply use
+		#the global constant for MAX_NUMBER_MIGRATION_SCHEME:
+						
 		v.user.values = prompt.for.values.and.return.user.entries( 
 					s.prompt,
-					1, "integer", c( 1, i.max.num.migration.scheme ) ) 
+					1, "integer", c( 1, MAX_NUMBER_MIGRATION_SCHEME ) ) 
 
 		gtypemigr = v.user.values[1] 
 	}
@@ -1390,14 +1392,10 @@ get.migration.scheme.details = function( g2sex, gnbpop, b.second.scheme )
 	}
 	else if( gtypemigr == 6 )
 	{
-		if( b.second.scheme == TRUE )
-		{
-			stop( "Error, the spatial migrationn scheme currently cannot be selected as the second scheme." )
-		}
-		else
-		{
-			lv.migr.params = get.migr.spatial( g2sex, gnbpop, b.second.scheme )
-		}
+		#20250820 we remove the check for b.second.scheme == TRUE, that was use
+		#to prevent users selecting spatial as second scheme, no longer needed,
+		#as the related bug was fixed:
+		lv.migr.params = get.migr.spatial( g2sex, gnbpop, b.second.scheme )
 	}
 	else
 	{
@@ -2606,7 +2604,6 @@ check_for_invalid_param_names = function( ls.parameters )
 #' parameter to avoid the simulation failing because it will not overwrite existing output 
 #' files (i.e. that share the same basename as given by "name_of_file"). If you set the 2nd
 #' argument to TRUE, EASYPOP will run based on the new configuration file (see argument descriptions).
-#' 
 #'
 #' @param s.file names a new file (not currently in use), to which the revised configuration 
 #' file will be written
