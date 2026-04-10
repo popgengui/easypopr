@@ -26,6 +26,7 @@
 #        files by population (each "pop" entry reps a generation of a given pop), 
 #        or the (old, default) grouping by generations, in which eash "pop" entry reps a
 #        populatin.
+#20260409 Added handling of deprecated params so we can read on older config files that use older param names that current EP still supports.
 ALL.EP.PARAMS.WITH.TYPE=list(	
 		"ploidy"
 			 = list( "name" = "ploidy:", "valtype" = "integer", "value" = NULL ),
@@ -210,6 +211,12 @@ ALL.EP.PARAMS.WITH.TYPE=list(
 		#"print_gen_and_dat_each_generation" = list( "name" = "print_gen_and_dat_each_generation", 
 		#					   	"valtype" =  "logical",
 		#						"value" = NULL ) )
+		#NOTE:  there was an intermediate parameter, replacing print_gen_and_dat_each_generation,
+	        #called "genotype_output_scheme", which earypopr apparently never accomodated, 
+		#and which had only 2 options, and is replaced by "genotype_print_scheme"
+		#This intermidiate value is still handled by easypop 3.1, so we add it to the DEPRECATED list
+		#below.
+
 		"genotype_print_scheme" = list( "name" = "genotype_print_scheme", 
 							   	"valtype" =  "integer",
 								"value" = NULL ),
@@ -222,6 +229,32 @@ ALL.EP.PARAMS.WITH.TYPE=list(
 					 	"valtype" = "integer",
 						"value" = NULL ) )
 
+
+# 20260409.  We add this list to allow users to read in
+# (and write back) configurations with  old parameters,
+# in particular those output options later revised for
+# EP version 3.1.  See also below, function,
+# deprecated_parameter_has_conflicts.
+
+NEW_OUTPUT_PARAM_NAMES=c("genotype_print_scheme", 
+			    	"genotype_file_format",
+		      		"generations_for_genotype_files",
+				"gen_file_format" )
+#we add to each entry fiels "valid", which tells whether
+#EP can still process the param, and "incompatible", 
+#which gives a list of paramters which should not be
+#in the same config file with the given deprec. param.
+DEPRECATED.EP.PARAMS.WITH.TYPE=list(	
+		"print_gen_and_dat_each_generation" = list( "name" = "print_gen_and_dat_each_generation", 
+				"valtype" =  "logical",
+				"value" = NULL,
+				"valid" = TRUE,
+			       "incompatible" = c( NEW_OUTPUT_PARAM_NAMES, "genotype_output_scheme"  ) ),
+		"genotype_output_scheme" = list( "neme" = "genotype_output_scheme",
+				"valtype" =  "integer",
+				"value" = NULL,
+				"valid" = TRUE,
+				"incompatible" = c( NEW_OUTPUT_PARAM_NAMES, "print_gen_and_dat_each_generation" ) ) ) 
 
 vs.param.numeric.types.stored.as.strings = c( "array.integer", "array.numeric", "list.numeric", "matrix.numeric" )
 
@@ -2384,18 +2417,27 @@ locate_easypop <- function(path){
 #' given a parameter name, convert
 #' the given value to one of numeric, integer,
 #' or character, using the master parameter list
+#' 20260409 we add deorecated params handling
 #' @param s.param.name character easypop config file parameter name
 #' @param s.value character (string) value to be converted
-#' 
+#' @param b.deprecated boolean, whether we use the deprecated param list 
 #' Assumes the s.param.name
 
 
-convert.param.val.from.string = function( s.param.name, s.value )
+convert.param.val.from.string = function( s.param.name, s.value, b.deprecated=FALSE )
 {
 	
 	u.value = NULL
+	if ( b.deprecated == FALSE )
+	{
+		s.type.of.value = ALL.EP.PARAMS.WITH.TYPE[[s.param.name]][["valtype"]]
+	}
+	else
+	{
 
-	s.type.of.value = ALL.EP.PARAMS.WITH.TYPE[[s.param.name]][["valtype"]]
+		s.type.of.value = DEPRECATED.EP.PARAMS.WITH.TYPE[[s.param.name]][["valtype"]]
+
+	}#end if not deprecated else is
 
 	#some singly numerics but listed in arrays, lists, matrix, should remain strings:
 	if( !s.type.of.value %in% names( lr.conversion.functions ) )
@@ -2416,6 +2458,7 @@ convert.param.val.from.string = function( s.param.name, s.value )
 #' file lines, make a list whose
 #' names are param names, and whose
 #' values are the corresponding param vals
+#' 20260409 We add handling of deprecated params
 #'
 #' @param v.lines vector of character strings, 
 #'         each a config file line
@@ -2425,6 +2468,8 @@ make.list.from.cfg.lines=function( v.lines )
 	s.cfg.separator = ":\t" 
 
 	ls.names.and.values = list()
+
+	v.deprecated.param.names = c()
 
 	for( s.line in v.lines )
 	{
@@ -2444,22 +2489,45 @@ make.list.from.cfg.lines=function( v.lines )
 		l.name.and.val = strsplit( s.line, s.cfg.separator )
 		s.param.name = l.name.and.val[[1]][1]
 		s.val.as.string = l.name.and.val[[1]][2]
+		b.is.deprecated = FALSE
 
 		if( !s.param.name %in%  names( ALL.EP.PARAMS.WITH.TYPE ) )
 		{
-			s.msg=paste( "Error in make.list.from.cfg.lines", 
-			      	"No match in the master param list",
-				"for the param name,",
-				s.param.name )
-			stop( s.msg )
+			if( s.param.name %in% names( DEPRECATED.EP.PARAMS.WITH.TYPE ) )
+			{
+				b.is.deprecated = TRUE
+				v.deprecated.param.names=c( v.deprecated.param.names, s.param.name )
+			}
+			else
+			{
+					
 
-		}#end if no value
+				s.msg=paste( "Error in make.list.from.cfg.lines", 
+					"No match in the master param list",
+					"for the param name,",
+					s.param.name )
 
-		u.converted.value = convert.param.val.from.string( s.param.name, s.val.as.string )
+				stop( s.msg )
+
+			}#end if param is in the deprecated list, else stop, invalid param
+
+		}#end if param not in the list of EP params
+
+		u.converted.value = convert.param.val.from.string( s.param.name, s.val.as.string,
+	       					b.is.deprecated	)
 
 		if( is.null( u.converted.value ) )
 		{
-			s.expected.type=ALL.EP.PARAMS.WITH.TYPE[[s.param.name]][["valtype"]]
+			s.expected.type = NULL
+			if ( b.is.deprecated )
+			{
+				s.expected.type=DEPRECATED.EP.PARAMS.WITH.TYPE[[s.param.name]][["valtype"]]
+			}
+			else
+			{
+				s.expected.type=ALL.EP.PARAMS.WITH.TYPE[[s.param.name]][["valtype"]]
+			}#end if deprecated else not
+
 			s.msg=paste( "Error in make.list.from.cfg.lines, ",
 			      "failed conversion for param, ",
 			      s.param.name,
@@ -2476,6 +2544,22 @@ make.list.from.cfg.lines=function( v.lines )
 		ls.names.and.values[[ s.param.name ]] = u.converted.value
 
 	}#end for each line
+
+	#now that we have the complete list, we check any deprecated params
+	#for conflicts with others:
+	l.conflict.check = check_deprecated_parameters_for_validity( 
+				v.deprecated.param.names, names(ls.names.and.values ) )
+
+	if ( l.conflict.check$total > 0 )
+	{
+		s.deps = paste(	v.deprecated.param.names, collapse = ", " )
+
+		s.msg = paste( "One or more deprecated parameters:", s.deps, 
+			     "conflict with other parameters.", sep="\n" )
+		
+		stop( s.msg )
+
+	}#end if conflict found
 
 	return( ls.names.and.values )
 
@@ -2559,6 +2643,7 @@ read_parameters_from_file=function( s.file )
 #' the list of valid easypop parameter names
 #' with a call to stop and a message if any names
 #' are not valid
+#' 20260409 we add handling of deprecated values
 #'
 #' @param ls.parameters a list of easypop parameter names and values
 #'
@@ -2570,7 +2655,23 @@ check_for_invalid_param_names = function( ls.parameters )
 	{
 		if( !( s.name %in% names( ALL.EP.PARAMS.WITH.TYPE ) ) )
 		{
-			v.invalids=c( v.invalids, s.name )
+			b.valid.deprecated=FALSE
+
+			if( s.name %in% names( DEPRECATED.EP.PARAMS.WITH.TYPE ) )
+			{
+				l.res=check_deprecated_parameters_for_validity( s.name, names( ls.parameters ) )
+
+				if( l.res$total == 0 )
+				{
+					b.valid.deprecated = TRUE
+				}#end if invalid deprecated	
+
+			}#end if deprecated
+			if( b.valid.deprecated == FALSE )
+			{
+
+				v.invalids=c( v.invalids, s.name )
+			}#end if not a valid, deprecated param
 						    
 		}#end if name not in ep master list
 
@@ -2615,8 +2716,10 @@ write_parameters_to_file = function( ls.parameters, s.file, b.run=FALSE )
 	
 	#script will stop if any of the param names
 	#in the list do not have a match in ALL.EP.PARAMS.WITH.TYPE	
-	#note that we do this because the user may expect a param
-	#to change, but if the wrong name is used in assigning 
+	#(or, as of 20260409, DEPRECATED.EP.PARAMS.WITH.TYPE 
+	#and valid, with no conflict) #note that we do this 
+	#because the user may expect a param #to change, 
+	#but if the wrong name is used in assigning 
 	#a value to the parm in this list, R will just add the new
 	#name/value to the list, and easypop will not use it 
 	#(will ignore it), and instead run using the original 
@@ -2631,5 +2734,55 @@ write_parameters_to_file = function( ls.parameters, s.file, b.run=FALSE )
 	}#end if we should run the sim
 
 }#end write_parameters_to_file
+
+
+#' check_deprecated_parameters_for_validity
+#'
+#' old configuration files from versions < 3.1 may have
+#' deprecated parameter names, chiefly w.r.t. output options
+#' for generations and file format. We want users to be able
+#' to be able to read these in, and write them back to file'
+#' The analog to ALL.EP.PARAMS.WITH.TYPE list, our DEPRECATED.EP.PARAMS.WITH.TYPE
+#' list addas a field "valid" for dep'd params that EP no longer supports,
+#' and, for those it does, a list of other params that conflict if present
+#' with it.
+#' @param s.parameter.name.to.check string giving a parameter name from a  
+#' parameter list read in from an easypop configuration file
+#' @param v.parameters vector giving the complete list of parameter names of which
+#' s.param.name is one, so that wwe can check for newer options that
+#' would cause a conflicted result.
+
+check_deprecated_parameters_for_validity=function( v.param.names.to.check, v.parameters )
+{
+
+	l.itemized.results=list( )
+	i.conflict.count = 0
+	for ( s.this.dep.name in v.param.names.to.check )
+	{
+		b.conflict=FALSE
+
+		if( DEPRECATED.EP.PARAMS.WITH.TYPE[[s.this.dep.name]][["valid"]] == FALSE )
+		{
+			b.conflict=TRUE
+
+		}
+		else
+		{
+			v.incompatibles = DEPRECATED.EP.PARAMS.WITH.TYPE[[ s.this.dep.name ]][["incompatible"]]
+			v.conflicting = v.incompatibles %in% names( v.parameters )	
+			b.conflict= any( v.conflicting )
+
+				}
+
+		if ( b.conflict == TRUE )
+		{
+			i.conflict.count = i.conflict.count + 1
+			l.itemized.results[[ s.this.dep.name ]] = b.conflict
+		}#end if conflict 
+	}#end for each dep name
+
+	l.results= list( itemized = l.itemized.results, total = i.conflict.count )
+	return ( l.results )
+}#end check_deprecated_parameters_for_validity
 
 
