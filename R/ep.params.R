@@ -2337,40 +2337,21 @@ setup_easypop = function( s.file.name, run = FALSE)
 
 run_easypop = function ( s.file.name )
 {
-  s.file.name <- normalizePath(s.file.name)
+	s.file.name <- normalizePath(s.file.name)
+
 	if( file.exists(Sys.getenv("EASYPOP.EXECUTABLE")) )
 	{
 		#20260521 to solve a problem whereby windows 11 was not running easypop from 
-		#our system call, we now use system2 and do some clarifying quoting:
+		#our system call, we now use system2 and clarify the args, for win11, 
+		#by shell quoting the file name
+		#the file name:
+		##### temp #####
+		#for the testing branch only, to indicate
+		#we're running the rised code:
+		print( "running the testing code..." )
 		s.mycomm= Sys.getenv( "EASYPOP.EXECUTABLE" ) 
 		v.myargs=c( "read", shQuote( s.file.name ) )
 		system2( s.mycomm,  args=v.myargs  )
-
-
-	
-		#For gui-generated R consoles in widnows, which seem to buffer the
-		#ep stdout messages while it is running, to at least give the user some indication
-		#that easypop has been called:
-#		print( "running easypop..." )
-#		b.running.win11=os.is.windows11()
-#
-#		if ( b.running.win11 )
-#		{
-#			print( "running win 11 sys call yet again..." )
-#		
-#			mycomm= Sys.getenv( "EASYPOP.EXECUTABLE" ) 
-#			myargs=c( "read", shQuote( s.file.name ) )
-#			print( mycomm )
-#			print( myargs )
-#			
-#			system2( mycomm,  args=myargs  )
-#		}
-#		else
-#		{
-#			
-#			system ( paste( Sys.getenv("EASYPOP.EXECUTABLE"), "read", s.file.name ) )
-#
-#		}#end if running windows 11, else not
 	}
 	else
 	{
