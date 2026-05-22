@@ -2344,7 +2344,25 @@ run_easypop = function ( s.file.name )
 		#ep stdout messages while it is running, to at least give the user some indication
 		#that easypop has been called:
 		print( "running easypop..." )
-		system ( paste( Sys.getenv("EASYPOP.EXECUTABLE"), "read", s.file.name ) )
+		b.running.win11=os.is.windows11()
+
+		if ( b.running.win11 )
+		{
+			print( "running win 11 sys call yet again..." )
+		
+			mycomm= Sys.getenv( "EASYPOP.EXECUTABLE" ) 
+			myargs=c( "read", shQuote( s.file.name ) )
+			print( mycomm )
+			print( myargs )
+			
+			system2( mycomm,  args=myargs  )
+		}
+		else
+		{
+			
+			system ( paste( Sys.getenv("EASYPOP.EXECUTABLE"), "read", s.file.name ) )
+
+		}#end if running windows 11, else not
 	}
 	else
 	{
@@ -2613,7 +2631,7 @@ write.config.file=function( ls.params.and.values, s.file )
 
 	print.param.list( ls.params.and.values, s.file )
 
-	print( "done writing file." )
+	print( "finished writing file." )
 
 }#end write.config.file
 

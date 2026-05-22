@@ -338,4 +338,16 @@ calculate.genotype.output.size = function( i.num.pop.in.result.files,
 	return( i.total.pop.entries )
 }#end calculate.genotype.output.size
 
+get.os.name=function()
+{
+	all.sys.info = system("systeminfo", intern = TRUE)
+	os.name = grep("OS Name", all.sys.info, value = TRUE)
+	return( os.name )
+}#end get.os.name
 
+os.is.windows11=function()
+{
+	s.os.name = get.os.name()
+	b.is.win11 = grepl("Windows 11", os_line, ignore.case = TRUE ) 
+	return( b.is.win11 )
+}#end is.windows11
