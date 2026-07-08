@@ -2066,13 +2066,18 @@ get.genotype.output.parameters = function( i.num.populations.in.result.files,
 						s.size.info.prompt.msg,
 						1, "integer", c( 1, 2 ) ) 
 
+		#20260708 ep manuscript reviewer notes
+		#the menu order was reversed here from 
+		#that given in the executable's native
+		#prompt, so changed the prompt (see fx in ep.utils.R)
+		#and here reverse the T/F actions to match:
 		if( v.user.values[1] == 1 )
 		{
-			b.user.says.proceed = FALSE
+			b.user.says.proceed = TRUE
 		}
 		else if( v.user.values[1] == 2 )
 		{
-			b.user.says.proceed = TRUE 
+			b.user.says.proceed = FALSE
 		}
 		else
 		{

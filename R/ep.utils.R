@@ -318,13 +318,17 @@ get.size.info.prompt.msg = function( i.pops, i.gens, i.reps, i.entries )
 	s.totals.msg = paste( "totalling", i.entries, 
 			     		"\"pop\" entries", sep = " " )
 
+	#20260708 reviewer of our easypop manuscript notes the ep executable
+	#prompts this with the reverse order and assoc number, so we
+	#revise our prompt (and the T/F analysis in caller) to match
+	#the executable
 	s.msg=paste( "Genotype output size info:", 
 		    	"The simulation will produce genotype files for",
 			s.stats.msg,
 			s.totals.msg,
-		    	"Please select, whether to:",
-			"1= select an alternate genotype output scheme, or",
-			"2= proceed with the current settings",
+		    	"Please select to either:",
+			"1=proceed with the current setting",
+			"2=re-select an output scheme",
 			sep="\n" ); 
 	return( s.msg )
 }#end get.size.info.prompt.msg
