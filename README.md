@@ -8,7 +8,7 @@ This version has revisions to the interface by T. Cosart.  You'll find the autho
 ## Installation
 You don't need to download the executables to run our R package version.  You can install the package in your R installation using the devtools package, with the R console command: 
 
-     devtools::install_github( 'popgengui/easpopr' )
+     devtools::install_github( "popgengui/easpopr" )
 
 ## First use
 After loading easypopr with,
