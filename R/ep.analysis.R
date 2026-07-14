@@ -211,8 +211,9 @@ plot_easypop_replicate_equ_values = function( s.colname, v.data.source  )
 
   ldf.data.frames <- data.table::rbindlist(ldf.data.frames, idcol = "run")
   ldf.data.frames <- ldf.data.frames[,c("run", "gen", s.colname)]
-
-   p <- ggplot2::ggplot(ldf.data.frames, ggplot2::aes_string(x = "gen", y = s.colname, color = "run")) +
+  #20260713 revised the aes_string call, to comply with R > 3.0.? ggplot
+  #syncax, like aes( x = .data[[x_var]], y = .data[[y_var]])
+   p <- ggplot2::ggplot(ldf.data.frames, ggplot2::aes(x = .data[["gen"]], y = .data[[s.colname]], color = .data[["run"]])) +
 	  ggplot2::geom_line(show.legend = FALSE) +
 	  ggplot2::theme_bw()
 	
@@ -361,7 +362,9 @@ plot_easypop_replicate_equ_means = function( vs.config.files, s.colname ) {
 
 	ldf.means <- ldf.means[,c( "run",  "gen", s.colname)]
 
-	p <- ggplot2::ggplot(ldf.means, ggplot2::aes_string(x = "gen", y = s.colname, color = "run")) +
+	#20260713 revised the aes_string call, to comply with R > 3.0.? ggplot
+	#syncax, like aes( x = .data[[x_var]], y = .data[[y_var]])
+	p <- ggplot2::ggplot(ldf.means, ggplot2::aes(x = .data[["gen"]], y = .data[[s.colname]], color = .data[["run"]])) +
 	  ggplot2::geom_line(show.legend = TRUE) +
 	  ggplot2::theme_bw() + 
 	  ggplot2::scale_color_hue( labels = v.output.file.basenames )
